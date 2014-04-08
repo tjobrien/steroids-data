@@ -1,0 +1,28 @@
+{
+  "name": "steroids-data",
+  "version": "0.0.0",
+  "description": "Composable primitives for accessing cloud data in your steroids application.",
+  "main": "dist/steroids.data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/AppGyver/steroids-data.git"
+  },
+  "keywords": [
+    "steroids",
+    "data",
+    "rest",
+    "resource",
+    "schema",
+    "types",
+    "cache",
+    "reactive"
+  ],
+  "author": "Eevert Saukkokoski",
+  "bugs": {
+    "url": "https://github.com/AppGyver/steroids-data/issues"
+  },
+  "homepage": "https://github.com/AppGyver/steroids-data"
+}
