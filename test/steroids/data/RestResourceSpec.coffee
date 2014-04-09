@@ -19,15 +19,15 @@ ajax =
 TaskResource =
   findAll: ->
     ajax
-      .get('http://localhost:9001/data/task.json')
+      .get('http://localhost:9001/data/task/objects.json')
       .then (data) ->
         data.objects || []
 
   find: (id) ->
-    TaskResource.findAll().then (tasks) ->
-      for task in tasks when task.uid is id
-        return task
-      Promise.reject new Error "#{id} not found"
+    ajax
+      .get("http://localhost:9001/data/task/objects/#{id}.json")
+      .then (data) ->
+        data.object || {}
 
 
 describe "Accessing data from a static REST backend", ->
