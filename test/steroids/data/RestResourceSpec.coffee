@@ -1,9 +1,22 @@
 require('chai').should()
 
-TaskResource =
-  findAll: ->
+request = require 'superagent'
+Promise = require 'bluebird'
 
-describe "Accessing data from a RESTful backend", ->
+TaskResource =
+  findAll: -> new Promise (resolve, reject) ->
+    request
+      .get('http://localhost:9001/data/task.json')
+      .end (err, res) ->
+        if err
+          reject err
+        else if res.error
+          reject res.error
+        else
+          resolve res.body
+
+
+describe "Accessing data from a static REST backend", ->
   it "can be done using a user-defined resource", ->
     TaskResource.should.be.defined
 
