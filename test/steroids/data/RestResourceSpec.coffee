@@ -41,4 +41,10 @@ describe "Accessing data from a static REST backend", ->
 
     it "can find a single task", ->
       TaskResource.find('bltc95644acbfe2ca34').then (task) ->
-        task.should.not.be.empty
+        task.should.be.an 'object'
+
+    describe "A single task received from TaskResource", ->
+      it "has a description", ->
+        TaskResource.find('bltc95644acbfe2ca34').then (task) ->
+          task.description.should.be.a 'string'
+
