@@ -5,5 +5,9 @@ TaskResource =
 
 describe "Accessing data from a RESTful backend", ->
   it "can be done using a user-defined resource", ->
-    TaskResource.findAll.should.be.defined
+    TaskResource.should.be.defined
 
+  describe "A user-defined TaskResource", ->
+    it "can find all tasks", ->
+      TaskResource.findAll().then (tasks) ->
+        tasks.should.not.be.empty
