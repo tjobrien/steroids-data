@@ -3,17 +3,31 @@ require('chai').should()
 request = require 'superagent'
 Promise = require 'bluebird'
 
+ajax =
+  get: (path) ->
+    new Promise (resolve, reject) ->
+      request
+        .get(path)
+        .end (err, res) ->
+          if err
+            reject err
+          else if res.error
+            reject res.error
+          else
+            resolve res.body
+
 TaskResource =
-  findAll: -> new Promise (resolve, reject) ->
-    request
+  findAll: ->
+    ajax
       .get('http://localhost:9001/data/task.json')
-      .end (err, res) ->
-        if err
-          reject err
-        else if res.error
-          reject res.error
-        else
-          resolve res.body
+      .then (data) ->
+        data.objects || []
+
+  find: (id) ->
+    TaskResource.findAll().then (tasks) ->
+      for task in tasks when task.uid is id
+        return task
+      Promise.reject new Error "#{id} not found"
 
 
 describe "Accessing data from a static REST backend", ->
