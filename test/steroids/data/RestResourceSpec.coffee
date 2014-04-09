@@ -24,3 +24,7 @@ describe "Accessing data from a static REST backend", ->
     it "can find all tasks", ->
       TaskResource.findAll().then (tasks) ->
         tasks.should.not.be.empty
+
+    it "can find a single task", ->
+      TaskResource.find('bltc95644acbfe2ca34').then (task) ->
+        task.should.not.be.empty
