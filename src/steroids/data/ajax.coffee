@@ -33,3 +33,4 @@ request = (method) -> (path, options = {}) ->
 
 module.exports = ajax =
   get: request 'get'
+  post: request 'post'
