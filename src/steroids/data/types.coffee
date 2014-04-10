@@ -1,6 +1,8 @@
+{Success, Failure} = require 'data.validation'
+
 module.exports =
-  String: (string) ->
-    if typeof string is 'string'
-      isSuccess: true
+  String: (input) ->
+    if typeof input is 'string'
+      Success input
     else
-      isFailure: true
+      Failure ['Input was not of type string']
