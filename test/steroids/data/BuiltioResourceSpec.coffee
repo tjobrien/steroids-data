@@ -38,3 +38,6 @@ describe "Accessing data from Built.io backend", ->
         sampleTask.then (task) ->
           task.completed.should.be.a 'boolean'
 
+    it "can create a new task", ->
+      TaskResource.create(object: { description: 'do nothing', completed: false }).then (task) ->
+        task.description.should.equal 'do nothing'

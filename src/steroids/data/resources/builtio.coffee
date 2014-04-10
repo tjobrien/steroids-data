@@ -18,3 +18,7 @@ module.exports = builtio = ({applicationApiKey, applicationUid, name, schema}) -
     find: api.get
       from: (id) -> "objects/#{id}.json"
       expect: types.Property 'object', schema
+
+    create: api.post
+      to: -> "objects"
+      expect: types.Property 'object', schema
