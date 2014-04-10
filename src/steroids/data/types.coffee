@@ -69,6 +69,11 @@ module.exports = types =
 
   List: (type) -> (list) ->
     listSequence (type(value) for value in list)
-      
+  
+  Optional: (type) -> (input) ->
+    if input?
+      type(input)
+    else
+      Success null
 
 

@@ -90,4 +90,22 @@ describe "Typing data with steroids.data.types", ->
       types.Boolean(true).isSuccess.should.be.true
       types.Boolean(false).isSuccess.should.be.true
 
+  it "Should have an Optional type", ->
+    types.Optional.should.be.a 'function'
+
+  describe "Optional type", ->
+    OptionalBoolean = types.Optional(types.Boolean)
+    
+    it "Should accept a type and return a validator", ->
+      OptionalBoolean.should.be.a 'function'
+
+    it 'Should accept undefined values', ->
+      OptionalBoolean(null).isSuccess.should.be.true
+
+    it 'Should accept values matching the inner type', ->
+      OptionalBoolean(true).isSuccess.should.be.true
+
+    it 'Should not accept values not accepted by the inner type', ->
+      OptionalBoolean('anything').isFailure.should.be.true
+
 
