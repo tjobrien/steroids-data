@@ -6,3 +6,9 @@ module.exports =
       Success input
     else
       Failure ['Input was not of type string']
+
+  Property: (name) -> (object) ->
+    if object?[name]?
+      Success object[name]
+    else
+      Failure ["Input did not have property '#{name}'"]
