@@ -33,3 +33,8 @@ describe "Typing data with steroids.data.types", ->
 
     it 'Should fail undefined', ->
       NameProperty(undefined).isFailure.should.be.true
+
+    it 'Optionally accepts a type for the property', ->
+      StringNameProperty = types.Property('name', types.String)
+      StringNameProperty(name: undefined).isFailure.should.be.true
+      StringNameProperty(name: 'anything').isSuccess.should.be.true
