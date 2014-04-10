@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),(o.steroids||(o.steroids={})).data=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -24,7 +24,7 @@
 "use strict";
 module.exports = function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
-var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
+var SomePromiseArray = _dereq_("./some_promise_array.js")(PromiseArray);
 function Promise$_Any(promises, useBound) {
     var ret = Promise$_CreatePromiseArray(
         promises,
@@ -53,7 +53,7 @@ Promise.prototype.any = function Promise$any() {
 
 };
 
-},{"./some_promise_array.js":33}],2:[function(require,module,exports){
+},{"./some_promise_array.js":33}],2:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -77,11 +77,11 @@ Promise.prototype.any = function Promise$any() {
  * 
  */
 "use strict";
-var schedule = require("./schedule.js");
-var Queue = require("./queue.js");
-var errorObj = require("./util.js").errorObj;
-var tryCatch1 = require("./util.js").tryCatch1;
-var process = require("./global.js").process;
+var schedule = _dereq_("./schedule.js");
+var Queue = _dereq_("./queue.js");
+var errorObj = _dereq_("./util.js").errorObj;
+var tryCatch1 = _dereq_("./util.js").tryCatch1;
+var process = _dereq_("./global.js").process;
 
 function Async() {
     this._isTickUsed = false;
@@ -166,7 +166,7 @@ Async.prototype._reset = function Async$_reset() {
 
 module.exports = new Async();
 
-},{"./global.js":15,"./queue.js":26,"./schedule.js":29,"./util.js":37}],3:[function(require,module,exports){
+},{"./global.js":15,"./queue.js":26,"./schedule.js":29,"./util.js":37}],3:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -190,9 +190,9 @@ module.exports = new Async();
  * 
  */
 "use strict";
-var Promise = require("./promise.js")();
+var Promise = _dereq_("./promise.js")();
 module.exports = Promise;
-},{"./promise.js":19}],4:[function(require,module,exports){
+},{"./promise.js":19}],4:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -247,7 +247,7 @@ Promise.prototype.get = function Promise$get(propertyName) {
 };
 };
 
-},{}],5:[function(require,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -272,8 +272,8 @@ Promise.prototype.get = function Promise$get(propertyName) {
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var errors = require("./errors.js");
-var async = require("./async.js");
+var errors = _dereq_("./errors.js");
+var async = _dereq_("./async.js");
 var CancellationError = errors.CancellationError;
 
 Promise.prototype._cancel = function Promise$_cancel() {
@@ -322,7 +322,7 @@ function Promise$fork(didFulfill, didReject, didProgress) {
 };
 };
 
-},{"./async.js":2,"./errors.js":9}],6:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9}],6:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -347,8 +347,8 @@ function Promise$fork(didFulfill, didReject, didProgress) {
  */
 "use strict";
 module.exports = function() {
-var inherits = require("./util.js").inherits;
-var defineProperty = require("./es5.js").defineProperty;
+var inherits = _dereq_("./util.js").inherits;
+var defineProperty = _dereq_("./es5.js").defineProperty;
 
 var rignore = new RegExp(
     "\\b(?:[a-zA-Z0-9.]+\\$_\\w+|" +
@@ -546,7 +546,7 @@ var captureStackTrace = (function stackDetection() {
 return CapturedTrace;
 };
 
-},{"./es5.js":11,"./util.js":37}],7:[function(require,module,exports){
+},{"./es5.js":11,"./util.js":37}],7:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -571,11 +571,11 @@ return CapturedTrace;
  */
 "use strict";
 module.exports = function(NEXT_FILTER) {
-var util = require("./util.js");
-var errors = require("./errors.js");
+var util = _dereq_("./util.js");
+var errors = _dereq_("./errors.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
-var keys = require("./es5.js").keys;
+var keys = _dereq_("./es5.js").keys;
 var TypeError = errors.TypeError;
 
 function CatchFilter(instances, callback, promise) {
@@ -642,7 +642,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
 return CatchFilter;
 };
 
-},{"./errors.js":9,"./es5.js":11,"./util.js":37}],8:[function(require,module,exports){
+},{"./errors.js":9,"./es5.js":11,"./util.js":37}],8:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -666,7 +666,7 @@ return CatchFilter;
  * 
  */
 "use strict";
-var util = require("./util.js");
+var util = _dereq_("./util.js");
 var isPrimitive = util.isPrimitive;
 var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
 
@@ -723,7 +723,7 @@ function Promise$thenThrow(reason) {
 };
 };
 
-},{"./util.js":37}],9:[function(require,module,exports){
+},{"./util.js":37}],9:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -747,9 +747,9 @@ function Promise$thenThrow(reason) {
  * 
  */
 "use strict";
-var global = require("./global.js");
-var Objectfreeze = require("./es5.js").freeze;
-var util = require("./util.js");
+var global = _dereq_("./global.js");
+var Objectfreeze = _dereq_("./es5.js").freeze;
+var util = _dereq_("./util.js");
 var inherits = util.inherits;
 var notEnumerableProp = util.notEnumerableProp;
 var Error = global.Error;
@@ -839,7 +839,7 @@ module.exports = {
     canAttach: canAttach
 };
 
-},{"./es5.js":11,"./global.js":15,"./util.js":37}],10:[function(require,module,exports){
+},{"./es5.js":11,"./global.js":15,"./util.js":37}],10:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -864,7 +864,7 @@ module.exports = {
  */
 "use strict";
 module.exports = function(Promise) {
-var TypeError = require('./errors.js').TypeError;
+var TypeError = _dereq_('./errors.js').TypeError;
 
 function apiRejection(msg) {
     var error = new TypeError(msg);
@@ -879,7 +879,7 @@ function apiRejection(msg) {
 return apiRejection;
 };
 
-},{"./errors.js":9}],11:[function(require,module,exports){
+},{"./errors.js":9}],11:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -970,7 +970,7 @@ else {
     };
 }
 
-},{}],12:[function(require,module,exports){
+},{}],12:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -995,7 +995,7 @@ else {
  */
 "use strict";
 module.exports = function(Promise) {
-var isArray = require("./util.js").isArray;
+var isArray = _dereq_("./util.js").isArray;
 
 function Promise$_filter(booleans) {
     var values = this instanceof Promise ? this._settledValue : this;
@@ -1023,7 +1023,7 @@ Promise.prototype.filter = function Promise$filter(fn) {
 };
 };
 
-},{"./util.js":37}],13:[function(require,module,exports){
+},{"./util.js":37}],13:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1048,7 +1048,7 @@ Promise.prototype.filter = function Promise$filter(fn) {
  */
 "use strict";
 module.exports = function(Promise, NEXT_FILTER) {
-var util = require("./util.js");
+var util = _dereq_("./util.js");
 var wrapsPrimitiveReceiver = util.wrapsPrimitiveReceiver;
 var isPrimitive = util.isPrimitive;
 var thrower = util.thrower;
@@ -1148,7 +1148,7 @@ Promise.prototype.tap = function Promise$tap(handler) {
 };
 };
 
-},{"./util.js":37}],14:[function(require,module,exports){
+},{"./util.js":37}],14:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1173,10 +1173,10 @@ Promise.prototype.tap = function Promise$tap(handler) {
  */
 "use strict";
 module.exports = function(Promise, apiRejection, INTERNAL) {
-var PromiseSpawn = require("./promise_spawn.js")(Promise, INTERNAL);
-var errors = require("./errors.js");
+var PromiseSpawn = _dereq_("./promise_spawn.js")(Promise, INTERNAL);
+var errors = _dereq_("./errors.js");
 var TypeError = errors.TypeError;
-var deprecated = require("./util.js").deprecated;
+var deprecated = _dereq_("./util.js").deprecated;
 
 Promise.coroutine = function Promise$Coroutine(generatorFunction) {
     if (typeof generatorFunction !== "function") {
@@ -1206,7 +1206,7 @@ Promise.spawn = function Promise$Spawn(generatorFunction) {
 };
 };
 
-},{"./errors.js":9,"./promise_spawn.js":22,"./util.js":37}],15:[function(require,module,exports){
+},{"./errors.js":9,"./promise_spawn.js":22,"./util.js":37}],15:[function(_dereq_,module,exports){
 (function (process,global){
 /**
  * Copyright (c) 2014 Petka Antonov
@@ -1251,8 +1251,8 @@ if (typeof window !== "undefined" &&
 }
 })();
 
-}).call(this,require("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":38}],16:[function(require,module,exports){
+}).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":38}],16:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1279,8 +1279,8 @@ if (typeof window !== "undefined" &&
 module.exports = function(Promise, PromiseArray, INTERNAL, apiRejection) {
 
 var all = Promise.all;
-var util = require("./util.js");
-var canAttach = require("./errors.js").canAttach;
+var util = _dereq_("./util.js");
+var canAttach = _dereq_("./errors.js").canAttach;
 var isArray = util.isArray;
 var _cast = Promise._cast;
 
@@ -1430,7 +1430,7 @@ Promise.map = function Promise$Map(promises, fn, ref) {
 };
 };
 
-},{"./errors.js":9,"./util.js":37}],17:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":37}],17:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1455,8 +1455,8 @@ Promise.map = function Promise$Map(promises, fn, ref) {
  */
 "use strict";
 module.exports = function(Promise) {
-var util = require("./util.js");
-var async = require("./async.js");
+var util = _dereq_("./util.js");
+var async = _dereq_("./async.js");
 var tryCatch2 = util.tryCatch2;
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
@@ -1494,7 +1494,7 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
 };
 };
 
-},{"./async.js":2,"./util.js":37}],18:[function(require,module,exports){
+},{"./async.js":2,"./util.js":37}],18:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1519,9 +1519,9 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
  */
 "use strict";
 module.exports = function(Promise, isPromiseArrayProxy) {
-var util = require("./util.js");
-var async = require("./async.js");
-var errors = require("./errors.js");
+var util = _dereq_("./util.js");
+var async = _dereq_("./async.js");
+var errors = _dereq_("./errors.js");
 var tryCatch1 = util.tryCatch1;
 var errorObj = util.errorObj;
 
@@ -1607,7 +1607,7 @@ function Promise$_progressUnchecked(progressValue) {
 };
 };
 
-},{"./async.js":2,"./errors.js":9,"./util.js":37}],19:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./util.js":37}],19:[function(_dereq_,module,exports){
 (function (process){
 /**
  * Copyright (c) 2014 Petka Antonov
@@ -1633,19 +1633,19 @@ function Promise$_progressUnchecked(progressValue) {
  */
 "use strict";
 module.exports = function() {
-var global = require("./global.js");
-var util = require("./util.js");
-var async = require("./async.js");
-var errors = require("./errors.js");
+var global = _dereq_("./global.js");
+var util = _dereq_("./util.js");
+var async = _dereq_("./async.js");
+var errors = _dereq_("./errors.js");
 
 var INTERNAL = function(){};
 var APPLY = {};
 var NEXT_FILTER = {e: null};
 
-var PromiseArray = require("./promise_array.js")(Promise, INTERNAL);
-var CapturedTrace = require("./captured_trace.js")();
-var CatchFilter = require("./catch_filter.js")(NEXT_FILTER);
-var PromiseResolver = require("./promise_resolver.js");
+var PromiseArray = _dereq_("./promise_array.js")(Promise, INTERNAL);
+var CapturedTrace = _dereq_("./captured_trace.js")();
+var CatchFilter = _dereq_("./catch_filter.js")(NEXT_FILTER);
+var PromiseResolver = _dereq_("./promise_resolver.js");
 
 var isArray = util.isArray;
 
@@ -1662,7 +1662,7 @@ var originatesFromRejection = errors.originatesFromRejection;
 var markAsOriginatingFromRejection = errors.markAsOriginatingFromRejection;
 var canAttach = errors.canAttach;
 var thrower = util.thrower;
-var apiRejection = require("./errors_api_rejection")(Promise);
+var apiRejection = _dereq_("./errors_api_rejection")(Promise);
 
 
 var makeSelfResolutionError = function Promise$_makeSelfResolutionError() {
@@ -2709,10 +2709,10 @@ if (!CapturedTrace.isSupported()) {
 }
 
 Promise._makeSelfResolutionError = makeSelfResolutionError;
-require("./finally.js")(Promise, NEXT_FILTER);
-require("./direct_resolve.js")(Promise);
-require("./thenables.js")(Promise, INTERNAL);
-require("./synchronous_inspection.js")(Promise);
+_dereq_("./finally.js")(Promise, NEXT_FILTER);
+_dereq_("./direct_resolve.js")(Promise);
+_dereq_("./thenables.js")(Promise, INTERNAL);
+_dereq_("./synchronous_inspection.js")(Promise);
 Promise.RangeError = RangeError;
 Promise.CancellationError = CancellationError;
 Promise.TimeoutError = TimeoutError;
@@ -2721,29 +2721,29 @@ Promise.RejectionError = RejectionError;
 
 util.toFastProperties(Promise);
 util.toFastProperties(Promise.prototype);
-require('./timers.js')(Promise,INTERNAL);
-require('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
-require('./race.js')(Promise,INTERNAL);
-require('./call_get.js')(Promise);
-require('./filter.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
-require('./generators.js')(Promise,apiRejection,INTERNAL);
-require('./map.js')(Promise,PromiseArray,INTERNAL,apiRejection);
-require('./nodeify.js')(Promise);
-require('./promisify.js')(Promise,INTERNAL);
-require('./props.js')(Promise,PromiseArray);
-require('./reduce.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection,INTERNAL);
-require('./settle.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
-require('./some.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
-require('./progress.js')(Promise,isPromiseArrayProxy);
-require('./cancel.js')(Promise,INTERNAL);
+_dereq_('./timers.js')(Promise,INTERNAL);
+_dereq_('./any.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
+_dereq_('./race.js')(Promise,INTERNAL);
+_dereq_('./call_get.js')(Promise);
+_dereq_('./filter.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
+_dereq_('./generators.js')(Promise,apiRejection,INTERNAL);
+_dereq_('./map.js')(Promise,PromiseArray,INTERNAL,apiRejection);
+_dereq_('./nodeify.js')(Promise);
+_dereq_('./promisify.js')(Promise,INTERNAL);
+_dereq_('./props.js')(Promise,PromiseArray);
+_dereq_('./reduce.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection,INTERNAL);
+_dereq_('./settle.js')(Promise,Promise$_CreatePromiseArray,PromiseArray);
+_dereq_('./some.js')(Promise,Promise$_CreatePromiseArray,PromiseArray,apiRejection);
+_dereq_('./progress.js')(Promise,isPromiseArrayProxy);
+_dereq_('./cancel.js')(Promise,INTERNAL);
 
 Promise.prototype = Promise.prototype;
 return Promise;
 
 };
 
-}).call(this,require("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./any.js":1,"./async.js":2,"./call_get.js":4,"./cancel.js":5,"./captured_trace.js":6,"./catch_filter.js":7,"./direct_resolve.js":8,"./errors.js":9,"./errors_api_rejection":10,"./filter.js":12,"./finally.js":13,"./generators.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":21,"./promisify.js":23,"./props.js":25,"./race.js":27,"./reduce.js":28,"./settle.js":30,"./some.js":32,"./synchronous_inspection.js":34,"./thenables.js":35,"./timers.js":36,"./util.js":37,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":38}],20:[function(require,module,exports){
+}).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./any.js":1,"./async.js":2,"./call_get.js":4,"./cancel.js":5,"./captured_trace.js":6,"./catch_filter.js":7,"./direct_resolve.js":8,"./errors.js":9,"./errors_api_rejection":10,"./filter.js":12,"./finally.js":13,"./generators.js":14,"./global.js":15,"./map.js":16,"./nodeify.js":17,"./progress.js":18,"./promise_array.js":20,"./promise_resolver.js":21,"./promisify.js":23,"./props.js":25,"./race.js":27,"./reduce.js":28,"./settle.js":30,"./some.js":32,"./synchronous_inspection.js":34,"./thenables.js":35,"./timers.js":36,"./util.js":37,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":38}],20:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -2768,9 +2768,9 @@ return Promise;
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var canAttach = require("./errors.js").canAttach;
-var util = require("./util.js");
-var async = require("./async.js");
+var canAttach = _dereq_("./errors.js").canAttach;
+var util = _dereq_("./util.js");
+var async = _dereq_("./async.js");
 var hasOwn = {}.hasOwnProperty;
 var isArray = util.isArray;
 
@@ -2977,7 +2977,7 @@ function PromiseArray$_promiseRejected(reason, index) {
 return PromiseArray;
 };
 
-},{"./async.js":2,"./errors.js":9,"./util.js":37}],21:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./util.js":37}],21:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3001,14 +3001,14 @@ return PromiseArray;
  * 
  */
 "use strict";
-var util = require("./util.js");
+var util = _dereq_("./util.js");
 var maybeWrapAsError = util.maybeWrapAsError;
-var errors = require("./errors.js");
+var errors = _dereq_("./errors.js");
 var TimeoutError = errors.TimeoutError;
 var RejectionError = errors.RejectionError;
-var async = require("./async.js");
+var async = _dereq_("./async.js");
 var haveGetters = util.haveGetters;
-var es5 = require("./es5.js");
+var es5 = _dereq_("./es5.js");
 
 function isUntypedError(obj) {
     return obj instanceof Error &&
@@ -3131,7 +3131,7 @@ function PromiseResolver$_setCarriedStackTrace(trace) {
 
 module.exports = PromiseResolver;
 
-},{"./async.js":2,"./errors.js":9,"./es5.js":11,"./util.js":37}],22:[function(require,module,exports){
+},{"./async.js":2,"./errors.js":9,"./es5.js":11,"./util.js":37}],22:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3156,9 +3156,9 @@ module.exports = PromiseResolver;
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var errors = require("./errors.js");
+var errors = _dereq_("./errors.js");
 var TypeError = errors.TypeError;
-var util = require("./util.js");
+var util = _dereq_("./util.js");
 var isArray = util.isArray;
 var errorObj = util.errorObj;
 var tryCatch1 = util.tryCatch1;
@@ -3263,7 +3263,7 @@ PromiseSpawn.addYieldHandler = function PromiseSpawn$AddYieldHandler(fn) {
 return PromiseSpawn;
 };
 
-},{"./errors.js":9,"./util.js":37}],23:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":37}],23:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3289,9 +3289,9 @@ return PromiseSpawn;
 "use strict";
 module.exports = function(Promise, INTERNAL) {
 var THIS = {};
-var util = require("./util.js");
-var es5 = require("./es5.js");
-var nodebackForPromise = require("./promise_resolver.js")
+var util = _dereq_("./util.js");
+var es5 = _dereq_("./es5.js");
+var nodebackForPromise = _dereq_("./promise_resolver.js")
     ._nodebackForPromise;
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
@@ -3543,7 +3543,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./es5.js":11,"./promise_resolver.js":21,"./util.js":37}],24:[function(require,module,exports){
+},{"./es5.js":11,"./promise_resolver.js":21,"./util.js":37}],24:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3568,9 +3568,9 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
-var util = require("./util.js");
+var util = _dereq_("./util.js");
 var inherits = util.inherits;
-var es5 = require("./es5.js");
+var es5 = _dereq_("./es5.js");
 
 function PropertiesPromiseArray(obj, boundTo) {
     var keys = es5.keys(obj);
@@ -3622,7 +3622,7 @@ PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
 return PropertiesPromiseArray;
 };
 
-},{"./es5.js":11,"./util.js":37}],25:[function(require,module,exports){
+},{"./es5.js":11,"./util.js":37}],25:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3647,10 +3647,10 @@ return PropertiesPromiseArray;
  */
 "use strict";
 module.exports = function(Promise, PromiseArray) {
-var PropertiesPromiseArray = require("./properties_promise_array.js")(
+var PropertiesPromiseArray = _dereq_("./properties_promise_array.js")(
     Promise, PromiseArray);
-var util = require("./util.js");
-var apiRejection = require("./errors_api_rejection")(Promise);
+var util = _dereq_("./util.js");
+var apiRejection = _dereq_("./errors_api_rejection")(Promise);
 var isObject = util.isObject;
 
 function Promise$_Props(promises, useBound) {
@@ -3688,7 +3688,7 @@ Promise.props = function Promise$Props(promises) {
 };
 };
 
-},{"./errors_api_rejection":10,"./properties_promise_array.js":24,"./util.js":37}],26:[function(require,module,exports){
+},{"./errors_api_rejection":10,"./properties_promise_array.js":24,"./util.js":37}],26:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3825,7 +3825,7 @@ Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
 
 module.exports = Queue;
 
-},{}],27:[function(require,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3850,8 +3850,8 @@ module.exports = Queue;
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var apiRejection = require("./errors_api_rejection.js")(Promise);
-var isArray = require("./util.js").isArray;
+var apiRejection = _dereq_("./errors_api_rejection.js")(Promise);
+var isArray = _dereq_("./util.js").isArray;
 
 var raceLater = function Promise$_raceLater(promise) {
     return promise.then(function(array) {
@@ -3911,7 +3911,7 @@ Promise.prototype.race = function Promise$race() {
 
 };
 
-},{"./errors_api_rejection.js":10,"./util.js":37}],28:[function(require,module,exports){
+},{"./errors_api_rejection.js":10,"./util.js":37}],28:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4074,7 +4074,7 @@ Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
 };
 };
 
-},{}],29:[function(require,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 (function (process){
 /**
  * Copyright (c) 2014 Petka Antonov
@@ -4099,7 +4099,7 @@ Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
  * 
  */
 "use strict";
-var global = require("./global.js");
+var global = _dereq_("./global.js");
 var schedule;
 if (typeof process !== "undefined" && process !== null &&
     typeof process.cwd === "function" &&
@@ -4198,8 +4198,8 @@ else {
 
 module.exports = schedule;
 
-}).call(this,require("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./global.js":15,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":38}],30:[function(require,module,exports){
+}).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./global.js":15,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":38}],30:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4226,7 +4226,7 @@ module.exports = schedule;
 module.exports =
     function(Promise, Promise$_CreatePromiseArray, PromiseArray) {
 
-var SettledPromiseArray = require("./settled_promise_array.js")(
+var SettledPromiseArray = _dereq_("./settled_promise_array.js")(
     Promise, PromiseArray);
 
 function Promise$_Settle(promises, useBound) {
@@ -4248,7 +4248,7 @@ Promise.prototype.settle = function Promise$settle() {
 };
 };
 
-},{"./settled_promise_array.js":31}],31:[function(require,module,exports){
+},{"./settled_promise_array.js":31}],31:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4274,7 +4274,7 @@ Promise.prototype.settle = function Promise$settle() {
 "use strict";
 module.exports = function(Promise, PromiseArray) {
 var PromiseInspection = Promise.PromiseInspection;
-var util = require("./util.js");
+var util = _dereq_("./util.js");
 var inherits = util.inherits;
 function SettledPromiseArray(values, boundTo) {
     this.constructor$(values, boundTo);
@@ -4310,7 +4310,7 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
 return SettledPromiseArray;
 };
 
-},{"./util.js":37}],32:[function(require,module,exports){
+},{"./util.js":37}],32:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4337,7 +4337,7 @@ return SettledPromiseArray;
 module.exports =
 function(Promise, Promise$_CreatePromiseArray, PromiseArray, apiRejection) {
 
-var SomePromiseArray = require("./some_promise_array.js")(PromiseArray);
+var SomePromiseArray = _dereq_("./some_promise_array.js")(PromiseArray);
 function Promise$_Some(promises, howMany, useBound) {
     if ((howMany | 0) !== howMany || howMany < 0) {
         return apiRejection("expecting a positive integer");
@@ -4368,7 +4368,7 @@ Promise.prototype.some = function Promise$some(count) {
 
 };
 
-},{"./some_promise_array.js":33}],33:[function(require,module,exports){
+},{"./some_promise_array.js":33}],33:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4393,8 +4393,8 @@ Promise.prototype.some = function Promise$some(count) {
  */
 "use strict";
 module.exports = function (PromiseArray) {
-var util = require("./util.js");
-var RangeError = require("./errors.js").RangeError;
+var util = _dereq_("./util.js");
+var RangeError = _dereq_("./errors.js").RangeError;
 var inherits = util.inherits;
 var isArray = util.isArray;
 
@@ -4501,7 +4501,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./errors.js":9,"./util.js":37}],34:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":37}],34:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4582,7 +4582,7 @@ Promise.prototype.inspect = function Promise$inspect() {
 Promise.PromiseInspection = PromiseInspection;
 };
 
-},{}],35:[function(require,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4607,8 +4607,8 @@ Promise.PromiseInspection = PromiseInspection;
  */
 "use strict";
 module.exports = function(Promise, INTERNAL) {
-var util = require("./util.js");
-var canAttach = require("./errors.js").canAttach;
+var util = _dereq_("./util.js");
+var canAttach = _dereq_("./errors.js").canAttach;
 var errorObj = util.errorObj;
 var isObject = util.isObject;
 
@@ -4719,7 +4719,7 @@ function Promise$_doThenable(x, then, originalPromise) {
 Promise._cast = Promise$_Cast;
 };
 
-},{"./errors.js":9,"./util.js":37}],36:[function(require,module,exports){
+},{"./errors.js":9,"./util.js":37}],36:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4743,7 +4743,7 @@ Promise._cast = Promise$_Cast;
  * 
  */
 "use strict";
-var global = require("./global.js");
+var global = _dereq_("./global.js");
 var setTimeout = function(fn, ms) {
     var $_len = arguments.length;var args = new Array($_len - 2); for(var $_i = 2; $_i < $_len; ++$_i) {args[$_i - 2] = arguments[$_i];}
     global.setTimeout(function(){
@@ -4752,9 +4752,9 @@ var setTimeout = function(fn, ms) {
 };
 
 module.exports = function(Promise, INTERNAL) {
-var util = require("./util.js");
-var errors = require("./errors.js");
-var apiRejection = require("./errors_api_rejection")(Promise);
+var util = _dereq_("./util.js");
+var errors = _dereq_("./errors.js");
+var apiRejection = _dereq_("./errors_api_rejection")(Promise);
 var TimeoutError = Promise.TimeoutError;
 
 var afterTimeout = function Promise$_afterTimeout(promise, message, ms) {
@@ -4824,7 +4824,7 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
 
 };
 
-},{"./errors.js":9,"./errors_api_rejection":10,"./global.js":15,"./util.js":37}],37:[function(require,module,exports){
+},{"./errors.js":9,"./errors_api_rejection":10,"./global.js":15,"./util.js":37}],37:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4848,8 +4848,8 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
  * 
  */
 "use strict";
-var global = require("./global.js");
-var es5 = require("./es5.js");
+var global = _dereq_("./global.js");
+var es5 = _dereq_("./es5.js");
 var haveGetters = (function(){
     try {
         var o = {};
@@ -5019,7 +5019,7 @@ var ret = {
 
 module.exports = ret;
 
-},{"./es5.js":11,"./global.js":15}],38:[function(require,module,exports){
+},{"./es5.js":11,"./global.js":15}],38:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -5081,7 +5081,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],39:[function(require,module,exports){
+},{}],39:[function(_dereq_,module,exports){
 // Generated by LiveScript 1.2.0
 /** ^
  * Copyright (c) 2013 Quildreen Motta
@@ -5290,13 +5290,13 @@ process.chdir = function (dir) {
   }
 }).call(this);
 
-},{}],40:[function(require,module,exports){
+},{}],40:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
 
-var Emitter = require('emitter');
-var reduce = require('reduce');
+var Emitter = _dereq_('emitter');
+var reduce = _dereq_('reduce');
 
 /**
  * Root reference for iframes.
@@ -6296,7 +6296,7 @@ request.put = function(url, data, fn){
 
 module.exports = request;
 
-},{"emitter":41,"reduce":42}],41:[function(require,module,exports){
+},{"emitter":41,"reduce":42}],41:[function(_dereq_,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -6454,7 +6454,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],42:[function(require,module,exports){
+},{}],42:[function(_dereq_,module,exports){
 
 /**
  * Reduce `arr` with `fn`.
@@ -6479,23 +6479,23 @@ module.exports = function(arr, fn, initial){
   
   return curr;
 };
-},{}],43:[function(require,module,exports){
+},{}],43:[function(_dereq_,module,exports){
 module.exports = {
-  ajax: require('./data/ajax'),
-  types: require('./data/types'),
+  ajax: _dereq_('./data/ajax'),
+  types: _dereq_('./data/types'),
   resources: {
-    restful: require('./data/resources/restful'),
-    builtio: require('./data/resources/builtio')
+    restful: _dereq_('./data/resources/restful'),
+    builtio: _dereq_('./data/resources/builtio')
   }
 };
 
 
-},{"./data/ajax":44,"./data/resources/builtio":45,"./data/resources/restful":47,"./data/types":48}],44:[function(require,module,exports){
+},{"./data/ajax":44,"./data/resources/builtio":45,"./data/resources/restful":47,"./data/types":48}],44:[function(_dereq_,module,exports){
 var Promise, ajax, request, requestToPromise, superagent;
 
-superagent = require('superagent');
+superagent = _dereq_('superagent');
 
-Promise = require('bluebird');
+Promise = _dereq_('bluebird');
 
 requestToPromise = function(requestBuilder) {
   return new Promise(function(resolve, reject) {
@@ -6536,12 +6536,12 @@ module.exports = ajax = {
 };
 
 
-},{"bluebird":3,"superagent":40}],45:[function(require,module,exports){
+},{"bluebird":3,"superagent":40}],45:[function(_dereq_,module,exports){
 var builtio, builtioResourceBaseUrl, restful, types;
 
-restful = require('./restful');
+restful = _dereq_('./restful');
 
-types = require('../types');
+types = _dereq_('../types');
 
 builtioResourceBaseUrl = function(name) {
   return "https://api.built.io/v1/classes/" + name;
@@ -6575,13 +6575,13 @@ module.exports = builtio = function(_arg) {
 };
 
 
-},{"../types":48,"./restful":47}],46:[function(require,module,exports){
+},{"../types":48,"./restful":47}],46:[function(_dereq_,module,exports){
 var Promise, ajax, validationToPromise,
   __slice = [].slice;
 
-ajax = require('../ajax');
+ajax = _dereq_('../ajax');
 
-Promise = require('bluebird');
+Promise = _dereq_('bluebird');
 
 validationToPromise = function(validation) {
   return validation.fold(function(errors) {
@@ -6605,10 +6605,10 @@ module.exports = {
 };
 
 
-},{"../ajax":44,"bluebird":3}],47:[function(require,module,exports){
+},{"../ajax":44,"bluebird":3}],47:[function(_dereq_,module,exports){
 var api, rest, restful;
 
-rest = require('./rest');
+rest = _dereq_('./rest');
 
 api = function(options) {
   return {
@@ -6629,10 +6629,10 @@ module.exports = restful = function(baseUrl, apiDescriptor) {
 };
 
 
-},{"./rest":46}],48:[function(require,module,exports){
+},{"./rest":46}],48:[function(_dereq_,module,exports){
 var Failure, Success, listSequence, nativeTypeValidator, objectSequence, pairsToObject, types, _ref;
 
-_ref = require('data.validation'), Success = _ref.Success, Failure = _ref.Failure;
+_ref = _dereq_('data.validation'), Success = _ref.Success, Failure = _ref.Failure;
 
 objectSequence = function(nameValidationPairs) {
   var failures, name, result, validation;
@@ -6759,4 +6759,6 @@ module.exports = types = {
 };
 
 
-},{"data.validation":39}]},{},[43]);
+},{"data.validation":39}]},{},[43])
+(43)
+});;
