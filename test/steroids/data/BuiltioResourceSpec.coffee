@@ -3,9 +3,11 @@ require('chai').should()
 BuiltioResource = require '../../../src/steroids/data/resources/builtio'
 types = require '../../../src/steroids/data/types'
 
-Task = types.Object
-  description: types.String
-  completed: types.Boolean
+Task = do ({Object, String, Boolean, Optional} = types) ->
+  Object
+    description: String
+    completed: Boolean
+    uid: Optional String
 
 TaskResource = BuiltioResource(
   applicationApiKey: 'blt349bf00642a3a1b7'
