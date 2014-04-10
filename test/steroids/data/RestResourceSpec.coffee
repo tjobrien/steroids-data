@@ -4,6 +4,9 @@ ajax = require '../../../src/steroids/data/ajax'
 restful = require '../../../src/steroids/data/resources/restful'
 types = require '../../../src/steroids/data/types'
 
+Task = types.Object
+  description: types.String
+
 TaskResource = restful 'http://localhost:9001/data/task', (api) ->
 
   findAll: api.get
@@ -12,7 +15,7 @@ TaskResource = restful 'http://localhost:9001/data/task', (api) ->
 
   find: api.get
     from: (id) -> "objects/#{id}.json"
-    to: types.Property 'object'
+    to: types.Property 'object', Task
 
 
 describe "Accessing data from a static REST backend", ->

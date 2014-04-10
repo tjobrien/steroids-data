@@ -41,3 +41,14 @@ describe "Typing data with steroids.data.types", ->
 
   it "Should have an Object type", ->
     types.Object.should.be.a 'function'
+
+  describe "Object type", ->
+    TaskType = types.Object(description: types.String)
+
+    it 'Should accept an object of types and return a validator', ->
+      TaskType.should.be.a.function
+
+    it 'Should pass an object whose properties pass validation', ->
+      TaskType(description: 'anything').isSuccess.should.be.true
+      TaskType(description: undefined).isFailure.should.be.true
+

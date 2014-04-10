@@ -15,4 +15,26 @@ module.exports = types =
     else
       Failure ["Input did not have property '#{name}'"]
 
-  Object: ->
+  Object: (members) ->
+    propertyProjections = do ->
+      result = {}
+      for name, type of members
+        result[name] = types.Property(name, type)
+      result
+
+    (object) ->
+      failures = []
+      result = {}
+
+      for name, projectPropertyFrom of propertyProjections
+        projectPropertyFrom(object).fold(
+          (failure) -> failures.push failure
+          (success) -> result[name] = success
+        )
+      
+      if failures.length > 0
+        Failure failures
+      else
+        Success result
+
+
