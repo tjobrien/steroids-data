@@ -34,14 +34,18 @@ listSequence = (list) ->
   else
     Success result
 
+nativeTypeValidator = (type) -> (input) ->
+  if typeof input is type
+    Success input
+  else
+    Failure ["Input was not of type #{type}"]
+
 module.exports = types =
   Any: Success
 
-  String: (input) ->
-    if typeof input is 'string'
-      Success input
-    else
-      Failure ['Input was not of type string']
+  String: nativeTypeValidator 'string'
+
+  Boolean: nativeTypeValidator 'boolean'
 
   Property: (name, type = types.Any) -> (object) ->
     if object?[name]?
@@ -61,12 +65,6 @@ module.exports = types =
 
   List: (type) -> (list) ->
     listSequence (type(value) for value in list)
-
-  Boolean: (input) ->
-    if typeof input is 'boolean'
-      Success input
-    else
-      Failure ["Input was not of type boolean"]
       
 
 
