@@ -1,5 +1,26 @@
 {Success, Failure} = require 'data.validation'
 
+# List [String, Validation] -> Validation Object
+objectSequence = (nameValidationPairs) ->
+  failures = []
+  result = for [name, validation] in nameValidationPairs
+    validation.fold(
+      (failure) -> failures.push failure; [name, null]
+      (success) -> [name, success]
+    )
+
+  if failures.length > 0
+    Failure failures
+  else
+    Success pairsToObject result
+
+# List [String, Any] -> Object
+pairsToObject = (pairs) ->
+  result = {}
+  for [key, value] in pairs
+    result[key] = value
+  result
+
 # List Validation -> Validation List
 listSequence = (list) ->
   failures = []
@@ -36,19 +57,7 @@ module.exports = types =
       result
 
     (object) ->
-      failures = []
-      result = {}
-
-      for name, projectPropertyFrom of propertyProjections
-        projectPropertyFrom(object).fold(
-          (failure) -> failures.push failure
-          (success) -> result[name] = success
-        )
-
-      if failures.length > 0
-        Failure failures
-      else
-        Success result
+      objectSequence ([name, projectPropertyFrom(object)] for name, projectPropertyFrom of propertyProjections)
 
   List: (type) -> (list) ->
     listSequence (type(value) for value in list)
