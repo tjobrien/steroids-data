@@ -1,8 +1,10 @@
 module.exports =
   options:
+    transform: ['coffeeify']
     browserifyOptions:
       extensions: ['.coffee']
-    transform: ['coffeeify']
+    bundleOptions:
+      standalone: 'steroids.data'
  
   dist:
     src: '<%= dir.src %>/steroids/data.coffee'
