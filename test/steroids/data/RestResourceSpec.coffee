@@ -1,16 +1,17 @@
 require('chai').should()
 
 ajax = require '../../../src/steroids/data/ajax'
-rest = require '../../../src/steroids/data/resources/rest'
+restful = require '../../../src/steroids/data/resources/restful'
 types = require '../../../src/steroids/data/types'
 
-TaskResource =
-  findAll: rest.getter
-    from: -> 'http://localhost:9001/data/task/objects.json'
+TaskResource = restful 'http://localhost:9001/data/task', (api) ->
+
+  findAll: api.get
+    from: -> 'objects.json'
     to: types.Property 'objects'
 
-  find: rest.getter
-    from: (id) -> "http://localhost:9001/data/task/objects/#{id}.json"
+  find: api.get
+    from: (id) -> "objects/#{id}.json"
     to: types.Property 'object'
 
 
