@@ -12,3 +12,6 @@ describe "Typing data with steroids.data.types", ->
 
     it 'Should not pass undefined', ->
       types.String(undefined).isFailure.should.beTrue
+
+    it 'Should allow extracting value', ->
+      types.String('anything').get().should.equal 'anything'
