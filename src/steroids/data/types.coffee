@@ -1,5 +1,18 @@
 {Success, Failure} = require 'data.validation'
 
+# List Validation -> Validation List
+listSequence = (list) ->
+  failures = []
+  result = for validation in list
+    validation.fold(
+      (failure) -> failures.push failure; null
+      (success) -> success
+    )
+  if failures.length > 0
+    Failure failures
+  else
+    Success result
+
 module.exports = types =
   Any: Success
 
@@ -31,10 +44,14 @@ module.exports = types =
           (failure) -> failures.push failure
           (success) -> result[name] = success
         )
-      
+
       if failures.length > 0
         Failure failures
       else
         Success result
+
+  List: (type) -> (list) ->
+    listSequence (type(value) for value in list)
+      
 
 

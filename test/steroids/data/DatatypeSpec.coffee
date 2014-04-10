@@ -52,3 +52,17 @@ describe "Typing data with steroids.data.types", ->
       TaskType(description: 'anything').isSuccess.should.be.true
       TaskType(description: undefined).isFailure.should.be.true
 
+  it "Should have a List type", ->
+    types.List.should.be.a 'function'
+
+  describe "List type", ->
+    StringList = types.List(types.String)
+    
+    it 'Should accept a type and return a validator', ->
+      StringList.should.be.a.function
+
+    it 'Should pass a list whose items pass validation', ->
+      StringList([]).isSuccess.should.be.true
+      StringList(['anything']).isSuccess.should.be.true
+      StringList([null]).isFailure.should.be.true
+
