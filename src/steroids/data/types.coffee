@@ -14,3 +14,5 @@ module.exports = types =
       type object[name]
     else
       Failure ["Input did not have property '#{name}'"]
+
+  Object: ->

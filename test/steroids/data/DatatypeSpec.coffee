@@ -38,3 +38,6 @@ describe "Typing data with steroids.data.types", ->
       StringNameProperty = types.Property('name', types.String)
       StringNameProperty(name: undefined).isFailure.should.be.true
       StringNameProperty(name: 'anything').isSuccess.should.be.true
+
+  it "Should have an Object type", ->
+    types.Object.should.be.a 'function'
