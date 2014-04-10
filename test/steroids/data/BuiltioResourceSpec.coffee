@@ -34,3 +34,7 @@ describe "Accessing data from Built.io backend", ->
         sampleTask.then (task) ->
           task.description.should.be.a 'string'
 
+      it "has a completion status", ->
+        sampleTask.then (task) ->
+          task.completed.should.be.a 'boolean'
+
