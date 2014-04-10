@@ -55,7 +55,7 @@ module.exports = types =
     if object?[name]?
       type object[name]
     else
-      Failure ["Input did not have property '#{name}'"]
+      type null
 
   Object: (memberTypes) ->
     propertyProjections = do ->
