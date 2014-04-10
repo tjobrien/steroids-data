@@ -6,6 +6,5 @@ module.exports = (grunt) ->
       invert: grunt.option('invert') || false
 
     grunt.task.run [
-      'connect:test'
       'mochaTest'
     ]
