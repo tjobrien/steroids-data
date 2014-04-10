@@ -9,6 +9,8 @@ validationToPromise = (validation) ->
   )
 
 module.exports =
+  # from: (args...) -> url
+  # expect: (data) -> Validation data
   getter: ({from, expect}) -> (args...) ->
     url = from args...
     ajax
