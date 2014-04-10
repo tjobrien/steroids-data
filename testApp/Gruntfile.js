@@ -10,7 +10,20 @@
 module.exports = function(grunt) {
 
   grunt.loadNpmTasks("grunt-steroids");
+  grunt.loadNpmTasks("grunt-contrib-copy");
 
-  grunt.registerTask("default", ["steroids-make", "steroids-compile-sass"]);
+  grunt.initConfig({
+    copy: {
+      "steroids-data-dist": {
+        src: "../dist/*",
+        dest: "dist/"
+      }
+    }
+  });
 
+  grunt.registerTask("default", [
+    "steroids-make",
+    "steroids-compile-sass",
+    "copy"
+  ]);
 };
