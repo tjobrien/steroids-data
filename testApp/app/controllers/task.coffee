@@ -10,32 +10,22 @@ taskApp.controller "IndexCtrl", ($scope, TaskResource) ->
   $scope.open = (id) ->
     webView = new steroids.views.WebView("/views/task/show.html?id=" + id)
     steroids.layers.push webView
-    return
 
-  
-  # Fetch all objects from the local JSON (see app/models/task.js)
   TaskResource.findAll().then (tasks) ->
     $scope.$apply ->
       $scope.tasks = tasks
   
   # -- Native navigation
   steroids.view.navigationBar.show "Task index"
-  return
 
 
 # Show: http://localhost/views/task/show.html?id=<id>
 taskApp.controller "ShowCtrl", ($scope, $filter, TaskResource) ->
   
   # Fetch all objects from the local JSON (see app/models/task.js)
-  TaskResource.findAll().then (tasks) ->
-    
-    # Then select the one based on the view's id query parameter
-    $scope.task = $filter("filter")(tasks,
-      task_id: steroids.view.params["id"]
-    )[0]
-    return
-
+  TaskResource.find(steroids.view.params["id"]).then (task) ->
+    $scope.$apply ->
+      $scope.task = task
   
   # -- Native navigation
   steroids.view.navigationBar.show "Task: " + steroids.view.params.id
-  return

@@ -3,9 +3,19 @@
   <div ng-controller="IndexCtrl">
     <div class="topcoat-list__container">
 
+      <h1>Tasks</h1>
+
+      <h2>To do</h2>
       <ul class="topcoat-list">
-        <li class="topcoat-list__item" hm-tap="open(task.task_id)" ng-repeat="task in tasks">
-          Task: {{ task.description }}
+        <li class="topcoat-list__item" hm-tap="open(task.uid)" ng-repeat="task in tasks | filter: !task.completed">
+          {{ task.description }}
+        </li>
+      </ul>
+
+      <h2>Done</h2>
+      <ul class="topcoat-list">
+        <li class="topcoat-list__item" hm-tap="open(task.uid)" ng-repeat="task in tasks | filter: task.completed">
+          {{ task.description }}
         </li>
       </ul>
 
