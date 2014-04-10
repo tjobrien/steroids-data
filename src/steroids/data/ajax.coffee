@@ -14,7 +14,13 @@ requestToPromise = (requestBuilder) ->
 
 request = (method) -> (path, options = {}) ->
   requestToPromise do ->
-    request = superagent[method](path)
+
+    request = superagent[method](
+      if options.baseUrl?
+        [options.baseUrl, path].join '/'
+      else
+        path
+    )
 
     if options.headers
       for header, value of options.headers || {}
