@@ -8,10 +8,10 @@ describe "Typing data with steroids.data.types", ->
 
   describe 'String type', ->
     it 'Should pass a string', ->
-      types.String('anything').isSuccess.should.beTrue
+      types.String('anything').isSuccess.should.be.true
 
     it 'Should not pass undefined', ->
-      types.String(undefined).isFailure.should.beTrue
+      types.String(undefined).isFailure.should.be.true
 
     it 'Should allow extracting value', ->
       types.String('anything').get().should.equal 'anything'
@@ -26,10 +26,10 @@ describe "Typing data with steroids.data.types", ->
       NameProperty.should.be.a 'function'
 
     it 'Should pass an object with the property', ->
-      NameProperty(name: 'anything').isSuccess.should.beTrue
+      NameProperty(name: 'anything').isSuccess.should.be.true
 
     it 'Should fail an object without the property', ->
-      NameProperty({}).isFailure.should.beTrue
+      NameProperty({}).isFailure.should.be.true
 
     it 'Should fail undefined', ->
-      NameProperty(undefined).isFailure.should.beTrue
+      NameProperty(undefined).isFailure.should.be.true
