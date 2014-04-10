@@ -15,3 +15,6 @@ describe "Typing data with steroids.data.types", ->
 
     it 'Should allow extracting value', ->
       types.String('anything').get().should.equal 'anything'
+
+  it "Should have a Property type", ->
+    types.Property.should.be.a 'function'
