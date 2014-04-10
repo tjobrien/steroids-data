@@ -5,4 +5,7 @@ module.exports = (grunt) ->
       grep: grunt.option('grep'),
       invert: grunt.option('invert') || false
 
-    grunt.task.run 'mochaTest'
+    grunt.task.run [
+      'connect:test'
+      'mochaTest'
+    ]
