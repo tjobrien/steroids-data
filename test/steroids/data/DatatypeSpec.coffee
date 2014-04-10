@@ -79,3 +79,15 @@ describe "Typing data with steroids.data.types", ->
     it 'Allows access to validated list', ->
       StringList(['anything']).get()[0].should.equal 'anything'
 
+  it "Should have a Boolean type", ->
+    types.Boolean.should.be.a 'function'
+
+  describe "Boolean type", ->
+    it "Should not accept empty values", ->
+      types.Boolean(null).isFailure.should.be.true
+
+    it "Should accept true and false", ->
+      types.Boolean(true).isSuccess.should.be.true
+      types.Boolean(false).isSuccess.should.be.true
+
+

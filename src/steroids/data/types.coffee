@@ -61,6 +61,12 @@ module.exports = types =
 
   List: (type) -> (list) ->
     listSequence (type(value) for value in list)
+
+  Boolean: (input) ->
+    if typeof input is 'boolean'
+      Success input
+    else
+      Failure ["Input was not of type boolean"]
       
 
 
