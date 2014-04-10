@@ -8,5 +8,12 @@ api = (options) ->
       options
     }
 
+  post: ({to, expect}) ->
+    rest.poster {
+      to
+      expect
+      options
+    }
+
 module.exports = restful = (baseUrl, apiDescriptor) ->
   apiDescriptor api baseUrl
