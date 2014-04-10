@@ -6,7 +6,9 @@ types = require '../../../src/steroids/data/types'
 Task = types.Object
   description: types.String
 
-TaskResource = restful 'http://localhost:9001/data/task', (api) ->
+TaskResource = restful {
+  baseUrl: 'http://localhost:9001/data/task'
+}, (api) ->
 
   findAll: api.get
     from: -> 'objects.json'

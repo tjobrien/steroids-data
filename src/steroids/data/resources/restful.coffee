@@ -1,6 +1,9 @@
 rest = require './rest'
 
-api = (baseUrl) ->
+api = (options) ->
+  baseUrl = options.baseUrl || ''
+  headers = options.headers || {}
+
   get: ({from, expect}) ->
     rest.getter
       from: (args...) -> [baseUrl, from(args...)].join '/'
