@@ -1,9 +1,16 @@
+
+Task = do ({Object, String, Boolean} = steroids.data.types) ->
+  Object
+    description: String
+    completed: Boolean
+
+TaskResource = steroids.data.resources.BuiltioResource(
+  applicationApiKey: 'blt349bf00642a3a1b7'
+  applicationUid: 'steroids-data-test-app'
+  name: 'task'
+  schema: Task
+)
+
 angular
   .module('TaskModel', [])
-  .service('TaskResource', ($http) ->
-    findAll: ->
-      $http
-        .get('http://localhost/data/task.json')
-        .then (response) ->
-          response.data?.objects || []
-  )
+  .service('TaskResource', TaskResource)
