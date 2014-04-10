@@ -5,6 +5,7 @@ types = require '../../../src/steroids/data/types'
 
 Task = types.Object
   description: types.String
+  completed: types.Boolean
 
 TaskResource = BuiltioResource(
   applicationApiKey: 'blt349bf00642a3a1b7'
