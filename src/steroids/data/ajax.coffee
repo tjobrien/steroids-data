@@ -26,6 +26,9 @@ request = (method) -> (path, options = {}) ->
       for header, value of options.headers || {}
         request.set header, value
 
+    if options.data
+      request.send options.data
+
     request
 
 module.exports = ajax =
