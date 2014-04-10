@@ -1,13 +1,11 @@
 require('chai').should()
 
 ajax = require '../../../src/steroids/data/ajax'
+rest = require '../../../src/steroids/data/resources/rest'
+types = require '../../../src/steroids/data/types'
 
 TaskResource =
-  findAll: ->
-    ajax
-      .get('http://localhost:9001/data/task/objects.json')
-      .then (data) ->
-        data.objects || []
+  findAll: rest.getter 'http://localhost:9001/data/task/objects.json', types.Property 'objects'
 
   find: (id) ->
     ajax
