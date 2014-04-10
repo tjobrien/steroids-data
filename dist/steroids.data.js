@@ -6526,13 +6526,18 @@ request = function(method) {
           request.set(header, value);
         }
       }
+      if (options.data) {
+        request.send(options.data);
+      }
       return request;
     })());
   };
 };
 
 module.exports = ajax = {
-  get: request('get')
+  get: request('get'),
+  post: request('post'),
+  del: request('del')
 };
 
 
@@ -6569,6 +6574,17 @@ module.exports = builtio = function(_arg) {
           return "objects/" + id + ".json";
         },
         expect: types.Property('object', schema)
+      }),
+      create: api.post({
+        to: function() {
+          return "objects";
+        },
+        expect: types.Property('object', schema)
+      }),
+      del: api.del({
+        at: function(id) {
+          return "objects/" + id + ".json";
+        }
       })
     };
   });
@@ -6576,7 +6592,7 @@ module.exports = builtio = function(_arg) {
 
 
 },{"../types":48,"./restful":47}],46:[function(_dereq_,module,exports){
-var Promise, ajax, validationToPromise,
+var Promise, ajax, merge, validationToPromise,
   __slice = [].slice;
 
 ajax = _dereq_('../ajax');
@@ -6591,6 +6607,20 @@ validationToPromise = function(validation) {
   });
 };
 
+merge = function() {
+  var key, object, objects, result, value, _i, _len;
+  objects = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+  result = {};
+  for (_i = 0, _len = objects.length; _i < _len; _i++) {
+    object = objects[_i];
+    for (key in object) {
+      value = object[key];
+      result[key] = value;
+    }
+  }
+  return result;
+};
+
 module.exports = {
   getter: function(_arg) {
     var expect, from, options;
@@ -6600,6 +6630,27 @@ module.exports = {
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       url = from.apply(null, args);
       return ajax.get(url, options || {}).then(expect).then(validationToPromise);
+    };
+  },
+  poster: function(_arg) {
+    var expect, options, to;
+    to = _arg.to, expect = _arg.expect, options = _arg.options;
+    return function(data) {
+      var url;
+      url = to(data);
+      return ajax.post(url, merge(options || {}, {
+        data: data
+      })).then(expect).then(validationToPromise);
+    };
+  },
+  deleter: function(_arg) {
+    var at, options;
+    at = _arg.at, options = _arg.options;
+    return function() {
+      var args, url;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      url = at.apply(null, args);
+      return ajax.del(url, options || {});
     };
   }
 };
@@ -6618,6 +6669,23 @@ api = function(options) {
       return rest.getter({
         from: from,
         expect: expect,
+        options: options
+      });
+    },
+    post: function(_arg) {
+      var expect, to;
+      to = _arg.to, expect = _arg.expect;
+      return rest.poster({
+        to: to,
+        expect: expect,
+        options: options
+      });
+    },
+    del: function(_arg) {
+      var at;
+      at = _arg.at;
+      return rest.deleter({
+        at: at,
         options: options
       });
     }
@@ -6703,7 +6771,13 @@ nativeTypeValidator = function(type) {
 };
 
 module.exports = types = {
-  Any: Success,
+  Any: function(input) {
+    if (input != null) {
+      return Success(input);
+    } else {
+      return Failure(["Input was undefined"]);
+    }
+  },
   String: nativeTypeValidator('string'),
   Boolean: nativeTypeValidator('boolean'),
   Property: function(name, type) {
@@ -6714,7 +6788,7 @@ module.exports = types = {
       if ((object != null ? object[name] : void 0) != null) {
         return type(object[name]);
       } else {
-        return Failure(["Input did not have property '" + name + "'"]);
+        return type(null);
       }
     };
   },
@@ -6754,6 +6828,15 @@ module.exports = types = {
         }
         return _results;
       })());
+    };
+  },
+  Optional: function(type) {
+    return function(input) {
+      if (input != null) {
+        return type(input);
+      } else {
+        return Success(null);
+      }
     };
   }
 };
