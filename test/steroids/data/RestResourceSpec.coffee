@@ -11,11 +11,11 @@ TaskResource = restful 'http://localhost:9001/data/task', (api) ->
 
   findAll: api.get
     from: -> 'objects.json'
-    to: types.Property 'objects', types.List Task
+    expect: types.Property 'objects', types.List Task
 
   find: api.get
     from: (id) -> "objects/#{id}.json"
-    to: types.Property 'object', Task
+    expect: types.Property 'object', Task
 
 
 describe "Accessing data from a static REST backend", ->
