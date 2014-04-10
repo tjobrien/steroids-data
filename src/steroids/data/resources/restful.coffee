@@ -15,5 +15,11 @@ api = (options) ->
       options
     }
 
+  del: ({at}) ->
+    rest.deleter {
+      at
+      options
+    }
+
 module.exports = restful = (baseUrl, apiDescriptor) ->
   apiDescriptor api baseUrl

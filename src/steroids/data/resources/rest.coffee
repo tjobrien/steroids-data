@@ -35,3 +35,10 @@ module.exports =
       .post(url, merge(options || {}, {data}))
       .then(expect)
       .then(validationToPromise)
+
+  # at: (args...) -> url
+  # options: {}
+  deleter: ({at, options}) -> (args...) ->
+    url = at args...
+    ajax
+      .del(url, options || {})
