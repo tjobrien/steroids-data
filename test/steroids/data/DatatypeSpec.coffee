@@ -34,10 +34,14 @@ describe "Typing data with steroids.data.types", ->
     it 'Should fail undefined', ->
       NameProperty(undefined).isFailure.should.be.true
 
+    StringNameProperty = types.Property('name', types.String)
+
     it 'Optionally accepts a type for the property', ->
-      StringNameProperty = types.Property('name', types.String)
       StringNameProperty(name: undefined).isFailure.should.be.true
       StringNameProperty(name: 'anything').isSuccess.should.be.true
+
+    it 'Allows extracting property from object', ->
+      StringNameProperty(name: 'anything').get().should.equal 'anything'
 
   it "Should have an Object type", ->
     types.Object.should.be.a 'function'
@@ -52,17 +56,26 @@ describe "Typing data with steroids.data.types", ->
       TaskType(description: 'anything').isSuccess.should.be.true
       TaskType(description: undefined).isFailure.should.be.true
 
+    it 'Allows access to validated object', ->
+      TaskType(description: 'anything').get().description.should.equal 'anything'
+
   it "Should have a List type", ->
     types.List.should.be.a 'function'
 
   describe "List type", ->
     StringList = types.List(types.String)
-    
+
     it 'Should accept a type and return a validator', ->
       StringList.should.be.a.function
 
     it 'Should pass a list whose items pass validation', ->
       StringList([]).isSuccess.should.be.true
       StringList(['anything']).isSuccess.should.be.true
+
+    it 'Should fail if any item does not pass', ->
       StringList([null]).isFailure.should.be.true
+      StringList(['anything', null]).isFailure.should.be.true
+
+    it 'Allows access to validated list', ->
+      StringList(['anything']).get()[0].should.equal 'anything'
 
