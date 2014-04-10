@@ -1,1 +1,2 @@
-module.exports = {}
+module.exports =
+  ajax: require './data/ajax'
