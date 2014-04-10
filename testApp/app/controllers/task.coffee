@@ -14,7 +14,9 @@ taskApp.controller "IndexCtrl", ($scope, TaskResource) ->
 
   
   # Fetch all objects from the local JSON (see app/models/task.js)
-  $scope.tasks = TaskResource.findAll()
+  TaskResource.findAll().then (tasks) ->
+    $scope.$apply ->
+      $scope.tasks = tasks
   
   # -- Native navigation
   steroids.view.navigationBar.show "Task index"
