@@ -41,7 +41,11 @@ nativeTypeValidator = (type) -> (input) ->
     Failure ["Input was not of type #{type}"]
 
 module.exports = types =
-  Any: Success
+  Any: (input) ->
+    if input?
+      Success input
+    else
+      Failure ["Input was undefined"]
 
   String: nativeTypeValidator 'string'
 
