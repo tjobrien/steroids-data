@@ -5,13 +5,13 @@ rest = require '../../../src/steroids/data/resources/rest'
 types = require '../../../src/steroids/data/types'
 
 TaskResource =
-  findAll: rest.getter 'http://localhost:9001/data/task/objects.json', types.Property 'objects'
+  findAll: rest.getter
+    from: -> 'http://localhost:9001/data/task/objects.json'
+    to: types.Property 'objects'
 
-  find: (id) ->
-    ajax
-      .get("http://localhost:9001/data/task/objects/#{id}.json")
-      .then (data) ->
-        data.object || {}
+  find: rest.getter
+    from: (id) -> "http://localhost:9001/data/task/objects/#{id}.json"
+    to: types.Property 'object'
 
 
 describe "Accessing data from a static REST backend", ->

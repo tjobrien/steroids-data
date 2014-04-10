@@ -2,11 +2,13 @@ ajax = require '../ajax'
 Promise = require 'bluebird'
 
 module.exports =
-  getter: (url, type) -> ->
+  getter: ({from, to}) -> (args...) ->
+    url = from args...
     ajax
       .get(url)
-      .then (data) ->
-        type(data).fold(
+      .then(to)
+      .then (validation) ->
+        validation.fold(
           (errors) -> Promise.reject new Error errors
           (value) -> Promise.resolve value
         )
