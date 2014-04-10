@@ -7,6 +7,8 @@ Task = types.Object
   description: types.String
 
 TaskResource = BuiltioResource(
+  applicationApiKey: 'blt349bf00642a3a1b7'
+  applicationUid: 'steroids-data-test-app'
   name: 'task'
   schema: Task
 )

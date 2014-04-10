@@ -1,9 +1,14 @@
 restful = require './restful'
 types = require '../types'
 
+builtioResourceBaseUrl = (name) -> "https://api.built.io/v1/classes/#{name}"
+
 module.exports = builtio = ({applicationApiKey, applicationUid, name, schema}) ->
   restful {
-    baseUrl: "http://localhost:9001/data/#{name}"
+    baseUrl: builtioResourceBaseUrl name
+    headers:
+      application_api_key: applicationApiKey
+      application_uid: applicationUid
   }, (api) ->
 
     findAll: api.get
