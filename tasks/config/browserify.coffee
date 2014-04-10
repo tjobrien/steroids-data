@@ -1,6 +1,7 @@
 module.exports =
   options:
-    extensions: ['.coffee']
+    browserifyOptions:
+      extensions: ['.coffee']
     transform: ['coffeeify']
  
   dist:
