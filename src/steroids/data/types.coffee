@@ -28,10 +28,10 @@ module.exports = types =
     else
       Failure ["Input did not have property '#{name}'"]
 
-  Object: (members) ->
+  Object: (memberTypes) ->
     propertyProjections = do ->
       result = {}
-      for name, type of members
+      for name, type of memberTypes
         result[name] = types.Property(name, type)
       result
 
