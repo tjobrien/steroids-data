@@ -25,6 +25,14 @@ taskApp.controller "IndexCtrl", ($scope, TaskResource) ->
     TaskResource
       .update(id, object: { completed: false })
       .then refreshTasks
+
+  $scope.todo = ''
+
+  $scope.create = (todo) ->
+    $scope.todo = ''
+    TaskResource
+      .create(object: { description: todo, completed: false })
+      .then refreshTasks
   
   # -- Native navigation
   steroids.view.navigationBar.show "Task index"
