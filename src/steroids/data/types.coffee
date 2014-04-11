@@ -34,6 +34,12 @@ listSequence = (list) ->
   else
     Success result
 
+# (name) -> (value) -> {name: value}
+property = (name) -> (value) ->
+  object = {}
+  object[name] = value
+  object
+
 nativeTypeValidator = (type) -> (input) ->
   if typeof input is type
     Success input
@@ -80,16 +86,16 @@ module.exports = types =
     else
       Success null
 
-  Projection:
-    ToProperty: (name) -> (value) ->
-      object = {}
-      object[name] = value
-      object
+  Project:
+    Property: (name, type = types.Any) ->
 
-    FromProperty: (name) -> (object) ->
-      if object?[name]?
-        Success object[name]
-      else
-        Failure ["Object did not have property #{name}"]
+      to: (value) ->
+        type(value).map(property name)
+
+      from: (object) ->
+        if object?[name]?
+          type(object[name]).leftMap(property name)
+        else
+          Failure ["Object did not have property #{name}"]
 
 

@@ -108,28 +108,37 @@ describe "Typing data with steroids.data.types", ->
     it 'Should not accept values not accepted by the inner type', ->
       OptionalBoolean('anything').isFailure.should.be.true
 
-  it "Should have an object property projection", ->
-    types.Projection.ToProperty.should.be.a 'function'
+  it "Should have an Object Lens", ->
+    types.Lens.Object.should.be.a 'function'
 
   describe "Object property projection", ->
 
-    describe "ToProperty", ->
+    property = types.Project.Property('property')
+
+    describe "Creating a projection", ->
+      it "Should accept a property name and return a projection", ->
+        property.should.have.property 'to'
+        property.should.have.property 'from'
+
+    describe "Projecting to a property", ->
       it 'Should accept a value and return a projector', ->
-        types.Projection.ToProperty('property').should.be.a 'function'
+        property.to.should.be.a 'function'
 
-      it 'Should project the value into an object property', ->
-        types.Projection.ToProperty('property')('anything').should.eql property: 'anything'
+      it 'Should project the value into a validation', ->
+        do (anything = property.to('anything')) ->
+          anything.isSuccess.should.be.true
+          anything.get().should.deep.equal property: 'anything'
 
-    describe "FromProperty", ->
+    describe "Projecting from a property", ->
       it 'Should accept a value and return a validator', ->
-        types.Projection.FromProperty('property').should.be.a 'function'
+        property.from.should.be.a 'function'
 
       it 'Should fail if there is no property', ->
-        types.Projection.FromProperty('property')().isFailure.should.be.true
+        property.from().isFailure.should.be.true
 
       it 'Should succeed if the property exists', ->
-        types.Projection.FromProperty('property')({ property: 'anything' }).isSuccess.should.be.true
+        property.from({ property: 'anything' }).isSuccess.should.be.true
 
       it 'Should contain value extracted from property', ->
-        types.Projection.FromProperty('property')({ property: 'anything' }).get().should.equal 'anything'
+        property.from({ property: 'anything' }).get().should.equal 'anything'
 
