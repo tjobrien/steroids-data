@@ -11,12 +11,25 @@ taskApp.controller "IndexCtrl", ($scope, TaskResource) ->
     webView = new steroids.views.WebView("/views/task/show.html?id=" + id)
     steroids.layers.push webView
 
-  TaskResource.findAll().then (tasks) ->
-    $scope.$apply ->
-      $scope.tasks = tasks
+  refreshTasks = ->
+    TaskResource.findAll().then (tasks) ->
+      $scope.$apply ->
+        $scope.tasks = tasks
+
+  $scope.complete = (id) ->
+    TaskResource
+      .update(id, object: { completed: true })
+      .then refreshTasks
+
+  $scope.undo = (id) ->
+    TaskResource
+      .update(id, object: { completed: false })
+      .then refreshTasks
   
   # -- Native navigation
   steroids.view.navigationBar.show "Task index"
+
+  refreshTasks()
 
 
 # Show: http://localhost/views/task/show.html?id=<id>

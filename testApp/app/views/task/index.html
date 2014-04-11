@@ -7,15 +7,23 @@
 
       <h2>To do</h2>
       <ul class="topcoat-list">
-        <li class="topcoat-list__item" hm-tap="open(task.uid)" ng-repeat="task in tasks | filter: !task.completed">
-          {{ task.description }}
+        <li class="topcoat-list__item" ng-repeat="task in tasks | filter: { completed: false }">
+          <span hm-tap="open(task.uid)">{{ task.description }}</span>
+          <label class="topcoat-checkbox" hm-tap="complete(task.uid)">
+            <input type="checkbox" ng-checked="false">
+            <div class="topcoat-checkbox__checkmark"></div>
+          </label>
         </li>
       </ul>
 
       <h2>Done</h2>
       <ul class="topcoat-list">
-        <li class="topcoat-list__item" hm-tap="open(task.uid)" ng-repeat="task in tasks | filter: task.completed">
-          {{ task.description }}
+        <li class="topcoat-list__item" ng-repeat="task in tasks | filter: { completed: true }">
+          <span hm-tap="open(task.uid)">{{ task.description }}</span>
+          <label class="topcoat-checkbox" hm-tap="undo(task.uid)">
+            <input type="checkbox" ng-checked="true">
+            <div class="topcoat-checkbox__checkmark"></div>
+          </label>
         </li>
       </ul>
 
