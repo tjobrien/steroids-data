@@ -2,7 +2,7 @@
 Task = do ({Object, String, Boolean, Optional} = steroids.data.types) ->
   Object
     description: String
-    completed: Boolean
+    completed: Optional Boolean
     uid: Optional String
 
 TaskResource = steroids.data.resources.builtio(
