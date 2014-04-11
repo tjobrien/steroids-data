@@ -108,4 +108,17 @@ describe "Typing data with steroids.data.types", ->
     it 'Should not accept values not accepted by the inner type', ->
       OptionalBoolean('anything').isFailure.should.be.true
 
+  it "Should have an object property projection", ->
+    types.Projection.ToProperty.should.be.a 'function'
+
+  describe "Object property projection", ->
+
+    describe "ToProperty", ->
+      it 'Should accept a value and return a projector', ->
+        types.Projection.ToProperty('property').should.be.a 'function'
+
+      it 'Should project the value into an object property', ->
+        types.Projection.ToProperty('property')('anything').should.eql property: 'anything'
+
+
 

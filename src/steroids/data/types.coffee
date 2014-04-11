@@ -80,4 +80,10 @@ module.exports = types =
     else
       Success null
 
+  Projection:
+    ToProperty: (name) -> (value) ->
+      result = {}
+      result[name] = value
+      result
+
 
