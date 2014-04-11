@@ -6537,7 +6537,8 @@ request = function(method) {
 module.exports = ajax = {
   get: request('get'),
   post: request('post'),
-  del: request('del')
+  del: request('del'),
+  put: request('put')
 };
 
 
@@ -6585,6 +6586,12 @@ module.exports = builtio = function(_arg) {
         at: function(id) {
           return "objects/" + id + ".json";
         }
+      }),
+      update: api.put({
+        at: function(id) {
+          return "objects/" + id + ".json";
+        },
+        expect: types.Property('object', schema)
       })
     };
   });
@@ -6652,6 +6659,18 @@ module.exports = {
       url = at.apply(null, args);
       return ajax.del(url, options || {});
     };
+  },
+  putter: function(_arg) {
+    var at, expect, options;
+    at = _arg.at, expect = _arg.expect, options = _arg.options;
+    return function() {
+      var args, data, url, _i;
+      args = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), data = arguments[_i++];
+      url = at.apply(null, args);
+      return ajax.put(url, merge(options || {}, {
+        data: data
+      })).then(expect).then(validationToPromise);
+    };
   }
 };
 
@@ -6686,6 +6705,15 @@ api = function(options) {
       at = _arg.at;
       return rest.deleter({
         at: at,
+        options: options
+      });
+    },
+    put: function(_arg) {
+      var at, expect;
+      at = _arg.at, expect = _arg.expect;
+      return rest.putter({
+        at: at,
+        expect: expect,
         options: options
       });
     }
