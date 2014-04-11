@@ -18,12 +18,12 @@ taskApp.controller "IndexCtrl", ($scope, TaskResource) ->
 
   $scope.complete = (id) ->
     TaskResource
-      .update(id, object: { completed: true })
+      .update(id, { completed: true })
       .then refreshTasks
 
   $scope.undo = (id) ->
     TaskResource
-      .update(id, object: { completed: false })
+      .update(id, { completed: false })
       .then refreshTasks
 
   $scope.todo = ''
@@ -31,7 +31,7 @@ taskApp.controller "IndexCtrl", ($scope, TaskResource) ->
   $scope.create = (todo) ->
     $scope.todo = ''
     TaskResource
-      .create(object: { description: todo, completed: false })
+      .create({ description: todo, completed: false })
       .then refreshTasks
   
   # -- Native navigation
