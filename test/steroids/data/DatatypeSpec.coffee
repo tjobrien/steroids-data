@@ -108,8 +108,8 @@ describe "Typing data with steroids.data.types", ->
     it 'Should not accept values not accepted by the inner type', ->
       OptionalBoolean('anything').isFailure.should.be.true
 
-  it "Should have an Object Lens", ->
-    types.Lens.Object.should.be.a 'function'
+  it "Should have a Property projection", ->
+    types.Project.Property.should.be.a 'function'
 
   describe "Object property projection", ->
 

@@ -17,22 +17,30 @@ merge = (objects...) ->
 
 module.exports =
   # from: (args...) -> url
+  # through: Project data
   # expect: (data) -> Validation data
   # options: {}
-  getter: ({from, expect, options}) -> (args...) ->
+  getter: ({from, through, expect, options}) -> (args...) ->
     url = from args...
     ajax
       .get(url, options || {})
+      .then(through.from)
+      .then(validationToPromise)
       .then(expect)
       .then(validationToPromise)
 
   # to: (data) -> url
+  # through: Project data
   # expect: (data) -> Validation data
   # options: {}
-  poster: ({to, expect, options}) -> (data) ->
+  poster: ({to, through, expect, options}) -> (data) ->
     url = to data
-    ajax
-      .post(url, merge(options || {}, {data}))
+    validationToPromise(through.to data)
+      .then((data) ->
+        ajax.post(url, merge(options || {}, {data}))
+      )
+      .then(through.from)
+      .then(validationToPromise)
       .then(expect)
       .then(validationToPromise)
 
@@ -44,12 +52,17 @@ module.exports =
       .del(url, options || {})
 
   # at: (args..., data) -> url
+  # through: Project data
   # expect: (data) -> Validation data
   # options: {}
-  putter: ({at, expect, options}) -> (args..., data) ->
+  putter: ({at, through, expect, options}) -> (args..., data) ->
     url = at args...
-    ajax
-      .put(url, merge(options || {}, {data}))
+    validationToPromise(through.to data)
+      .then((data) ->
+        ajax.put(url, merge(options || {}, {data}))
+      )
+      .then(through.from)
+      .then(validationToPromise)
       .then(expect)
       .then(validationToPromise)
 

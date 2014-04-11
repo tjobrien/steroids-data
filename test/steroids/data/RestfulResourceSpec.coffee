@@ -12,11 +12,13 @@ TaskResource = restful {
 
   findAll: api.get
     from: -> 'objects.json'
-    expect: types.Property 'objects', types.List Task
+    through: types.Project.Property 'objects'
+    expect: types.List Task
 
   find: api.get
     from: (id) -> "objects/#{id}.json"
-    expect: types.Property 'object', Task
+    through: types.Project.Property 'object'
+    expect: Task
 
 
 describe "Accessing data from a static REST backend", ->

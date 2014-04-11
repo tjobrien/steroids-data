@@ -1,16 +1,18 @@
 rest = require './rest'
 
 api = (options) ->
-  get: ({from, expect}) ->
+  get: ({from, through, expect}) ->
     rest.getter {
       from
+      through
       expect
       options
     }
 
-  post: ({to, expect}) ->
+  post: ({to, through, expect}) ->
     rest.poster {
       to
+      through
       expect
       options
     }
@@ -21,9 +23,10 @@ api = (options) ->
       options
     }
 
-  put: ({at, expect}) ->
+  put: ({at, through, expect}) ->
     rest.putter {
       at
+      through
       expect
       options
     }

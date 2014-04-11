@@ -13,19 +13,23 @@ module.exports = builtio = ({applicationApiKey, applicationUid, name, schema}) -
 
     findAll: api.get
       from: -> 'objects.json'
-      expect: types.Property 'objects', types.List schema
+      through: types.Project.Property 'objects'
+      expect: types.List schema
 
     find: api.get
       from: (id) -> "objects/#{id}.json"
-      expect: types.Property 'object', schema
+      through: types.Project.Property 'object'
+      expect: schema
 
     create: api.post
+      through: types.Project.Property 'object'
       to: -> "objects"
-      expect: types.Property 'object', schema
+      expect: schema
 
     del: api.del
       at: (id) -> "objects/#{id}.json"
 
     update: api.put
+      through: types.Project.Property 'object'
       at: (id) -> "objects/#{id}.json"
-      expect: types.Property 'object', schema
+      expect: schema
