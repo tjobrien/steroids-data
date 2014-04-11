@@ -21,7 +21,7 @@ describe "Accessing data from Built.io backend", ->
     TaskResource.should.be.defined
 
   describe "A user-defined TaskResource", ->
-    createSampleTask = TaskResource.create(object: { description: 'do nothing', completed: false })
+    createSampleTask = TaskResource.create(description: 'do nothing', completed: false)
     it "can create a new task", ->
       createSampleTask.then (task) ->
         task.description.should.equal 'do nothing'
@@ -29,7 +29,7 @@ describe "Accessing data from Built.io backend", ->
     it "can update a newly created task", ->
       createSampleTask.then (task) ->
         task.completed.should.be.false
-        TaskResource.update(task.uid, object: { completed: true }).then (updatedTask) ->
+        TaskResource.update(task.uid, completed: true).then (updatedTask) ->
           updatedTask.completed.should.be.true
 
     it "can delete a newly created task", ->
