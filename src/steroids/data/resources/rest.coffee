@@ -4,7 +4,7 @@ Promise = require 'bluebird'
 # Validation a -> Promise a
 validationToPromise = (validation) ->
   validation.fold(
-    (errors) -> Promise.reject new Error errors
+    (errors) -> Promise.reject new Error JSON.stringify(errors)
     (value) -> Promise.resolve value
   )
 

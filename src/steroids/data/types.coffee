@@ -52,10 +52,14 @@ module.exports = types =
   Boolean: nativeTypeValidator 'boolean'
 
   Property: (name, type = types.Any) -> (object) ->
-    if object?[name]?
+    (if object?[name]?
       type object[name]
     else
       type null
+    ).leftMap (errors) ->
+      result = {}
+      result[name] = errors
+      result
 
   Object: (memberTypes) ->
     propertyProjections = do ->
