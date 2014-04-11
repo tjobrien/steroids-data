@@ -21,5 +21,12 @@ api = (options) ->
       options
     }
 
+  put: ({at, expect}) ->
+    rest.putter {
+      at
+      expect
+      options
+    }
+
 module.exports = restful = (baseUrl, apiDescriptor) ->
   apiDescriptor api baseUrl

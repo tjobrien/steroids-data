@@ -40,12 +40,18 @@ describe "Accessing data from Built.io backend", ->
         sampleTask.then (task) ->
           task.completed.should.be.a 'boolean'
 
-    newTask = TaskResource.create(object: { description: 'do nothing', completed: false })
+    whenCreated = TaskResource.create(object: { description: 'do nothing', completed: false })
     it "can create a new task", ->
-      newTask.then (task) ->
+      whenCreated.then (task) ->
         task.description.should.equal 'do nothing'
 
+    it "can update a newly created task", ->
+      whenCreated.then (task) ->
+        task.completed.should.be.false
+        TaskResource.update(task.uid, object: { completed: true }).then (updatedTask) ->
+          updatedTask.completed.should.be.true
+
     it "can delete a newly created task", ->
-      newTask.then (task) ->
+      whenCreated.then (task) ->
         TaskResource.del(task.uid).then (done) ->
           done.should.be.defined

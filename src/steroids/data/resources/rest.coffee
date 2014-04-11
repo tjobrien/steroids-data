@@ -42,3 +42,14 @@ module.exports =
     url = at args...
     ajax
       .del(url, options || {})
+
+  # at: (args..., data) -> url
+  # expect: (data) -> Validation data
+  # options: {}
+  putter: ({at, expect, options}) -> (args..., data) ->
+    url = at args...
+    ajax
+      .put(url, merge(options || {}, {data}))
+      .then(expect)
+      .then(validationToPromise)
+
