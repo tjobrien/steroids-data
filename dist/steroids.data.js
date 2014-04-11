@@ -6568,19 +6568,22 @@ module.exports = builtio = function(_arg) {
         from: function() {
           return 'objects.json';
         },
-        expect: types.Property('objects', types.List(schema))
+        through: types.Project.Property('objects'),
+        expect: types.List(schema)
       }),
       find: api.get({
         from: function(id) {
           return "objects/" + id + ".json";
         },
-        expect: types.Property('object', schema)
+        through: types.Project.Property('object'),
+        expect: schema
       }),
       create: api.post({
+        through: types.Project.Property('object'),
         to: function() {
           return "objects";
         },
-        expect: types.Property('object', schema)
+        expect: schema
       }),
       del: api.del({
         at: function(id) {
@@ -6588,10 +6591,11 @@ module.exports = builtio = function(_arg) {
         }
       }),
       update: api.put({
+        through: types.Project.Property('object'),
         at: function(id) {
           return "objects/" + id + ".json";
         },
-        expect: types.Property('object', schema)
+        expect: schema
       })
     };
   });
@@ -6630,24 +6634,26 @@ merge = function() {
 
 module.exports = {
   getter: function(_arg) {
-    var expect, from, options;
-    from = _arg.from, expect = _arg.expect, options = _arg.options;
+    var expect, from, options, through;
+    from = _arg.from, through = _arg.through, expect = _arg.expect, options = _arg.options;
     return function() {
       var args, url;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       url = from.apply(null, args);
-      return ajax.get(url, options || {}).then(expect).then(validationToPromise);
+      return ajax.get(url, options || {}).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
     };
   },
   poster: function(_arg) {
-    var expect, options, to;
-    to = _arg.to, expect = _arg.expect, options = _arg.options;
+    var expect, options, through, to;
+    to = _arg.to, through = _arg.through, expect = _arg.expect, options = _arg.options;
     return function(data) {
       var url;
       url = to(data);
-      return ajax.post(url, merge(options || {}, {
-        data: data
-      })).then(expect).then(validationToPromise);
+      return validationToPromise(through.to(data)).then(function(data) {
+        return ajax.post(url, merge(options || {}, {
+          data: data
+        }));
+      }).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
     };
   },
   deleter: function(_arg) {
@@ -6661,15 +6667,17 @@ module.exports = {
     };
   },
   putter: function(_arg) {
-    var at, expect, options;
-    at = _arg.at, expect = _arg.expect, options = _arg.options;
+    var at, expect, options, through;
+    at = _arg.at, through = _arg.through, expect = _arg.expect, options = _arg.options;
     return function() {
       var args, data, url, _i;
       args = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), data = arguments[_i++];
       url = at.apply(null, args);
-      return ajax.put(url, merge(options || {}, {
-        data: data
-      })).then(expect).then(validationToPromise);
+      return validationToPromise(through.to(data)).then(function(data) {
+        return ajax.put(url, merge(options || {}, {
+          data: data
+        }));
+      }).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
     };
   }
 };
@@ -6683,19 +6691,21 @@ rest = _dereq_('./rest');
 api = function(options) {
   return {
     get: function(_arg) {
-      var expect, from;
-      from = _arg.from, expect = _arg.expect;
+      var expect, from, through;
+      from = _arg.from, through = _arg.through, expect = _arg.expect;
       return rest.getter({
         from: from,
+        through: through,
         expect: expect,
         options: options
       });
     },
     post: function(_arg) {
-      var expect, to;
-      to = _arg.to, expect = _arg.expect;
+      var expect, through, to;
+      to = _arg.to, through = _arg.through, expect = _arg.expect;
       return rest.poster({
         to: to,
+        through: through,
         expect: expect,
         options: options
       });
@@ -6709,10 +6719,11 @@ api = function(options) {
       });
     },
     put: function(_arg) {
-      var at, expect;
-      at = _arg.at, expect = _arg.expect;
+      var at, expect, through;
+      at = _arg.at, through = _arg.through, expect = _arg.expect;
       return rest.putter({
         at: at,
+        through: through,
         expect: expect,
         options: options
       });
@@ -6726,7 +6737,7 @@ module.exports = restful = function(baseUrl, apiDescriptor) {
 
 
 },{"./rest":46}],48:[function(_dereq_,module,exports){
-var Failure, Success, listSequence, nativeTypeValidator, objectSequence, pairsToObject, types, _ref;
+var Failure, Success, listSequence, nativeTypeValidator, objectSequence, pairsToObject, property, types, _ref;
 
 _ref = _dereq_('data.validation'), Success = _ref.Success, Failure = _ref.Failure;
 
@@ -6786,6 +6797,15 @@ listSequence = function(list) {
   } else {
     return Success(result);
   }
+};
+
+property = function(name) {
+  return function(value) {
+    var object;
+    object = {};
+    object[name] = value;
+    return object;
+  };
 };
 
 nativeTypeValidator = function(type) {
@@ -6867,6 +6887,25 @@ module.exports = types = {
         return Success(null);
       }
     };
+  },
+  Project: {
+    Property: function(name, type) {
+      if (type == null) {
+        type = types.Any;
+      }
+      return {
+        to: function(value) {
+          return type(value).map(property(name));
+        },
+        from: function(object) {
+          if ((object != null ? object[name] : void 0) != null) {
+            return type(object[name]).leftMap(property(name));
+          } else {
+            return Failure(["Object did not have property " + name]);
+          }
+        }
+      };
+    }
   }
 };
 
