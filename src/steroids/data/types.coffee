@@ -82,8 +82,14 @@ module.exports = types =
 
   Projection:
     ToProperty: (name) -> (value) ->
-      result = {}
-      result[name] = value
-      result
+      object = {}
+      object[name] = value
+      object
+
+    FromProperty: (name) -> (object) ->
+      if object?[name]?
+        Success object[name]
+      else
+        Failure ["Object did not have property #{name}"]
 
 

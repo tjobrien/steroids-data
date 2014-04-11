@@ -120,5 +120,16 @@ describe "Typing data with steroids.data.types", ->
       it 'Should project the value into an object property', ->
         types.Projection.ToProperty('property')('anything').should.eql property: 'anything'
 
+    describe "FromProperty", ->
+      it 'Should accept a value and return a validator', ->
+        types.Projection.FromProperty('property').should.be.a 'function'
 
+      it 'Should fail if there is no property', ->
+        types.Projection.FromProperty('property')().isFailure.should.be.true
+
+      it 'Should succeed if the property exists', ->
+        types.Projection.FromProperty('property')({ property: 'anything' }).isSuccess.should.be.true
+
+      it 'Should contain value extracted from property', ->
+        types.Projection.FromProperty('property')({ property: 'anything' }).get().should.equal 'anything'
 
