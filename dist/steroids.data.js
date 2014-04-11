@@ -6608,7 +6608,7 @@ Promise = _dereq_('bluebird');
 
 validationToPromise = function(validation) {
   return validation.fold(function(errors) {
-    return Promise.reject(new Error(errors));
+    return Promise.reject(new Error(JSON.stringify(errors)));
   }, function(value) {
     return Promise.resolve(value);
   });
@@ -6813,11 +6813,12 @@ module.exports = types = {
       type = types.Any;
     }
     return function(object) {
-      if ((object != null ? object[name] : void 0) != null) {
-        return type(object[name]);
-      } else {
-        return type(null);
-      }
+      return ((object != null ? object[name] : void 0) != null ? type(object[name]) : type(null)).leftMap(function(errors) {
+        var result;
+        result = {};
+        result[name] = errors;
+        return result;
+      });
     };
   },
   Object: function(memberTypes) {
