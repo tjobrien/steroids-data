@@ -35,7 +35,7 @@ listSequence = (list) ->
     Success result
 
 # (name) -> (value) -> {name: value}
-property = (name) -> (value) ->
+objectWithProperty = (name) -> (value) ->
   object = {}
   object[name] = value
   object
@@ -98,11 +98,11 @@ module.exports = types =
     Property: (name, type = types.Any) ->
 
       to: (value) ->
-        type(value).map(property name)
+        type(value).map(objectWithProperty name)
 
       from: (object) ->
         if object?[name]?
-          type(object[name]).leftMap(property name)
+          type(object[name]).leftMap(objectWithProperty name)
         else
           Failure ["Object did not have property #{name}"]
 
