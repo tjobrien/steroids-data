@@ -73,3 +73,19 @@ describe "steroids.data.schema.json", ->
         for notAnArray in ["foo", 123, {}, false]
           array(notAnArray).isFailure.should.be.true
 
+
+    describe "with typed elements", ->
+      stringArray = jsonSchema {
+        type: "array"
+        items:
+          type: "string"
+      }
+
+      it "should succeed with an array of strings", ->
+        for arrayOfStrings in [[], ['foo']]
+          stringArray(arrayOfStrings).isSuccess.should.be.true
+
+      it "should fail with an array where not all items match type", ->
+        for notAnArrayOfStrings in [[123], ['foo', {}]]
+          stringArray(notAnArrayOfStrings).isFailure.should.be.true
+
