@@ -48,4 +48,16 @@ describe "steroids.data.schema.json", ->
         for notABoolean in ["foo", 123, {}, []]
           boolean(notABoolean).isFailure.should.be.true
 
+  describe "object type validation based on a schema", ->
+
+    describe "with a plain object schema", ->
+      object = jsonSchema type: "object"
+      it "should succeed with an object", ->
+        object({}).isSuccess.should.be.true
+        object(foo: "bar").isSuccess.should.be.true
+
+      it "should fail with non-objects", ->
+        for notAnObject in ["foo", 123, [], false]
+          object(notAnObject).isFailure.should.be.true
+
 
