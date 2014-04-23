@@ -89,6 +89,10 @@ describe "Typing data with steroids.data.types", ->
 
     it 'Should pass an object whose elements pass validation', ->
       StringMap({}).isSuccess.should.be.true
+      StringMap(foo: "bar").isSuccess.should.be.true
+
+    it 'Should fail if any item does not pass', ->
+      StringMap(foo: "bar", qux: 123).isFailure.should.be.true
 
   it "Should have a Boolean type", ->
     types.Boolean.should.be.a 'function'

@@ -81,6 +81,12 @@ module.exports = types =
 
   List: (type) -> (list) ->
     listSequence (type(value) for value in list)
+
+  Map: (type) -> (object) ->
+    objectSequence (
+      for name, _ of object
+        [name, types.Property(name, type)(object)]
+    )
   
   Optional: (type) -> (input) ->
     if input?
