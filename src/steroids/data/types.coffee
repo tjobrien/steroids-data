@@ -46,6 +46,9 @@ nativeTypeValidator = (type) -> (input) ->
   else
     Failure ["Input was not of type #{type}"]
 
+isArray = (input) -> (Object::toString.call input) is '[object Array]'
+isObject = (input) -> (Object::toString.call input) is '[object Object]'
+
 module.exports = types =
   Any: (input) ->
     if input?
@@ -80,13 +83,19 @@ module.exports = types =
       objectSequence ([name, projectPropertyFrom(object)] for name, projectPropertyFrom of propertyProjections)
 
   List: (type) -> (list) ->
-    listSequence (type(value) for value in list)
+    if not isArray list
+      Failure ['Input was not an array']
+    else
+      listSequence (type(value) for value in list)
 
   Map: (type) -> (object) ->
-    objectSequence (
-      for name, _ of object
-        [name, types.Property(name, type)(object)]
-    )
+    if not isObject object
+      Failure ['Input was not an object']
+    else
+      objectSequence (
+        for name, _ of object
+          [name, types.Property(name, type)(object)]
+      )
   
   Optional: (type) -> (input) ->
     if input?

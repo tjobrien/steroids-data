@@ -72,6 +72,10 @@ describe "Typing data with steroids.data.types", ->
       StringList([]).isSuccess.should.be.true
       StringList(['anything']).isSuccess.should.be.true
 
+    it 'Should fail if input is not a list', ->
+      for notAList in [null, {}, 'anything']
+        StringList(notAList).isFailure.should.be.true
+
     it 'Should fail if any item does not pass', ->
       StringList([null]).isFailure.should.be.true
       StringList(['anything', null]).isFailure.should.be.true
@@ -90,6 +94,10 @@ describe "Typing data with steroids.data.types", ->
     it 'Should pass an object whose elements pass validation', ->
       StringMap({}).isSuccess.should.be.true
       StringMap(foo: "bar").isSuccess.should.be.true
+
+    it 'Should fail if input is not an object', ->
+      for notAnObject in [null, [], 'anything']
+        StringMap(notAnObject).isFailure.should.be.true
 
     it 'Should fail if any item does not pass', ->
       StringMap(foo: "bar", qux: 123).isFailure.should.be.true
