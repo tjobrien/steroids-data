@@ -7,4 +7,5 @@ module.exports = (schema = {}) ->
     when "string" then types.String
     when "number" then types.Number
     when "boolean" then types.Boolean
+    when "object" then types.Map types.Any
     else types.Any
