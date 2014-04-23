@@ -60,4 +60,16 @@ describe "steroids.data.schema.json", ->
         for notAnObject in ["foo", 123, [], false]
           object(notAnObject).isFailure.should.be.true
 
+  describe "array type validation based on a schema", ->
+
+    describe "with a plain array schema", ->
+      array = jsonSchema type: "array"
+
+      it "should succeed with an array", ->
+        array([]).isSuccess.should.be.true
+        array(['bar']).isSuccess.should.be.true
+
+      it "should fail with non-arrays", ->
+        for notAnArray in ["foo", 123, {}, false]
+          array(notAnArray).isFailure.should.be.true
 
