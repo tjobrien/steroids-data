@@ -79,6 +79,17 @@ describe "Typing data with steroids.data.types", ->
     it 'Allows access to validated list', ->
       StringList(['anything']).get()[0].should.equal 'anything'
 
+  it "Should have a Map type", ->
+    types.Map.should.be.a 'function'
+
+  describe "Map type", ->
+    StringMap = types.Map(types.String)
+    it 'Should accept a type and return a validation', ->
+      StringMap.should.be.a.function
+
+    it 'Should pass an object whose elements pass validation', ->
+      StringMap({}).isSuccess.should.be.true
+
   it "Should have a Boolean type", ->
     types.Boolean.should.be.a 'function'
 
