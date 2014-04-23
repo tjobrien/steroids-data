@@ -36,3 +36,13 @@ describe "steroids.data.schema.json", ->
       for notANumber in ["foo", {}, [], true]
         number(notANumber).isFailure.should.be.true
 
+  describe "validating with a boolean type", ->
+    boolean = jsonSchema type: "boolean"
+    it "should succeed with a boolean", ->
+      boolean(false).isSuccess.should.be.true
+      boolean(true).isSuccess.should.be.true
+
+    it "should fail with non-booleans", ->
+      for notABoolean in ["foo", 123, {}, []]
+        boolean(notABoolean).isFailure.should.be.true
+
