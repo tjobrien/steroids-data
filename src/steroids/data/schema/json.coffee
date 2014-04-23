@@ -5,4 +5,5 @@ types = require '../types'
 module.exports = (schema = {}) ->
   switch schema?.type
     when "string" then types.String
+    when "number" then types.Number
     else types.Any

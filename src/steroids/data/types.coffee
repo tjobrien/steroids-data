@@ -57,6 +57,8 @@ module.exports = types =
 
   Boolean: nativeTypeValidator 'boolean'
 
+  Number: nativeTypeValidator 'number'
+
   Property: (name, type = types.Any) -> (object) ->
     (if object?[name]?
       type object[name]
