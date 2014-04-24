@@ -60,6 +60,28 @@ describe "steroids.data.schema.json", ->
         for notAnObject in ["foo", 123, [], false]
           object(notAnObject).isFailure.should.be.true
 
+    describe "with typed properties", ->
+      objectWithProperties = jsonSchema {
+        type: "object"
+        properties:
+          numberProperty: { type: "number" }
+          stringProperty: { type: "string" }
+          booleanProperty: { type: "boolean" }
+      }
+
+      it "should succeed with an object that matches given properties", ->
+        objectWithProperties(
+          numberProperty: 123
+          stringProperty: "anything"
+          booleanProperty: true
+        ).isSuccess.should.be.true
+
+      it "should fail with an object where anything is missing", ->
+        objectWithProperties(
+          numberProperty: 123
+        ).isFailure.should.be.true
+
+
   describe "array type validation based on a schema", ->
 
     describe "with a plain array schema", ->
