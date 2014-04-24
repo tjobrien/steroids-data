@@ -76,10 +76,10 @@ describe "steroids.data.schema.json", ->
           booleanProperty: true
         ).isSuccess.should.be.true
 
-      it "should fail with an object where anything is missing", ->
+      it "should not fail with an object where something is missing", ->
         objectWithProperties(
           numberProperty: 123
-        ).isFailure.should.be.true
+        ).isSuccess.should.be.true
 
       it "should fail with an object where any property fails to typecheck", ->
         objectWithProperties(
