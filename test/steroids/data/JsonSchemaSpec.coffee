@@ -114,6 +114,12 @@ describe "steroids.data.schema.json", ->
           requiredNumberProperty: 123
         ).isFailure.should.be.true
 
+      it "should fail an object that is missing a property required in the required property list", ->
+        objectWithRequiredProperties(
+          stringProperty: "anything"
+          requiredBooleanProperty: true
+        ).isFailure.should.be.true
+
 
   describe "array type validation based on a schema", ->
 
