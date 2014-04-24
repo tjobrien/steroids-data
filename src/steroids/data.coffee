@@ -5,3 +5,5 @@ module.exports =
   resources:
     restful: require './data/resources/restful'
     builtio: require './data/resources/builtio'
+  schema:
+    json: require './data/schema/json'
