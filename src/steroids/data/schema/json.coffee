@@ -1,3 +1,4 @@
+{mapValues} = require 'lodash'
 {Success, Failure} = require 'data.validation'
 types = require '../types'
 
@@ -8,12 +9,7 @@ objectTypeFromPropertySchema = (propertiesToSchemas) ->
   if !propertiesToSchemas?
     types.Map types.Any
   else
-    types.Object(
-      propertyTypes = {}
-      for propertyName, propertySchema of propertiesToSchemas
-        propertyTypes[propertyName] = typeFromJsonSchema propertySchema
-      propertyTypes
-    )
+    types.Object (mapValues propertiesToSchemas, typeFromJsonSchema)
 
 # (schema) -> (value) -> Validation value
 typeFromJsonSchema = (schema = {}) ->
