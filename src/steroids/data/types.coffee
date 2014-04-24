@@ -74,16 +74,13 @@ module.exports = types =
       result
 
   Object: (memberTypes) ->
-    propertyProjections = do ->
-      result = {}
-      for name, type of memberTypes
-        result[name] = types.Property(name, type)
-      result
+    propertyNamesToTypes = mapValues memberTypes, (type, name) ->
+      types.Property(name, type)
 
     (object) ->
       objectSequence (
-        pairs mapValues propertyProjections, (projectPropertyFrom) ->
-          projectPropertyFrom(object)
+        pairs mapValues propertyNamesToTypes, (propertyType) ->
+          propertyType(object)
       )
 
   List: (type) -> (list) ->
