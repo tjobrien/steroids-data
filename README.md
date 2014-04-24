@@ -8,11 +8,11 @@ The part that kinda looks like ActiveRecord. Allows you to declare a remote reso
 
 ## steroids.data.schema
 
-The part that looks like a bunch of type annotations on a regular CoffeeScript class. Allows you to declare a type you expect to receive from a remote resource.
+The part that consumes data structures and spits out types. Allows you to build type validators based on descriptions from a remote source, eg. JSON-Schema.
 
 ## steroids.data.types
 
-The part that looks like a bunch of arrows on top of arrows. Allows you to tell a type from another and use that information in a schema.
+The part that looks like a bunch of type annotations. Provides validator functions that allow you to tell a type from another and use that information in a schema.
 
 ## steroids.data.cache
 
