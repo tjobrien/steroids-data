@@ -1,3 +1,4 @@
+{pairs, map, mapValues} = require 'lodash'
 {Success, Failure} = require 'data.validation'
 
 # List [String, Validation] -> Validation Object
@@ -80,7 +81,10 @@ module.exports = types =
       result
 
     (object) ->
-      objectSequence ([name, projectPropertyFrom(object)] for name, projectPropertyFrom of propertyProjections)
+      objectSequence (
+        pairs mapValues propertyProjections, (projectPropertyFrom) ->
+          projectPropertyFrom(object)
+      )
 
   List: (type) -> (list) ->
     if not isArray list
@@ -93,8 +97,8 @@ module.exports = types =
       Failure ['Input was not an object']
     else
       objectSequence (
-        for name, _ of object
-          [name, types.Property(name, type)(object)]
+        pairs mapValues object, (_, propertyName) ->
+          types.Property(propertyName, type)(object)
       )
   
   Optional: (type) -> (input) ->
