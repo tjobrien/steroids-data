@@ -81,6 +81,13 @@ describe "steroids.data.schema.json", ->
           numberProperty: 123
         ).isFailure.should.be.true
 
+      it "should fail with an object where any property fails to typecheck", ->
+        objectWithProperties(
+          numberProperty: 123
+          stringProperty: "anything"
+          booleanProperty: 123
+        ).isFailure.should.be.true
+
 
   describe "array type validation based on a schema", ->
 
