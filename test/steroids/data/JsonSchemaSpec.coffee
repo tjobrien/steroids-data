@@ -88,6 +88,32 @@ describe "steroids.data.schema.json", ->
           booleanProperty: 123
         ).isFailure.should.be.true
 
+    describe "with required properties", ->
+      objectWithRequiredProperties = jsonSchema {
+        type: "object"
+        properties:
+          stringProperty:
+            type: "string"
+          requiredBooleanProperty:
+            type: "boolean"
+            required: true
+          requiredNumberProperty:
+            type: "number"
+        required: ["requiredNumberProperty"]
+      }
+
+      it "should succeed with an object that has all required properties", ->
+        objectWithRequiredProperties(
+          requiredBooleanProperty: true
+          requiredNumberProperty: 123
+        ).isSuccess.should.be.true
+
+      it "should fail an object that is missing a property required directly in the property definition", ->
+        objectWithRequiredProperties(
+          stringProperty: "anything"
+          requiredNumberProperty: 123
+        ).isFailure.should.be.true
+
 
   describe "array type validation based on a schema", ->
 
