@@ -10,7 +10,11 @@ objectTypeFromPropertySchema = (propertiesToSchemas) ->
     types.Map types.Any
   else
     types.Object (mapValues propertiesToSchemas, (propertySchema) ->
-      types.Optional (typeFromJsonSchema propertySchema)
+      propertyType = typeFromJsonSchema propertySchema
+      if propertySchema?.required
+        propertyType
+      else
+        types.Optional propertyType
     )
 
 # (schema) -> (value) -> Validation value
