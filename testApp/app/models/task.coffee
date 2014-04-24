@@ -1,9 +1,15 @@
 
-Task = do ({Object, String, Boolean, Optional} = steroids.data.types) ->
-  Object
-    description: String
-    completed: Optional Boolean
-    uid: Optional String
+Task = steroids.data.schema.json {
+  type: "object"
+  properties:
+    description:
+      type: "string"
+      required: true
+    completed:
+      type: "boolean"
+    uid:
+      type: "string"
+}
 
 TaskResource = steroids.data.resources.builtio(
   applicationApiKey: 'blt349bf00642a3a1b7'
