@@ -4,7 +4,7 @@ version: v1
 mediaType: application/json
 baseUri: http://rest-api.testgyver.com/{version}    
 traits:
-  - securedBySteroidsApiKey: !include steroids-api-key-headers.yml
+  - securedBySteroidsApiKey: !include resource/steroids-api-key-headers.yml
 resourceTypes:
   - collection: !include resource/proxy-collection.yml
   - member: !include resource/proxy-member.yml
