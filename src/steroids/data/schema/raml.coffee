@@ -1,4 +1,5 @@
-ajax = require '../ajax'
+ramlParser = require 'raml-parser'
 
 module.exports =
-  fromFile: (url) -> ajax.get url, accept: 'raml'
+  fromFile: (url) ->
+    ramlParser.loadFile url
