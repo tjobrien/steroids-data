@@ -1,21 +1,29 @@
 superagent = require 'superagent'
 Promise = require 'bluebird'
 
-# requestBuilder -> Promise data
-requestToPromise = (requestBuilder) ->
+# requestBuilder -> Promise res
+requestBuilderToResponsePromise = (requestBuilder) ->
   new Promise (resolve, reject) ->
     requestBuilder.end (err, res) ->
       if err
         reject err
-      else if res.error
-        reject res.error
       else
-        resolve res.body
+        resolve res
 
-request = (method) -> (path, options = {}) ->
-  requestToPromise do ->
+responsetoResponseBody = (response) ->
+  if response.error
+    throw new Error response.error
+  else if response.body
+    response.body
+  else if response.text
+    response.text
+  else
+    throw new Error "Empty response"
 
-    request = superagent[method](
+request = (method, path, options = {}) ->
+  requestBuilderToResponsePromise do ->
+
+    requestBuilder = superagent[method](
       if options.baseUrl?
         [options.baseUrl, path].join '/'
       else
@@ -24,18 +32,29 @@ request = (method) -> (path, options = {}) ->
 
     if options.headers
       for header, value of options.headers || {}
-        request.set header, value
+        requestBuilder.set header, value
 
     if options.data
-      request.send options.data
+      requestBuilder.send options.data
+
+    if options.type?
+      requestBuilder.type options.type
 
     if options.accept?
-      request.accept options.accept
+      requestBuilder.accept options.accept
 
-    request
+    if options.buffer
+      requestBuilder.buffer()
+
+    requestBuilder
+
+requestDataByMethod = (method) -> (path, options = {}) ->
+  request(method, path, options)
+    .then(responsetoResponseBody)
 
 module.exports = ajax =
-  get: request 'get'
-  post: request 'post'
-  del: request 'del'
-  put: request 'put'
+  request: request
+  get: requestDataByMethod 'get'
+  post: requestDataByMethod 'post'
+  del: requestDataByMethod 'del'
+  put: requestDataByMethod 'put'
