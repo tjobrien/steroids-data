@@ -7,3 +7,4 @@ module.exports =
     builtio: require './data/resources/builtio'
   schema:
     json: require './data/schema/json'
+    raml: require './data/schema/raml'
