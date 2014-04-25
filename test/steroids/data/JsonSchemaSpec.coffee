@@ -3,6 +3,17 @@ require('chai').should()
 jsonSchema = require '../../../src/steroids/data/schema/json'
 
 describe "steroids.data.schema.json", ->
+  it "should have a function for reading a schema from a file", ->
+    jsonSchema.fromFile.should.be.a 'function'
+
+  describe "reading a json schema file", ->
+    {fromFile} = jsonSchema
+    schemaFileUrl = 'http://localhost:9001/data/car/resource/schema-cars.json'
+
+    it "should accept a url and return a promise", ->
+      fromFile(schemaFileUrl).then (schema) ->
+        schema.should.be.an.object
+
   it "should have a function for converting a schema to a type", ->
     jsonSchema.toType.should.be.defined
     jsonSchema.toType.should.be.a 'function'
