@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "title": "cars collection",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "description": "The canonical car representation",
+    "properties": {
+      "name": { "type": "string" },
+      "model": { "type": "string" }
+    },
+    "required": []
+  }
+}

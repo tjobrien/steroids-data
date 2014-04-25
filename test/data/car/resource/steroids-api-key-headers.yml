@@ -1,0 +1,7 @@
+headers:
+  steroidsApiKey:
+    type: string
+    example: yourkeygoeshere1234
+  steroidsAppId:
+    type: integer
+    example: 123445545431

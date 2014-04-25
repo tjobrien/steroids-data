@@ -1,0 +1,19 @@
+usage: This resourceType should be used for any collection of items
+is: [ securedBySteroidsApiKey ]
+get:
+  description: collection
+  responses:
+    200:
+      body:
+        application/json:
+          schema: <<resourcePathName>> # e.g cars
+post:
+  description: create
+  body:
+    application/json:
+      schema: <<resourcePathName | !singularize>>
+  responses:
+    200:
+      body:
+        application/json:
+          schema: <<resourcePathName | !singularize>> # e.g. car

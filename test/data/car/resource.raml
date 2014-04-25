@@ -1,0 +1,20 @@
+#%RAML 0.8
+title: Steroids Data
+version: v1
+mediaType: application/json
+baseUri: http://rest-api.testgyver.com/{version}    
+traits:
+  - securedBySteroidsApiKey: !include steroids-api-key-headers.yml
+resourceTypes:
+  - collection: !include resource/proxy-collection.yml
+  - member: !include resource/proxy-member.yml
+
+# stuff below is generated on resource basis
+schemas:
+  - cars: !include resource/schema-cars.json
+  - car: !include resource/schema-car.json
+    
+/cars:
+  type: collection
+  /{identifier}:
+    type: member
