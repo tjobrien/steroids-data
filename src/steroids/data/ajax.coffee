@@ -29,6 +29,9 @@ request = (method) -> (path, options = {}) ->
     if options.data
       request.send options.data
 
+    if options.accept?
+      request.accept options.accept
+
     request
 
 module.exports = ajax =
