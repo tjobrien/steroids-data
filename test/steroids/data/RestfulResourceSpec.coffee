@@ -21,7 +21,7 @@ TaskResource = restful {
     expect: Task
 
 
-describe "Accessing data from a static REST backend", ->
+describe "Accessing data from a static REST backend with steroids.data.resources.restful", ->
   it "can be done using a user-defined resource", ->
     TaskResource.should.be.defined
 
