@@ -4,6 +4,7 @@ module.exports = (grunt) ->
     grunt.config.set 'mochaTest.options',
       grep: grunt.option('grep'),
       invert: grunt.option('invert') || false
+      reporter: grunt.option('reporter') || 'spec'
 
     grunt.task.run [
       'mochaTest'
