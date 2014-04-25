@@ -1,5 +1,5 @@
 
-Task = steroids.data.schema.json {
+Task = steroids.data.schema.json.toType {
   type: "object"
   properties:
     description:

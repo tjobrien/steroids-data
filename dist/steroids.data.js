@@ -13577,7 +13577,9 @@ typeFromJsonSchema = function(schema) {
   }
 };
 
-module.exports = typeFromJsonSchema;
+module.exports = {
+  toType: typeFromJsonSchema
+};
 
 
 },{"../types":50,"data.validation":39,"lodash":40}],50:[function(_dereq_,module,exports){

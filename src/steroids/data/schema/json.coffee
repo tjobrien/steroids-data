@@ -27,4 +27,5 @@ typeFromJsonSchema = (schema = {}) ->
     when "array" then arrayTypeFromItemSchema schema.items || {}
     else types.Any
 
-module.exports = typeFromJsonSchema
+module.exports =
+  toType: typeFromJsonSchema
