@@ -1,6 +1,7 @@
 {mapValues, contains} = require 'lodash'
 {Success, Failure} = require 'data.validation'
 types = require '../types'
+ajax = require '../ajax'
 
 arrayTypeFromItemSchema = (itemSchema) ->
   types.List (typeFromJsonSchema itemSchema)
@@ -28,4 +29,5 @@ typeFromJsonSchema = (schema = {}) ->
     else types.Any
 
 module.exports =
+  fromFile: (url) -> ajax.get url
   toType: typeFromJsonSchema
