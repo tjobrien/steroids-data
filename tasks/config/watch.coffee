@@ -8,5 +8,6 @@ module.exports =
     files: [
       '<%= dir.src %>/**/*.coffee'
       '<%= dir.test %>/**/*Spec.coffee'
+      '<%= dir.test %>/data/**/*.*'
     ]
     tasks: 'test'
