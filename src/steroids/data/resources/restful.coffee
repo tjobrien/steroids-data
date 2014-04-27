@@ -64,17 +64,13 @@ rest =
       .then(validationToPromise)
 
 api = (options) ->
-  get: (resource) ->
-    rest.getter merge resource, { options }
+  withDefaultOptions = (resourceBuilder) -> (resourceDescription) ->
+    resourceBuilder merge resourceDescription, { options }
 
-  post: (resource) ->
-    rest.poster merge resource, { options }
-
-  del: (resource) ->
-    rest.deleter merge resource, { options }
-
-  put: (resource) ->
-    rest.putter merge resource, { options }
+  get: withDefaultOptions rest.getter
+  post: withDefaultOptions rest.poster
+  del: withDefaultOptions rest.deleter
+  put: withDefaultOptions rest.putter
 
 module.exports = restful = (options, apiDescriptor) ->
   apiDescriptor api options
