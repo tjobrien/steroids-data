@@ -45,6 +45,10 @@ describe "steroids.data.schema.raml", ->
             forEachMethod (method) ->
               method.should.have.property 'description'
 
+          it "should have a type", ->
+            forEachMethod (method) ->
+              method.should.have.property 'type'
+
 
   it "should have a function for converting a schema to a resource", ->
     ramlSchema.toResource.should.be.a 'function'
