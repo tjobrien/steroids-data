@@ -1,7 +1,7 @@
-{fromFile} = steroids.data.schema.raml 
-ramlResource = steroids.data.resources.raml
+ramlSchemaFromFile = steroids.data.schema.raml.fromFile
+ramlSchemaToResource = steroids.data.resources.raml
 
-AutoTaskResource = fromFile('//localhost/models/resources/Task.raml').then ramlResource
+AutoTaskResource = ramlSchemaFromFile('//localhost/resources/Task.raml').then ramlSchemaToResource
 
 angular
   .module('TaskModel', [])
