@@ -32,11 +32,14 @@ class ServiceSchema
         @body
         responses
       }) ->
-        @responses = (new ResponseSchema code, response for code, response of responses)
+        @responses = (new ResponseSchema code, (response || {}) for code, response of responses)
 
       class ResponseSchema
-        constructor: (@code, {
-        }) ->
+        constructor: (
+          @code
+          response
+        ) ->
+          @body = response.body ? {}
 
 
 module.exports =
