@@ -8,17 +8,17 @@ class FileReader extends ramlParser.FileReader
       .request('get', url, buffer: true)
       .then((response) -> response.text)
 
-class ResourceSchema
-  constructor: ({
-    @relativeUri
-  }) ->
-
 class ServiceSchema
   constructor: ({
     @title
     resources
   }) ->
     @resources = (new ResourceSchema resource for resource in resources)
+
+  class ResourceSchema
+    constructor: ({
+      @relativeUri
+    }) ->
 
 module.exports =
   fromFile: (url) ->
