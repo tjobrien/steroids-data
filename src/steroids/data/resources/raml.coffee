@@ -1,5 +1,12 @@
+_ = require 'lodash'
 restful = require './restful'
 types = require '../types'
+
+uriToFunction = (uri) ->
+  uriTemplate = _.template(uri, null, interpolate: /{([\s\S]+?)}/g)
+  (id) ->
+    uriTemplate {id}
+
 
 module.exports = ramlResourceFromSchema = (schema) ->
   restful {
@@ -11,7 +18,7 @@ module.exports = ramlResourceFromSchema = (schema) ->
       do (relativeUri = resource.relativeUri) ->
         for action in resource.actions
           actions[action.description] = api[action.method]
-            from: -> relativeUri
+            from: uriToFunction relativeUri
             expect: types.Any
             through: types.Project.Identity
 
