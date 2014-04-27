@@ -35,6 +35,11 @@ describe "steroids.data.schema.raml", ->
           forEachResource (resource) ->
             resource.actions.should.be.an.array
 
+        it "can have nested resources", ->
+          forEachResource (resource) ->
+            if resource.resources?
+              resource.resources.should.be.an.array
+
         forEachAction = (assert) ->
           forEachResource (resource) ->
             for action in resource.actions
