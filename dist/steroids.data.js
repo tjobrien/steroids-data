@@ -31606,7 +31606,8 @@ module.exports = {
   types: _dereq_('./data/types'),
   resources: {
     restful: _dereq_('./data/resources/restful'),
-    builtio: _dereq_('./data/resources/builtio')
+    builtio: _dereq_('./data/resources/builtio'),
+    raml: _dereq_('./data/resources/raml')
   },
   schema: {
     json: _dereq_('./data/schema/json'),
@@ -31615,7 +31616,7 @@ module.exports = {
 };
 
 
-},{"./data/ajax":97,"./data/resources/builtio":98,"./data/resources/restful":100,"./data/schema/json":101,"./data/schema/raml":102,"./data/types":103}],97:[function(_dereq_,module,exports){
+},{"./data/ajax":97,"./data/resources/builtio":98,"./data/resources/raml":99,"./data/resources/restful":100,"./data/schema/json":101,"./data/schema/raml":102,"./data/types":103}],97:[function(_dereq_,module,exports){
 var Promise, ajax, request, requestBuilderToResponsePromise, requestDataByMethod, responsetoResponseBody, superagent;
 
 superagent = _dereq_('superagent');
@@ -31717,14 +31718,14 @@ module.exports = builtio = function(_arg) {
   }, function(api) {
     return {
       findAll: api.get({
-        from: function() {
+        path: function() {
           return 'objects.json';
         },
         through: types.Project.Property('objects'),
         expect: types.List(schema)
       }),
       find: api.get({
-        from: function(id) {
+        path: function(id) {
           return "objects/" + id + ".json";
         },
         through: types.Project.Property('object'),
@@ -31732,19 +31733,19 @@ module.exports = builtio = function(_arg) {
       }),
       create: api.post({
         through: types.Project.Property('object'),
-        to: function() {
+        path: function() {
           return "objects";
         },
         expect: schema
       }),
       del: api.del({
-        at: function(id) {
+        path: function(id) {
           return "objects/" + id + ".json";
         }
       }),
       update: api.put({
         through: types.Project.Property('object'),
-        at: function(id) {
+        path: function(id) {
           return "objects/" + id + ".json";
         },
         expect: schema
@@ -31755,8 +31756,61 @@ module.exports = builtio = function(_arg) {
 
 
 },{"../types":103,"./restful":100}],99:[function(_dereq_,module,exports){
-var Promise, ajax, merge, validationToPromise,
+var ramlResourceFromSchema, restful, types, uriToFunction, _;
+
+_ = _dereq_('lodash');
+
+restful = _dereq_('./restful');
+
+types = _dereq_('../types');
+
+uriToFunction = function(uri) {
+  var uriTemplate;
+  uriTemplate = _.template(uri, null, {
+    interpolate: /{([\s\S]+?)}/g
+  });
+  return function(id) {
+    return uriTemplate({
+      id: id
+    });
+  };
+};
+
+module.exports = ramlResourceFromSchema = function(schema) {
+  return restful({
+    baseUrl: schema.baseUri
+  }, function(api) {
+    var actions, resource, _fn, _i, _len, _ref;
+    actions = {};
+    _ref = schema.resources;
+    _fn = function(relativeUri) {
+      var action, _j, _len1, _ref1, _results;
+      _ref1 = resource.actions;
+      _results = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        action = _ref1[_j];
+        _results.push(actions[action.description] = api[action.method]({
+          path: uriToFunction(relativeUri),
+          expect: types.Any,
+          through: types.Project.Identity
+        }));
+      }
+      return _results;
+    };
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      resource = _ref[_i];
+      _fn(resource.relativeUri);
+    }
+    return actions;
+  });
+};
+
+
+},{"../types":103,"./restful":100,"lodash":66}],100:[function(_dereq_,module,exports){
+var Promise, ajax, api, merge, rest, restful, validationToPromise, _,
   __slice = [].slice;
+
+_ = _dereq_('lodash');
 
 ajax = _dereq_('../ajax');
 
@@ -31771,36 +31825,28 @@ validationToPromise = function(validation) {
 };
 
 merge = function() {
-  var key, object, objects, result, value, _i, _len;
+  var objects;
   objects = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-  result = {};
-  for (_i = 0, _len = objects.length; _i < _len; _i++) {
-    object = objects[_i];
-    for (key in object) {
-      value = object[key];
-      result[key] = value;
-    }
-  }
-  return result;
+  return _.merge.apply(_, [{}].concat(__slice.call(objects)));
 };
 
-module.exports = {
+rest = {
   getter: function(_arg) {
-    var expect, from, options, through;
-    from = _arg.from, through = _arg.through, expect = _arg.expect, options = _arg.options;
+    var expect, options, path, through;
+    path = _arg.path, through = _arg.through, expect = _arg.expect, options = _arg.options;
     return function() {
       var args, url;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      url = from.apply(null, args);
+      url = path.apply(null, args);
       return ajax.get(url, options || {}).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
     };
   },
   poster: function(_arg) {
-    var expect, options, through, to;
-    to = _arg.to, through = _arg.through, expect = _arg.expect, options = _arg.options;
+    var expect, options, path, through;
+    path = _arg.path, through = _arg.through, expect = _arg.expect, options = _arg.options;
     return function(data) {
       var url;
-      url = to(data);
+      url = path(data);
       return validationToPromise(through.to(data)).then(function(data) {
         return ajax.post(url, merge(options || {}, {
           data: data
@@ -31809,22 +31855,22 @@ module.exports = {
     };
   },
   deleter: function(_arg) {
-    var at, options;
-    at = _arg.at, options = _arg.options;
+    var options, path;
+    path = _arg.path, options = _arg.options;
     return function() {
       var args, url;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      url = at.apply(null, args);
+      url = path.apply(null, args);
       return ajax.del(url, options || {});
     };
   },
   putter: function(_arg) {
-    var at, expect, options, through;
-    at = _arg.at, through = _arg.through, expect = _arg.expect, options = _arg.options;
+    var expect, options, path, through;
+    path = _arg.path, through = _arg.through, expect = _arg.expect, options = _arg.options;
     return function() {
       var args, data, url, _i;
       args = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), data = arguments[_i++];
-      url = at.apply(null, args);
+      url = path.apply(null, args);
       return validationToPromise(through.to(data)).then(function(data) {
         return ajax.put(url, merge(options || {}, {
           data: data
@@ -31834,61 +31880,29 @@ module.exports = {
   }
 };
 
-
-},{"../ajax":97,"bluebird":3}],100:[function(_dereq_,module,exports){
-var api, rest, restful;
-
-rest = _dereq_('./rest');
-
 api = function(options) {
+  var withDefaultOptions;
+  withDefaultOptions = function(resourceBuilder) {
+    return function(resourceDescription) {
+      return resourceBuilder(merge(resourceDescription, {
+        options: options
+      }));
+    };
+  };
   return {
-    get: function(_arg) {
-      var expect, from, through;
-      from = _arg.from, through = _arg.through, expect = _arg.expect;
-      return rest.getter({
-        from: from,
-        through: through,
-        expect: expect,
-        options: options
-      });
-    },
-    post: function(_arg) {
-      var expect, through, to;
-      to = _arg.to, through = _arg.through, expect = _arg.expect;
-      return rest.poster({
-        to: to,
-        through: through,
-        expect: expect,
-        options: options
-      });
-    },
-    del: function(_arg) {
-      var at;
-      at = _arg.at;
-      return rest.deleter({
-        at: at,
-        options: options
-      });
-    },
-    put: function(_arg) {
-      var at, expect, through;
-      at = _arg.at, through = _arg.through, expect = _arg.expect;
-      return rest.putter({
-        at: at,
-        through: through,
-        expect: expect,
-        options: options
-      });
-    }
+    get: withDefaultOptions(rest.getter),
+    post: withDefaultOptions(rest.poster),
+    del: withDefaultOptions(rest.deleter),
+    put: withDefaultOptions(rest.putter)
   };
 };
 
-module.exports = restful = function(baseUrl, apiDescriptor) {
-  return apiDescriptor(api(baseUrl));
+module.exports = restful = function(options, apiDescriptor) {
+  return apiDescriptor(api(options));
 };
 
 
-},{"./rest":99}],101:[function(_dereq_,module,exports){
+},{"../ajax":97,"bluebird":3,"lodash":66}],101:[function(_dereq_,module,exports){
 var Failure, Success, ajax, arrayTypeFromItemSchema, contains, mapValues, objectTypeFromPropertySchema, typeFromJsonSchema, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), mapValues = _ref.mapValues, contains = _ref.contains;
@@ -31948,9 +31962,11 @@ module.exports = {
 
 
 },{"../ajax":97,"../types":103,"data.validation":65,"lodash":66}],102:[function(_dereq_,module,exports){
-var FileReader, ajax, ramlParser,
+var FileReader, Promise, ServiceSchema, ajax, ramlParser,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Promise = _dereq_('bluebird');
 
 ajax = _dereq_('../ajax');
 
@@ -31975,16 +31991,106 @@ FileReader = (function(_super) {
 
 })(ramlParser.FileReader);
 
+ServiceSchema = (function() {
+  var ResourceSchema;
+
+  function ServiceSchema(_arg) {
+    var resource, resources;
+    this.title = _arg.title, this.baseUri = _arg.baseUri, resources = _arg.resources;
+    this.resources = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = resources.length; _i < _len; _i++) {
+        resource = resources[_i];
+        _results.push(new ResourceSchema(resource));
+      }
+      return _results;
+    })();
+  }
+
+  ResourceSchema = (function() {
+    var ActionSchema;
+
+    function ResourceSchema(_arg) {
+      var method, methods, resource, resources;
+      this.relativeUri = _arg.relativeUri, methods = _arg.methods, resources = _arg.resources;
+      this.actions = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = methods.length; _i < _len; _i++) {
+          method = methods[_i];
+          _results.push(new ActionSchema(method));
+        }
+        return _results;
+      })();
+      this.resources = (function() {
+        var _i, _len, _ref, _results;
+        _ref = resources || [];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          resource = _ref[_i];
+          _results.push(new ResourceSchema(resource));
+        }
+        return _results;
+      })();
+    }
+
+    ActionSchema = (function() {
+      var ResponseSchema;
+
+      function ActionSchema(_arg) {
+        var code, response, responses;
+        this.description = _arg.description, this.method = _arg.method, this.headers = _arg.headers, this.body = _arg.body, responses = _arg.responses;
+        this.responses = (function() {
+          var _results;
+          _results = [];
+          for (code in responses) {
+            response = responses[code];
+            _results.push(new ResponseSchema(code, response || {}));
+          }
+          return _results;
+        })();
+      }
+
+      ResponseSchema = (function() {
+        function ResponseSchema(code, response) {
+          var _ref;
+          this.code = code;
+          this.body = (_ref = response.body) != null ? _ref : {};
+        }
+
+        return ResponseSchema;
+
+      })();
+
+      return ActionSchema;
+
+    })();
+
+    return ResourceSchema;
+
+  })();
+
+  return ServiceSchema;
+
+})();
+
 module.exports = {
   fromFile: function(url) {
-    return ramlParser.loadFile(url, {
+    return Promise.cast(ramlParser.loadFile(url, {
       reader: new FileReader
-    });
+    })).then(module.exports.fromObject);
+  },
+  fromObject: function(description) {
+    return new ServiceSchema(description);
+  },
+  toResource: function(schema) {
+    return {};
   }
 };
 
 
-},{"../ajax":97,"raml-parser":76}],103:[function(_dereq_,module,exports){
+},{"../ajax":97,"bluebird":3,"raml-parser":76}],103:[function(_dereq_,module,exports){
 var Failure, Success, isArray, isObject, listSequence, map, mapValues, nativeTypeValidator, objectSequence, objectWithProperty, pairs, pairsToObject, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), pairs = _ref.pairs, map = _ref.map, mapValues = _ref.mapValues;
@@ -32150,6 +32256,10 @@ module.exports = types = {
     };
   },
   Project: {
+    Identity: {
+      to: Success,
+      from: Success
+    },
     Property: function(name, type) {
       if (type == null) {
         type = types.Any;
