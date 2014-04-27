@@ -44,7 +44,10 @@ class ServiceSchema
 
 module.exports =
   fromFile: (url) ->
-    Promise.cast(ramlParser.loadFile url, { reader: new FileReader })
-      .then((service) -> new ServiceSchema service)
+    Promise
+      .cast(ramlParser.loadFile url, { reader: new FileReader })
+      .then(module.exports.fromObject)
+
+  fromObject: (description) -> new ServiceSchema description
 
   toResource: (schema) -> {}

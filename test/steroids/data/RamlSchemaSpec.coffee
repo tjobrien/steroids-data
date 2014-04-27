@@ -4,6 +4,36 @@ ramlSchema = require '../../../src/steroids/data/schema/raml'
 schemaFileUrl = 'http://localhost:9001/data/car/resource.raml'
 
 describe "steroids.data.schema.raml", ->
+
+  it "should have a function for reading a schema from an object graph", ->
+    ramlSchema.fromObject.should.be.a 'function'
+
+  describe "reading a schema from an object graph", ->
+    {fromObject} = ramlSchema
+    serviceSchema = fromObject {
+      title: 'Test Schema'
+      resources: [
+        {
+          relativeUri: '/objects'
+          methods: [
+            {
+              description: 'findAll'
+              method: 'get'
+              headers:
+                foo: 'bar'
+              body: {}
+              responses:
+                200:
+                  body: {}
+            }
+          ]
+        }
+      ]
+    }
+
+    it "should accept an object and return a schema", ->
+      serviceSchema.should.not.be.empty
+
   it "should have a function for reading a schema from a file", ->
     ramlSchema.fromFile.should.be.a 'function'
 
@@ -13,6 +43,7 @@ describe "steroids.data.schema.raml", ->
 
     it "should accept a url and return a schema", ->
       serviceSchema.should.eventually.not.be.empty
+
 
     describe "resulting service schema", ->
       it "should have a title", ->
