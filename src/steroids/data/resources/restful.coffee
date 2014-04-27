@@ -1,3 +1,4 @@
+_ = require 'lodash'
 ajax = require '../ajax'
 Promise = require 'bluebird'
 
@@ -9,11 +10,7 @@ validationToPromise = (validation) ->
   )
 
 merge = (objects...) ->
-  result = {}
-  for object in objects
-    for key, value of object
-      result[key] = value
-  result
+  _.merge {}, objects...
 
 rest =
   # from: (args...) -> url
