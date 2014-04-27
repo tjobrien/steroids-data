@@ -18,8 +18,16 @@ class ServiceSchema
   class ResourceSchema
     constructor: ({
       @relativeUri
-      @methods
+      methods
     }) ->
+      @methods = (new MethodSchema method for method in methods)
+
+    class MethodSchema
+      constructor: ({
+        @description,
+        method
+      }) ->
+        @type = method
 
 module.exports =
   fromFile: (url) ->
