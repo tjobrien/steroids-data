@@ -15,9 +15,10 @@ describe "Accessing data from a static REST backend with steroids.data.resources
       TaskResource.findAll().then (tasks) ->
         tasks.should.not.be.empty
 
-    sampleTask = TaskResource.find('bltc95644acbfe2ca34')
+    sampleTask = null
 
     it "can find a single task", ->
+      sampleTask = TaskResource.find('bltc95644acbfe2ca34')
       sampleTask.then (task) ->
         task.should.be.an 'object'
 
