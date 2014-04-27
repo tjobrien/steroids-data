@@ -34,6 +34,10 @@ describe "steroids.data.schema.raml", ->
     it "should accept an object and return a schema", ->
       serviceSchema.should.not.be.empty
 
+    xdescribe "each schema", ->
+      it "should be a fixed point", ->
+        fromObject(serviceSchema).should.deep.equal serviceSchema
+
   it "should have a function for reading a schema from a file", ->
     ramlSchema.fromFile.should.be.a 'function'
 
