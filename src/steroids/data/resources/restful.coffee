@@ -13,12 +13,12 @@ merge = (objects...) ->
   _.merge {}, objects...
 
 rest =
-  # from: (args...) -> url
+  # path: (args...) -> url
   # through: Project data
   # expect: (data) -> Validation data
   # options: {}
-  getter: ({from, through, expect, options}) -> (args...) ->
-    url = from args...
+  getter: ({path, through, expect, options}) -> (args...) ->
+    url = path args...
     ajax
       .get(url, options || {})
       .then(through.from)
@@ -26,12 +26,12 @@ rest =
       .then(expect)
       .then(validationToPromise)
 
-  # to: (data) -> url
+  # path: (data) -> url
   # through: Project data
   # expect: (data) -> Validation data
   # options: {}
-  poster: ({to, through, expect, options}) -> (data) ->
-    url = to data
+  poster: ({path, through, expect, options}) -> (data) ->
+    url = path data
     validationToPromise(through.to data)
       .then((data) ->
         ajax.post(url, merge(options || {}, {data}))
@@ -41,19 +41,19 @@ rest =
       .then(expect)
       .then(validationToPromise)
 
-  # at: (args...) -> url
+  # path: (args...) -> url
   # options: {}
-  deleter: ({at, options}) -> (args...) ->
-    url = at args...
+  deleter: ({path, options}) -> (args...) ->
+    url = path args...
     ajax
       .del(url, options || {})
 
-  # at: (args..., data) -> url
+  # path: (args..., data) -> url
   # through: Project data
   # expect: (data) -> Validation data
   # options: {}
-  putter: ({at, through, expect, options}) -> (args..., data) ->
-    url = at args...
+  putter: ({path, through, expect, options}) -> (args..., data) ->
+    url = path args...
     validationToPromise(through.to data)
       .then((data) ->
         ajax.put(url, merge(options || {}, {data}))
