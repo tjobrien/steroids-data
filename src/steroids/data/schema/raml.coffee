@@ -27,6 +27,7 @@ class ServiceSchema
         @description,
         @method
         @headers
+        @body
       }) ->
 
 module.exports =
