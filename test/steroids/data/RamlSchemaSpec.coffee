@@ -27,6 +27,11 @@ describe "steroids.data.schema.raml", ->
             for resource in schema.resources
               resource.relativeUri.should.be.a 'string'
 
+        it "should have methods", ->
+          serviceSchema.should.eventually.satisfy (schema) ->
+            for resource in schema.resources
+              resource.methods.should.be.an.array
+
 
   it "should have a function for converting a schema to a resource", ->
     ramlSchema.toResource.should.be.a 'function'
