@@ -44,10 +44,12 @@ describe "steroids.data.schema.raml", ->
           it "should have a description", ->
             forEachAction (action) ->
               action.should.have.property 'description'
+              action.description.should.be.a 'string'
 
           it "should have a method", ->
             forEachAction (action) ->
               action.should.have.property 'method'
+              action.method.should.be.a 'string'
 
 
   it "should have a function for converting a schema to a resource", ->
