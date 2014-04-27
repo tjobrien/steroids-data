@@ -35,6 +35,15 @@ describe "steroids.data.schema.raml", ->
           forEachResource (resource) ->
             resource.methods.should.be.an.array
 
+        forEachMethod = (assert) ->
+          forEachResource (resource) ->
+            for method in resource.methods
+              assert method
+
+        describe "each method", ->
+          it "should have a description", ->
+            forEachMethod (method) ->
+              method.should.have.property 'description'
 
 
   it "should have a function for converting a schema to a resource", ->
