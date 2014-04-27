@@ -70,6 +70,16 @@ describe "steroids.data.schema.raml", ->
             forEachAction (action) ->
               action.responses.should.be.an.object
 
+          forEachResponse = (assert) ->
+            forEachAction (action) ->
+              for code, response of action.responses
+                assert response
+
+          describe "each response", ->
+            it "should have a code", ->
+              forEachResponse (response) ->
+                response.code.should.be.a.number
+
 
   it "should have a function for converting a schema to a resource", ->
     ramlSchema.toResource.should.be.a 'function'
