@@ -21,16 +21,20 @@ describe "steroids.data.schema.raml", ->
       it "should have resources", ->
         serviceSchema.should.eventually.have.property('resources')
 
+      forEachResource = (assert) ->
+        serviceSchema.should.eventually.satisfy (schema) ->
+          for resource in schema.resources
+            assert(resource)
+
       describe "each resource", ->
         it "should have a relative path", ->
-          serviceSchema.should.eventually.satisfy (schema) ->
-            for resource in schema.resources
-              resource.relativeUri.should.be.a 'string'
+          forEachResource (resource) ->
+            resource.relativeUri.should.be.a 'string'
 
         it "should have methods", ->
-          serviceSchema.should.eventually.satisfy (schema) ->
-            for resource in schema.resources
-              resource.methods.should.be.an.array
+          forEachResource (resource) ->
+            resource.methods.should.be.an.array
+
 
 
   it "should have a function for converting a schema to a resource", ->
