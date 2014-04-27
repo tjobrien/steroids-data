@@ -43,7 +43,7 @@ describe "Accessing data from a static REST backend with steroids.data.resources
 
     sampleTask = null
 
-    xit "can find a single task", ->
+    it "can find a single task", ->
       sampleTask = TaskResource.find('bltc95644acbfe2ca34')
       sampleTask.then (task) ->
         task.should.be.an 'object'
