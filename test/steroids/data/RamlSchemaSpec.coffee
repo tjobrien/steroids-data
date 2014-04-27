@@ -9,9 +9,18 @@ describe "steroids.data.schema.raml", ->
 
   describe "reading a raml schema file", ->
     {fromFile} = ramlSchema
+    serviceSchema = fromFile(schemaFileUrl)
 
     it "should accept a url and return a schema", ->
-      fromFile(schemaFileUrl).should.eventually.not.be.empty
+      serviceSchema.should.eventually.not.be.empty
+
+    describe "resulting service schema", ->
+      it "should have a title", ->
+        serviceSchema.should.eventually.have.property('title')
+
+      it "should have resources", ->
+        serviceSchema.should.eventually.have.property('resources')
+
 
   it "should have a function for converting a schema to a resource", ->
     ramlSchema.toResource.should.be.a 'function'
