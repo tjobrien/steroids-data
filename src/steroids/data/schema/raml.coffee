@@ -19,8 +19,10 @@ class ServiceSchema
     constructor: ({
       @relativeUri
       methods
+      resources
     }) ->
       @actions = (new ActionSchema method for method in methods)
+      @resources = (new ResourceSchema resource for resource in resources || [])
 
     class ActionSchema
       constructor: ({
