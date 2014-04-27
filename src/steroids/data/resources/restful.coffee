@@ -31,5 +31,5 @@ api = (options) ->
       options
     }
 
-module.exports = restful = (baseUrl, apiDescriptor) ->
-  apiDescriptor api baseUrl
+module.exports = restful = (options, apiDescriptor) ->
+  apiDescriptor api options
