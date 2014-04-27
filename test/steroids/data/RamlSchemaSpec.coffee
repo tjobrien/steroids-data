@@ -86,10 +86,22 @@ describe "steroids.data.schema.raml", ->
                 assert response
               ).should.not.be.empty
 
+          forSomeResponse = (where, assert) ->
+            forEachAction (action) ->
+              (for response in action.responses when where(response)
+                assert response
+              ).should.not.be.empty
+
           describe "each response", ->
             it "should have a code", ->
               forEachResponse (response) ->
                 response.code.should.be.a.number
+
+            it "can have a body", ->
+              forSomeResponse(
+                (response) -> response.body?
+                (response) -> response.body.should.be.an.object
+              )
 
 
   it "should have a function for converting a schema to a resource", ->
