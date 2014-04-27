@@ -25,7 +25,7 @@ describe "steroids.data.schema.raml", ->
         it "should have a relative path", ->
           serviceSchema.then (schema) ->
             for resource in schema.resources
-              resource.relativePath.should.not.be.empty
+              resource.relativeUri.should.not.be.empty
 
 
   it "should have a function for converting a schema to a resource", ->
