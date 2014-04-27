@@ -20,14 +20,13 @@ class ServiceSchema
       @relativeUri
       methods
     }) ->
-      @methods = (new MethodSchema method for method in methods)
+      @actions = (new ActionSchema method for method in methods)
 
-    class MethodSchema
+    class ActionSchema
       constructor: ({
         @description,
-        method
+        @method
       }) ->
-        @type = method
 
 module.exports =
   fromFile: (url) ->

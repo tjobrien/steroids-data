@@ -31,23 +31,23 @@ describe "steroids.data.schema.raml", ->
           forEachResource (resource) ->
             resource.relativeUri.should.be.a 'string'
 
-        it "should have methods", ->
+        it "should have actions", ->
           forEachResource (resource) ->
-            resource.methods.should.be.an.array
+            resource.actions.should.be.an.array
 
-        forEachMethod = (assert) ->
+        forEachAction = (assert) ->
           forEachResource (resource) ->
-            for method in resource.methods
-              assert method
+            for action in resource.actions
+              assert action
 
-        describe "each method", ->
+        describe "each action", ->
           it "should have a description", ->
-            forEachMethod (method) ->
-              method.should.have.property 'description'
+            forEachAction (action) ->
+              action.should.have.property 'description'
 
-          it "should have a type", ->
-            forEachMethod (method) ->
-              method.should.have.property 'type'
+          it "should have a method", ->
+            forEachAction (action) ->
+              action.should.have.property 'method'
 
 
   it "should have a function for converting a schema to a resource", ->
