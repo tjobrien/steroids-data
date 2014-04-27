@@ -26,6 +26,7 @@ class ServiceSchema
       constructor: ({
         @description,
         @method
+        @headers
       }) ->
 
 module.exports =
