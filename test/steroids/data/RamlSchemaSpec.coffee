@@ -23,8 +23,9 @@ describe "steroids.data.schema.raml", ->
 
       forEachResource = (assert) ->
         serviceSchema.should.eventually.satisfy (schema) ->
-          for resource in schema.resources
+          (for resource in schema.resources
             assert(resource)
+          ).should.not.be.empty
 
       describe "each resource", ->
         it "should have a relative path", ->
@@ -42,8 +43,15 @@ describe "steroids.data.schema.raml", ->
 
         forEachAction = (assert) ->
           forEachResource (resource) ->
-            for action in resource.actions
+            (for action in resource.actions
               assert action
+            ).should.not.be.empty
+
+        forSomeAction = (where, assert) ->
+          forEachResource (resource) ->
+            (for action in resource.actions when where(action)
+              assert action
+            ).should.not.be.empty
 
         describe "each action", ->
           it "should have a description", ->
@@ -57,14 +65,16 @@ describe "steroids.data.schema.raml", ->
               action.method.should.be.a 'string'
 
           it "can have headers", ->
-            forEachAction (action) ->
-              if action.headers?
-                action.headers.should.be.an.object
+            forSomeAction(
+              (action) -> action.headers?
+              (action) -> action.headers.should.be.an.object
+            )
 
           it "can have a body", ->
-            forEachAction (action) ->
-              if action.body?
-                action.body.should.be.an.object
+            forSomeAction(
+              (action) -> action.body?
+              (action) -> action.body.should.be.an.object
+            )
 
           it "should have responses", ->
             forEachAction (action) ->
@@ -72,8 +82,9 @@ describe "steroids.data.schema.raml", ->
 
           forEachResponse = (assert) ->
             forEachAction (action) ->
-              for code, response of action.responses
+              (for response in action.responses
                 assert response
+              ).should.not.be.empty
 
           describe "each response", ->
             it "should have a code", ->
