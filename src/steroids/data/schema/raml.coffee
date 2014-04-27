@@ -18,6 +18,7 @@ class ServiceSchema
   class ResourceSchema
     constructor: ({
       @relativeUri
+      @methods
     }) ->
 
 module.exports =
