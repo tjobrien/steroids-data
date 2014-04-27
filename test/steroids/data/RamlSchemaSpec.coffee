@@ -12,6 +12,7 @@ describe "steroids.data.schema.raml", ->
     {fromObject} = ramlSchema
     serviceSchema = fromObject {
       title: 'Test Schema'
+      baseUri: 'http://localhost'
       resources: [
         {
           relativeUri: '/objects'
@@ -52,6 +53,9 @@ describe "steroids.data.schema.raml", ->
     describe "resulting service schema", ->
       it "should have a title", ->
         serviceSchema.should.eventually.have.property('title')
+
+      it "should have a baseUri", ->
+        serviceSchema.should.eventually.have.property('baseUri')
 
       it "should have resources", ->
         serviceSchema.should.eventually.have.property('resources')

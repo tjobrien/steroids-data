@@ -11,6 +11,7 @@ class FileReader extends ramlParser.FileReader
 class ServiceSchema
   constructor: ({
     @title
+    @baseUri
     resources
   }) ->
     @resources = (new ResourceSchema resource for resource in resources)
