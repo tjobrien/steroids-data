@@ -61,6 +61,10 @@ describe "steroids.data.schema.raml", ->
               if action.body?
                 action.body.should.be.an.object
 
+          it "should have responses", ->
+            forEachAction (action) ->
+              action.responses.should.be.an.object
+
 
   it "should have a function for converting a schema to a resource", ->
     ramlSchema.toResource.should.be.a 'function'
