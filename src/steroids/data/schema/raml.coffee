@@ -30,8 +30,14 @@ class ServiceSchema
         @method
         @headers
         @body
-        @responses
+        responses
       }) ->
+        @responses = (new ResponseSchema code, response for code, response of responses)
+
+      class ResponseSchema
+        constructor: (@code, {
+        }) ->
+
 
 module.exports =
   fromFile: (url) ->
