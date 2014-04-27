@@ -1,0 +1,18 @@
+#%RAML 0.8
+title: Task
+version: v1
+mediaType: application/json
+baseUri: https://api.built.io/{version}/classes
+resourceTypes:
+  - collection: !include builtio/collection.yml
+  - member: !include builtio/member.yml
+
+# stuff below is generated on resource basis
+schemas:
+ - tasks: !include schemas/tasks.json
+ - task: !include schemas/task.json
+
+/task.json:
+  type: collection
+/task/objects/{id}.json:
+  type: member

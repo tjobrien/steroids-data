@@ -7,19 +7,19 @@ steroids.config.name = "testApp"
 steroids.config.location = "http://localhost/views/task/index.html"
 
 # -- Tab Bar --
-# steroids.config.tabBar.enabled = true
-# steroids.config.tabBar.tabs = [
-#   {
-#     title: "Index"
-#     icon: "icons/pill@2x.png"
-#     location: "http://localhost/index.html"
-#   },
-#   {
-#     title: "Internet"
-#     icon: "icons/telescope@2x.png"
-#     location: "http://www.google.com"
-#   }
-# ]
+steroids.config.tabBar.enabled = true
+steroids.config.tabBar.tabs = [
+  {
+    title: "Manual"
+    icon: "icons/pill@2x.png"
+    location: "http://localhost/views/task/index.html"
+  },
+  {
+    title: "Auto"
+    icon: "icons/telescope@2x.png"
+    location: "http://localhost/views/autoTask/index.html"
+  }
+]
 
 # steroids.config.tabBar.tintColor = "#000000"
 # steroids.config.tabBar.tabTitleColor = "#00aeef"
