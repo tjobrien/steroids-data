@@ -36,19 +36,19 @@ describe "Accessing data from a static REST backend with steroids.data.resources
   it "can be done using a user-defined resource", ->
     TaskResource.should.be.defined
 
-  xdescribe "A user-defined TaskResource", ->
+  describe "A user-defined TaskResource", ->
     it "can find all tasks", ->
       TaskResource.findAll().then (tasks) ->
         tasks.should.not.be.empty
 
     sampleTask = null
 
-    it "can find a single task", ->
+    xit "can find a single task", ->
       sampleTask = TaskResource.find('bltc95644acbfe2ca34')
       sampleTask.then (task) ->
         task.should.be.an 'object'
 
-    describe "A single task received from TaskResource", ->
+    xdescribe "A single task received from TaskResource", ->
       it "has a description", ->
         sampleTask.then (task) ->
           task.description.should.be.a 'string'
