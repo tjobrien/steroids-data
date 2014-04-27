@@ -22,3 +22,10 @@ describe "steroids.data.schema.raml", ->
 
     it "should accept a schema and return a resource object", ->
       toResource(schema).should.be.an.object
+
+    describe "the resulting resource object", ->
+      resource = toResource(schema)
+
+      it "should have a method for each path in the schema", ->
+        (methodName for methodName, method of resource when method instanceof Function)
+          .should.have.length.of 2
