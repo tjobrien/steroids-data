@@ -5,6 +5,32 @@ ramlResource = require '../../../src/steroids/data/resources/raml'
 
 TaskResource = ramlResource fromObject
   title: 'Tasks'
+  baseUri: 'http://localhost:9001/data/task'
+  resources: [
+    {
+      relativeUri: '/objects.json'
+      methods: [
+        {
+          method: 'get'
+          description: 'findAll'
+          body: {}
+          headers: {}
+        }
+      ]
+    }
+    {
+      relativeUri: 'objects/{id}.json'
+      methods: [
+        {
+          method: 'get'
+          description: 'find'
+          body: {}
+          headers: {}
+        }
+      ]
+    }
+  ]
+
 
 describe "Accessing data from a static REST backend with steroids.data.resources.raml", ->
   it "can be done using a user-defined resource", ->
