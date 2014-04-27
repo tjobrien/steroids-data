@@ -105,6 +105,10 @@ module.exports = types =
       Success null
 
   Project:
+    Identity:
+      to: Success
+      from: Success
+    
     Property: (name, type = types.Any) ->
 
       to: (value) ->
