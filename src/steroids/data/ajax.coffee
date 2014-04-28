@@ -27,7 +27,7 @@ request = (method, path, options = {}) ->
 
     requestBuilder = superagent[method](
       if options.baseUrl?
-        [options.baseUrl, path].join '/'
+        [options.baseUrl, path].join ''
       else
         path
     )
