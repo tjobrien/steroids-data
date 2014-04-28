@@ -132,6 +132,12 @@ describe "steroids.data.schema.raml", ->
               forEachHeader (header) ->
                 header.name.should.be.a.string
 
+            it "can have a default value", ->
+              forSomeHeader(
+                (header) -> header.default?
+                (header) -> header.default.should.be.a.string
+              )
+
           it "can have a body", ->
             forSomeAction(
               (action) -> action.body?
