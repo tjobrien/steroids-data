@@ -19,7 +19,7 @@ TaskResource = ramlResource fromObject
       ]
     }
     {
-      relativeUri: 'objects/{id}.json'
+      relativeUri: '/objects/{id}.json'
       methods: [
         {
           method: 'get'
