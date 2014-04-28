@@ -1,3 +1,4 @@
+is: [ builtIoResource ]
 get:
   description: find
   responses:

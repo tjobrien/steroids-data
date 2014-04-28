@@ -1,3 +1,4 @@
+is: [ builtIoResource ]
 usage: This resourceType should be used for any collection of items
 get:
   description: findAll
