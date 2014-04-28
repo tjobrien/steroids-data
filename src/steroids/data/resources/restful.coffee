@@ -9,8 +9,7 @@ validationToPromise = (validation) ->
     (value) -> Promise.resolve value
   )
 
-merge = (objects...) ->
-  _.merge {}, objects...
+deepDefaults = partialRight merge, defaults
 
 rest =
   # path: (args...) -> url
@@ -65,7 +64,7 @@ rest =
 
 restMethodBuilder = (options) ->
   withDefaultOptions = (resourceBuilder) -> (resourceDescription) ->
-    resourceBuilder merge resourceDescription, { options }
+    resourceBuilder deepDefaults resourceDescription, { options }
 
   get: withDefaultOptions rest.getter
   post: withDefaultOptions rest.poster
