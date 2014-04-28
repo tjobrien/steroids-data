@@ -31653,7 +31653,10 @@ request = function(method, path, options) {
   }
   return requestBuilderToResponsePromise((function() {
     var header, requestBuilder, value, _ref;
-    requestBuilder = superagent[method](options.baseUrl != null ? [options.baseUrl, path].join('/') : path);
+    if (superagent[method] == null) {
+      throw new Error("No such request builder method: " + method);
+    }
+    requestBuilder = superagent[method](options.baseUrl != null ? [options.baseUrl, path].join('') : path);
     if (options.headers) {
       _ref = options.headers || {};
       for (header in _ref) {
@@ -31670,7 +31673,7 @@ request = function(method, path, options) {
     if (options.accept != null) {
       requestBuilder.accept(options.accept);
     }
-    if (options.buffer) {
+    if (options.buffer && (requestBuilder.buffer != null)) {
       requestBuilder.buffer();
     }
     return requestBuilder;
@@ -31715,38 +31718,38 @@ module.exports = builtio = function(_arg) {
       application_api_key: applicationApiKey,
       application_uid: applicationUid
     }
-  }, function(api) {
+  }, function(rest) {
     return {
-      findAll: api.get({
+      findAll: rest.get({
         path: function() {
-          return 'objects.json';
+          return '/objects.json';
         },
         through: types.Project.Property('objects'),
         expect: types.List(schema)
       }),
-      find: api.get({
+      find: rest.get({
         path: function(id) {
-          return "objects/" + id + ".json";
+          return "/objects/" + id + ".json";
         },
         through: types.Project.Property('object'),
         expect: schema
       }),
-      create: api.post({
+      create: rest.post({
         through: types.Project.Property('object'),
         path: function() {
-          return "objects";
+          return "/objects";
         },
         expect: schema
       }),
-      del: api.del({
+      del: rest["delete"]({
         path: function(id) {
-          return "objects/" + id + ".json";
+          return "/objects/" + id + ".json";
         }
       }),
-      update: api.put({
+      update: rest.put({
         through: types.Project.Property('object'),
         path: function(id) {
-          return "objects/" + id + ".json";
+          return "/objects/" + id + ".json";
         },
         expect: schema
       })
@@ -31784,7 +31787,7 @@ module.exports = ramlResourceFromSchema = function(schema) {
     actions = {};
     _ref = schema.resources;
     _fn = function(relativeUri) {
-      var action, _j, _len1, _ref1, _results;
+      var action, header, _j, _len1, _ref1, _results;
       _ref1 = resource.actions;
       _results = [];
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
@@ -31792,7 +31795,19 @@ module.exports = ramlResourceFromSchema = function(schema) {
         _results.push(actions[action.description] = api[action.method]({
           path: uriToFunction(relativeUri),
           expect: types.Any,
-          through: types.Project.Identity
+          through: types.Project.Identity,
+          options: {
+            headers: _.object((function() {
+              var _k, _len2, _ref2, _results1;
+              _ref2 = action.headers;
+              _results1 = [];
+              for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                header = _ref2[_k];
+                _results1.push([header.name, header["default"]]);
+              }
+              return _results1;
+            })())
+          }
         }));
       }
       return _results;
@@ -31807,10 +31822,10 @@ module.exports = ramlResourceFromSchema = function(schema) {
 
 
 },{"../types":103,"./restful":100,"lodash":66}],100:[function(_dereq_,module,exports){
-var Promise, ajax, api, merge, rest, restful, validationToPromise, _,
+var Promise, ajax, deepDefaults, defaults, merge, partialRight, rest, restMethodBuilder, restful, validationToPromise, _ref,
   __slice = [].slice;
 
-_ = _dereq_('lodash');
+_ref = _dereq_('lodash'), partialRight = _ref.partialRight, merge = _ref.merge, defaults = _ref.defaults;
 
 ajax = _dereq_('../ajax');
 
@@ -31824,11 +31839,7 @@ validationToPromise = function(validation) {
   });
 };
 
-merge = function() {
-  var objects;
-  objects = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-  return _.merge.apply(_, [{}].concat(__slice.call(objects)));
-};
+deepDefaults = partialRight(merge, defaults);
 
 rest = {
   getter: function(_arg) {
@@ -31848,9 +31859,9 @@ rest = {
       var url;
       url = path(data);
       return validationToPromise(through.to(data)).then(function(data) {
-        return ajax.post(url, merge(options || {}, {
+        return ajax.post(url, defaults({
           data: data
-        }));
+        }, options || {}));
       }).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
     };
   },
@@ -31872,19 +31883,19 @@ rest = {
       args = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), data = arguments[_i++];
       url = path.apply(null, args);
       return validationToPromise(through.to(data)).then(function(data) {
-        return ajax.put(url, merge(options || {}, {
+        return ajax.put(url, defaults({
           data: data
-        }));
+        }, options || {}));
       }).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
     };
   }
 };
 
-api = function(options) {
+restMethodBuilder = function(options) {
   var withDefaultOptions;
   withDefaultOptions = function(resourceBuilder) {
     return function(resourceDescription) {
-      return resourceBuilder(merge(resourceDescription, {
+      return resourceBuilder(deepDefaults(resourceDescription, {
         options: options
       }));
     };
@@ -31892,13 +31903,13 @@ api = function(options) {
   return {
     get: withDefaultOptions(rest.getter),
     post: withDefaultOptions(rest.poster),
-    del: withDefaultOptions(rest.deleter),
+    "delete": withDefaultOptions(rest.deleter),
     put: withDefaultOptions(rest.putter)
   };
 };
 
 module.exports = restful = function(options, apiDescriptor) {
-  return apiDescriptor(api(options));
+  return apiDescriptor(restMethodBuilder(options));
 };
 
 
@@ -32036,17 +32047,26 @@ ServiceSchema = (function() {
     }
 
     ActionSchema = (function() {
-      var ResponseSchema;
+      var HeaderSchema, ResponseSchema;
 
       function ActionSchema(_arg) {
-        var code, response, responses;
-        this.description = _arg.description, this.method = _arg.method, this.headers = _arg.headers, this.body = _arg.body, responses = _arg.responses;
+        var code, header, headers, name, response, responses;
+        this.description = _arg.description, this.method = _arg.method, this.body = _arg.body, headers = _arg.headers, responses = _arg.responses;
         this.responses = (function() {
           var _results;
           _results = [];
           for (code in responses) {
             response = responses[code];
             _results.push(new ResponseSchema(code, response || {}));
+          }
+          return _results;
+        })();
+        this.headers = (function() {
+          var _results;
+          _results = [];
+          for (name in headers) {
+            header = headers[name];
+            _results.push(new HeaderSchema(name, header || {}));
           }
           return _results;
         })();
@@ -32060,6 +32080,16 @@ ServiceSchema = (function() {
         }
 
         return ResponseSchema;
+
+      })();
+
+      HeaderSchema = (function() {
+        function HeaderSchema(name, _arg) {
+          this.name = name;
+          this["default"] = _arg["default"];
+        }
+
+        return HeaderSchema;
 
       })();
 
