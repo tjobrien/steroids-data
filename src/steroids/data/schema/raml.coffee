@@ -27,7 +27,7 @@ class ServiceSchema
 
     class ActionSchema
       constructor: ({
-        @description,
+        @description
         @method
         @headers
         @body
