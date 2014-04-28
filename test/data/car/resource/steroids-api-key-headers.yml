@@ -2,6 +2,8 @@ headers:
   steroidsApiKey:
     type: string
     example: yourkeygoeshere1234
+    default: myKeyRightHere
   steroidsAppId:
     type: integer
     example: 123445545431
+    default: 9001
