@@ -29,11 +29,12 @@ class ServiceSchema
       constructor: ({
         @description
         @method
-        @headers
         @body
+        headers
         responses
       }) ->
         @responses = (new ResponseSchema code, (response || {}) for code, response of responses)
+        @headers = (new HeaderSchema name, (header || {}) for name, header of headers)
 
       class ResponseSchema
         constructor: (
@@ -41,6 +42,14 @@ class ServiceSchema
           response
         ) ->
           @body = response.body ? {}
+
+      class HeaderSchema
+        constructor: (
+          @name
+          {
+            @default
+          }
+        ) ->
 
 
 module.exports =
