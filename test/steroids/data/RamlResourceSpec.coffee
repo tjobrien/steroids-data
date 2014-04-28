@@ -14,7 +14,11 @@ TaskResource = ramlResource fromObject
           method: 'get'
           description: 'findAll'
           body: {}
-          headers: {}
+          headers:
+            application_uid:
+              default: 'steroids-data-test-app'
+            application_api_key:
+              default: 'blt349bf00642a3a1b7'
         }
       ]
     }
