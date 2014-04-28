@@ -21,5 +21,7 @@ module.exports = ramlResourceFromSchema = (schema) ->
             path: uriToFunction relativeUri
             expect: types.Any
             through: types.Project.Identity
+            options:
+              headers: _.object ([header.name, header.default] for header in action.headers)
 
     actions
