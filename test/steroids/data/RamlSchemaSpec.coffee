@@ -106,8 +106,31 @@ describe "steroids.data.schema.raml", ->
           it "can have headers", ->
             forSomeAction(
               (action) -> action.headers?
-              (action) -> action.headers.should.be.an.object
+              (action) -> action.headers.should.be.an.array
             )
+
+          forEachHeader = (assert) ->
+            forSomeAction(
+              (action) -> action.headers?
+              (action) ->
+                (for header in action.headers
+                  assert header
+                ).should.not.be.empty
+            )
+
+          forSomeHeader = (where, assert) ->
+            forSomeAction(
+              (action) -> action.headers?
+              (action) ->
+                (for header in action.headers when where(header)
+                  assert header
+                ).should.not.be.empty
+            )
+
+          describe "each header", ->
+            it "should have a name", ->
+              forEachHeader (header) ->
+                header.name.should.be.a.string
 
           it "can have a body", ->
             forSomeAction(
