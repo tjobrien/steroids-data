@@ -21,7 +21,8 @@ describe "steroids.data.schema.raml", ->
               description: 'findAll'
               method: 'get'
               headers:
-                foo: 'bar'
+                foo:
+                  default: 'bar'
               body: {}
               responses:
                 200:
