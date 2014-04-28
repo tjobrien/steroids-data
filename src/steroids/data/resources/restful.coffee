@@ -1,4 +1,4 @@
-_ = require 'lodash'
+{partialRight, merge, defaults} = require 'lodash'
 ajax = require '../ajax'
 Promise = require 'bluebird'
 
@@ -34,7 +34,7 @@ rest =
     url = path data
     validationToPromise(through.to data)
       .then((data) ->
-        ajax.post(url, merge(options || {}, {data}))
+        ajax.post(url, defaults({data}, options || {}))
       )
       .then(through.from)
       .then(validationToPromise)
@@ -56,7 +56,7 @@ rest =
     url = path args...
     validationToPromise(through.to data)
       .then((data) ->
-        ajax.put(url, merge(options || {}, {data}))
+        ajax.put(url, defaults({data}, options || {}))
       )
       .then(through.from)
       .then(validationToPromise)
