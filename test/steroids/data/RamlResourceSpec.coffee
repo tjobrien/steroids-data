@@ -13,7 +13,7 @@ TaskResource = ramlResource fromObject
         {
           method: 'get'
           description: JSON.stringify {
-            name: "findAll"
+            action: "findAll"
           }
           body: {}
           headers:
@@ -30,7 +30,7 @@ TaskResource = ramlResource fromObject
         {
           method: 'get'
           description: JSON.stringify {
-            name: "find"
+            action: "find"
           }
           body: {}
           headers: {}

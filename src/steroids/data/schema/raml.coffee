@@ -39,8 +39,9 @@ class ServiceSchema
 
       class DescriptionSchema
         constructor: ({
-          @name
+          action
         }) ->
+          @name = action
 
       class ResponseSchema
         constructor: (

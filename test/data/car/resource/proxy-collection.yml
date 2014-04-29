@@ -3,7 +3,7 @@ is: [ securedBySteroidsApiKey ]
 get:
   description: |
     {
-      "name": "collection"
+      "action": "collection"
     }
   responses:
     200:
@@ -13,7 +13,7 @@ get:
 post:
   description: |
     {
-      "name": "create"
+      "action": "create"
     }
   body:
     application/json:

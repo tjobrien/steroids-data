@@ -19,7 +19,7 @@ describe "steroids.data.schema.raml", ->
           methods: [
             {
               description: JSON.stringify {
-                name: "findAll"
+                action: "findAll"
               }
               method: 'get'
               headers:
@@ -96,10 +96,11 @@ describe "steroids.data.schema.raml", ->
             ).should.not.be.empty
 
         describe "each action", ->
-          it "should have metadata", ->
+          it "should have action name as metadata", ->
             forEachAction (action) ->
               action.should.have.property 'metadata'
               action.metadata.should.be.an.object
+              action.metadata.name.should.be.a.string
 
           it "should have a method", ->
             forEachAction (action) ->
