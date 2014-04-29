@@ -27,14 +27,20 @@ class ServiceSchema
 
     class ActionSchema
       constructor: ({
-        @description
         @method
         @body
         headers
         responses
+        description
       }) ->
         @responses = (new ResponseSchema code, (response || {}) for code, response of responses)
         @headers = (new HeaderSchema name, (header || {}) for name, header of headers)
+        @description = new DescriptionSchema JSON.parse description
+
+      class DescriptionSchema
+        constructor: ({
+          @name
+        }) ->
 
       class ResponseSchema
         constructor: (

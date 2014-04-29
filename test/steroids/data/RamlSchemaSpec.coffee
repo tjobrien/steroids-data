@@ -18,7 +18,9 @@ describe "steroids.data.schema.raml", ->
           relativeUri: '/objects'
           methods: [
             {
-              description: 'findAll'
+              description: JSON.stringify {
+                name: "findAll"
+              }
               method: 'get'
               headers:
                 foo:
@@ -97,7 +99,7 @@ describe "steroids.data.schema.raml", ->
           it "should have a description", ->
             forEachAction (action) ->
               action.should.have.property 'description'
-              action.description.should.be.a 'string'
+              action.description.should.be.an.object
 
           it "should have a method", ->
             forEachAction (action) ->

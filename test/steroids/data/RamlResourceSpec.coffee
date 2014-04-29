@@ -12,7 +12,9 @@ TaskResource = ramlResource fromObject
       methods: [
         {
           method: 'get'
-          description: 'findAll'
+          description: JSON.stringify {
+            name: "findAll"
+          }
           body: {}
           headers:
             application_uid:
@@ -27,7 +29,9 @@ TaskResource = ramlResource fromObject
       methods: [
         {
           method: 'get'
-          description: 'find'
+          description: JSON.stringify {
+            name: "find"
+          }
           body: {}
           headers: {}
         }
