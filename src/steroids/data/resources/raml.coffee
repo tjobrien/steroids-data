@@ -17,7 +17,7 @@ module.exports = ramlResourceFromSchema = (schema) ->
     for resource in schema.resources
       do (relativeUri = resource.relativeUri) ->
         for action in resource.actions
-          actions[action.description] = api[action.method]
+          actions[action.metadata.name] = api[action.method]
             path: uriToFunction relativeUri
             expect: types.Any
             through: types.Project.Identity
