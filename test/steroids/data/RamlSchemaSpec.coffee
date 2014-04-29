@@ -96,10 +96,10 @@ describe "steroids.data.schema.raml", ->
             ).should.not.be.empty
 
         describe "each action", ->
-          it "should have a description", ->
+          it "should have metadata", ->
             forEachAction (action) ->
-              action.should.have.property 'description'
-              action.description.should.be.an.object
+              action.should.have.property 'metadata'
+              action.metadata.should.be.an.object
 
           it "should have a method", ->
             forEachAction (action) ->

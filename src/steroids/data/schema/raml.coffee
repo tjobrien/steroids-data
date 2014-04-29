@@ -35,7 +35,7 @@ class ServiceSchema
       }) ->
         @responses = (new ResponseSchema code, (response || {}) for code, response of responses)
         @headers = (new HeaderSchema name, (header || {}) for name, header of headers)
-        @description = new DescriptionSchema JSON.parse description
+        @metadata = new DescriptionSchema JSON.parse description
 
       class DescriptionSchema
         constructor: ({
