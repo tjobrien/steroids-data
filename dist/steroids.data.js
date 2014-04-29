@@ -31792,7 +31792,7 @@ module.exports = ramlResourceFromSchema = function(schema) {
       _results = [];
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         action = _ref1[_j];
-        _results.push(actions[action.description] = api[action.method]({
+        _results.push(actions[action.metadata.name] = api[action.method]({
           path: uriToFunction(relativeUri),
           expect: types.Any,
           through: types.Project.Identity,
@@ -32047,11 +32047,11 @@ ServiceSchema = (function() {
     }
 
     ActionSchema = (function() {
-      var HeaderSchema, ResponseSchema;
+      var DescriptionSchema, HeaderSchema, ResponseSchema;
 
       function ActionSchema(_arg) {
-        var code, header, headers, name, response, responses;
-        this.description = _arg.description, this.method = _arg.method, this.body = _arg.body, headers = _arg.headers, responses = _arg.responses;
+        var code, description, header, headers, name, response, responses;
+        this.method = _arg.method, this.body = _arg.body, headers = _arg.headers, responses = _arg.responses, description = _arg.description;
         this.responses = (function() {
           var _results;
           _results = [];
@@ -32070,7 +32070,19 @@ ServiceSchema = (function() {
           }
           return _results;
         })();
+        this.metadata = new DescriptionSchema(JSON.parse(description));
       }
+
+      DescriptionSchema = (function() {
+        function DescriptionSchema(_arg) {
+          var action;
+          action = _arg.action;
+          this.name = action;
+        }
+
+        return DescriptionSchema;
+
+      })();
 
       ResponseSchema = (function() {
         function ResponseSchema(code, response) {
