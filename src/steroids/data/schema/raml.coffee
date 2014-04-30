@@ -69,6 +69,12 @@ class ServiceSchema
       name: ->
         @metadata.name || ''
 
+      headerDefaults: ->
+        defaults = {}
+        for header in @headers when header.default?
+          defaults[header.name] = header.default
+        defaults
+
       class DescriptionSchema
         constructor: ({
           action
