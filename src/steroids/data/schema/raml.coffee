@@ -64,7 +64,7 @@ class ServiceSchema
       }) ->
         @responses = (new ResponseSchema code, (response || {}) for code, response of responses)
         @headers = (new HeaderSchema name, (header || {}) for name, header of headers)
-        @metadata = new DescriptionSchema JSON.parse description
+        @metadata = new ActionMetadataSchema JSON.parse (description || '{}')
 
       name: ->
         @metadata.name || ''
@@ -75,7 +75,7 @@ class ServiceSchema
           defaults[header.name] = header.default
         defaults
 
-      class DescriptionSchema
+      class ActionMetadataSchema
         constructor: ({
           action
         }) ->
