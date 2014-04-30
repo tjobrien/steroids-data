@@ -17,6 +17,13 @@ class ServiceSchema
   }) ->
     @resources = (new ResourceSchema resource for resource in resources)
 
+  resource: (name) ->
+    for resource in @resources
+      if resource.metadata.name is name
+        return resource
+
+    throw new Error "Resource '#{name}' not found in schema"
+
   # Flattens nested resources to a map from relative uris to actions
   actions: do ->
     resourceToActions = (relativeUri, resource) ->
@@ -50,9 +57,17 @@ class ServiceSchema
       @relativeUri
       methods
       resources
+      description
     }) ->
       @actions = (new ActionSchema method for method in methods)
       @resources = (new ResourceSchema resource for resource in resources || [])
+      @metadata = new ResourceMetadataSchema JSON.parse (description || '{}')
+
+    class ResourceMetadataSchema
+      constructor: ({
+        resourceName
+      }) ->
+        @name = resourceName
 
     class ActionSchema
       constructor: ({
