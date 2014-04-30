@@ -53,13 +53,16 @@ describe "steroids.data.schema.raml", ->
       serviceSchema.should.not.be.empty
 
     describe "each schema", ->
-      it "should allow folding nested resources into a list of actions by their name", ->
-        do (actions = serviceSchema.actions()) ->
-          actions.should.have.property 'findAll'
-          actions.should.have.property 'find'
 
       it "should allow finding a resource by a specific name", ->
         serviceSchema.resource('object').should.be.defined
+
+      describe "each resource", ->
+        it "should allow folding nested resources into a list of actions by their name", ->
+          do (actions = serviceSchema.resource('object').actions()) ->
+            actions.should.have.property 'findAll'
+            actions.should.have.property 'find'
+
 
   it "should have a function for reading a schema from a file", ->
     ramlSchema.fromFile.should.be.a 'function'
