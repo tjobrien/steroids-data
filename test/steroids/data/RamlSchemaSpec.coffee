@@ -16,6 +16,9 @@ describe "steroids.data.schema.raml", ->
       resources: [
         {
           relativeUri: '/objects'
+          description: JSON.stringify {
+            resourceName: "object"
+          }
           methods: [
             {
               description: JSON.stringify {
@@ -57,6 +60,9 @@ describe "steroids.data.schema.raml", ->
         do (actions = serviceSchema.actions()) ->
           actions.should.have.property 'findAll'
           actions.should.have.property 'find'
+
+      it "should allow finding a resource by a specific name", ->
+        serviceSchema.resource('object').should.be.defined
 
   it "should have a function for reading a schema from a file", ->
     ramlSchema.fromFile.should.be.a 'function'
