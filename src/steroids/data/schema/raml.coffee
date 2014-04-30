@@ -31,7 +31,7 @@ class ServiceSchema
       resources
       description
     }) ->
-      @actions = (new ActionSchema method for method in methods)
+      @actions = (new ActionSchema method for method in methods || [])
       @resources = (new ResourceSchema resource for resource in resources || [])
       @metadata = new ResourceMetadataSchema JSON.parse (description || '{}')
 
