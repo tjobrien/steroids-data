@@ -14,14 +14,12 @@ module.exports = ramlResourceFromSchema = (schema) ->
   }, (api) ->
     actions = {}
 
-    for resource in schema.resources
-      do (relativeUri = resource.relativeUri) ->
-        for action in resource.actions
-          actions[action.metadata.name] = api[action.method]
-            path: uriToFunction relativeUri
-            expect: types.Any
-            through: types.Project.Identity
-            options:
-              headers: _.object ([header.name, header.default] for header in action.headers)
+    for relativeUri, action of schema.actions()
+      actions[action.metadata.name] = api[action.method]
+        path: uriToFunction relativeUri
+        expect: types.Any
+        through: types.Project.Identity
+        options:
+          headers: _.object ([header.name, header.default] for header in action.headers)
 
     actions

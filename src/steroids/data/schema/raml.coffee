@@ -16,6 +16,14 @@ class ServiceSchema
   }) ->
     @resources = (new ResourceSchema resource for resource in resources)
 
+  # Flattens nested resources to a map from relative uris to actions
+  actions: ->
+    actions = {}
+    for resource in @resources
+      for action in resource.actions
+        actions[resource.relativeUri] = action
+    actions
+
   class ResourceSchema
     constructor: ({
       @relativeUri
