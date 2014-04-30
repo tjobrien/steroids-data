@@ -30,6 +30,17 @@ describe "steroids.data.schema.raml", ->
                 200:
                   body: {}
             }
+          ],
+          resources: [
+            relativeUri: '/nestedObject'
+            methods: [
+              {
+                description: JSON.stringify {
+                  action: "find"
+                }
+                method: 'get'
+              }
+            ]
           ]
         }
       ]
@@ -38,9 +49,14 @@ describe "steroids.data.schema.raml", ->
     it "should accept an object and return a schema", ->
       serviceSchema.should.not.be.empty
 
-    xdescribe "each schema", ->
-      it "should be a fixed point", ->
+    describe "each schema", ->
+      xit "should be a fixed point", ->
         fromObject(serviceSchema).should.deep.equal serviceSchema
+
+      it "should allow folding nested resources into a list of actions by their relative uri", ->
+        do (actions = serviceSchema.actions()) ->
+          actions.should.have.property '/objects'
+          actions.should.have.property '/objects/nestedObject'
 
   it "should have a function for reading a schema from a file", ->
     ramlSchema.fromFile.should.be.a 'function'
