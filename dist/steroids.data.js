@@ -31779,45 +31779,28 @@ uriToFunction = function(uri) {
   };
 };
 
-module.exports = ramlResourceFromSchema = function(schema) {
-  return restful({
-    baseUrl: schema.baseUri
-  }, function(api) {
-    var actions, resource, _fn, _i, _len, _ref;
-    actions = {};
-    _ref = schema.resources;
-    _fn = function(relativeUri) {
-      var action, header, _j, _len1, _ref1, _results;
-      _ref1 = resource.actions;
-      _results = [];
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        action = _ref1[_j];
-        _results.push(actions[action.metadata.name] = api[action.method]({
+module.exports = ramlResourceFromSchema = function(resourceName) {
+  return function(schema) {
+    return restful({
+      baseUrl: schema.baseUri
+    }, function(api) {
+      var action, actions, name, relativeUri, _ref, _ref1;
+      actions = {};
+      _ref = schema.resource(resourceName).actionsByName();
+      for (name in _ref) {
+        _ref1 = _ref[name], relativeUri = _ref1.relativeUri, action = _ref1.action;
+        actions[name] = api[action.method]({
           path: uriToFunction(relativeUri),
           expect: types.Any,
           through: types.Project.Identity,
           options: {
-            headers: _.object((function() {
-              var _k, _len2, _ref2, _results1;
-              _ref2 = action.headers;
-              _results1 = [];
-              for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-                header = _ref2[_k];
-                _results1.push([header.name, header["default"]]);
-              }
-              return _results1;
-            })())
+            headers: action.headerDefaults()
           }
-        }));
+        });
       }
-      return _results;
-    };
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      resource = _ref[_i];
-      _fn(resource.relativeUri);
-    }
-    return actions;
-  });
+      return actions;
+    });
+  };
 };
 
 
@@ -31973,9 +31956,11 @@ module.exports = {
 
 
 },{"../ajax":97,"../types":103,"data.validation":65,"lodash":66}],102:[function(_dereq_,module,exports){
-var FileReader, Promise, ServiceSchema, ajax, ramlParser,
+var FileReader, Promise, ServiceSchema, ajax, ramlParser, _,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+_ = _dereq_('lodash');
 
 Promise = _dereq_('bluebird');
 
@@ -32019,17 +32004,30 @@ ServiceSchema = (function() {
     })();
   }
 
+  ServiceSchema.prototype.resource = function(name) {
+    var resource, _i, _len, _ref;
+    _ref = this.resources;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      resource = _ref[_i];
+      if (resource.metadata.name === name) {
+        return resource;
+      }
+    }
+    throw new Error("Resource '" + name + "' not found in schema");
+  };
+
   ResourceSchema = (function() {
-    var ActionSchema;
+    var ActionSchema, ResourceMetadataSchema;
 
     function ResourceSchema(_arg) {
-      var method, methods, resource, resources;
-      this.relativeUri = _arg.relativeUri, methods = _arg.methods, resources = _arg.resources;
+      var description, method, methods, resource, resources;
+      this.relativeUri = _arg.relativeUri, methods = _arg.methods, resources = _arg.resources, description = _arg.description;
       this.actions = (function() {
-        var _i, _len, _results;
+        var _i, _len, _ref, _results;
+        _ref = methods || [];
         _results = [];
-        for (_i = 0, _len = methods.length; _i < _len; _i++) {
-          method = methods[_i];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          method = _ref[_i];
           _results.push(new ActionSchema(method));
         }
         return _results;
@@ -32044,10 +32042,51 @@ ServiceSchema = (function() {
         }
         return _results;
       })();
+      this.metadata = new ResourceMetadataSchema(JSON.parse(description || '{}'));
     }
 
+    ResourceSchema.prototype.actionsByName = (function() {
+      var resourceActionsAndUriByName, scanResourcesForActions;
+      resourceActionsAndUriByName = function(relativeUri, resourceActions) {
+        var action, actions, _i, _len;
+        actions = {};
+        for (_i = 0, _len = resourceActions.length; _i < _len; _i++) {
+          action = resourceActions[_i];
+          actions[action.name()] = {
+            relativeUri: relativeUri,
+            action: action
+          };
+        }
+        return actions;
+      };
+      scanResourcesForActions = function(relativeUri, resources) {
+        var actions, resource, uri, _i, _len;
+        actions = {};
+        for (_i = 0, _len = resources.length; _i < _len; _i++) {
+          resource = resources[_i];
+          uri = [relativeUri, resource.relativeUri].join('');
+          _.merge(actions, resourceActionsAndUriByName(uri, resource.actions), scanResourcesForActions(uri, resource.resources));
+        }
+        return actions;
+      };
+      return function() {
+        return scanResourcesForActions('', [this]);
+      };
+    })();
+
+    ResourceMetadataSchema = (function() {
+      function ResourceMetadataSchema(_arg) {
+        var resourceName;
+        resourceName = _arg.resourceName;
+        this.name = resourceName;
+      }
+
+      return ResourceMetadataSchema;
+
+    })();
+
     ActionSchema = (function() {
-      var DescriptionSchema, HeaderSchema, ResponseSchema;
+      var ActionMetadataSchema, HeaderSchema, ResponseSchema;
 
       function ActionSchema(_arg) {
         var code, description, header, headers, name, response, responses;
@@ -32070,17 +32109,34 @@ ServiceSchema = (function() {
           }
           return _results;
         })();
-        this.metadata = new DescriptionSchema(JSON.parse(description));
+        this.metadata = new ActionMetadataSchema(JSON.parse(description || '{}'));
       }
 
-      DescriptionSchema = (function() {
-        function DescriptionSchema(_arg) {
+      ActionSchema.prototype.name = function() {
+        return this.metadata.name || '';
+      };
+
+      ActionSchema.prototype.headerDefaults = function() {
+        var defaults, header, _i, _len, _ref;
+        defaults = {};
+        _ref = this.headers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          header = _ref[_i];
+          if (header["default"] != null) {
+            defaults[header.name] = header["default"];
+          }
+        }
+        return defaults;
+      };
+
+      ActionMetadataSchema = (function() {
+        function ActionMetadataSchema(_arg) {
           var action;
           action = _arg.action;
           this.name = action;
         }
 
-        return DescriptionSchema;
+        return ActionMetadataSchema;
 
       })();
 
@@ -32132,7 +32188,7 @@ module.exports = {
 };
 
 
-},{"../ajax":97,"bluebird":3,"raml-parser":76}],103:[function(_dereq_,module,exports){
+},{"../ajax":97,"bluebird":3,"lodash":66,"raml-parser":76}],103:[function(_dereq_,module,exports){
 var Failure, Success, isArray, isObject, listSequence, map, mapValues, nativeTypeValidator, objectSequence, objectWithProperty, pairs, pairsToObject, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), pairs = _ref.pairs, map = _ref.map, mapValues = _ref.mapValues;
