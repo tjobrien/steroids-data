@@ -13,12 +13,15 @@ schemas:
  - tasks: !include resources/schemas/tasks.json
  - task: !include resources/schemas/task.json
 
-/task/objects
+/task/objects.json:
   description: |
     {
       "resourceName": "task"
     }
-  .json:
-    type: collection
-  /{id}.json:
-    type: member
+  type: collection
+/task/objects/{id}.json:
+  description: |
+    {
+      "resourceName": "task"
+    }
+  type: member
