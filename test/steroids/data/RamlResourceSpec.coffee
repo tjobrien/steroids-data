@@ -3,7 +3,7 @@ require('chai').should()
 {fromObject} = require '../../../src/steroids/data/schema/raml'
 ramlResource = require '../../../src/steroids/data/resources/raml'
 
-TaskResource = ramlResource 'task', fromObject
+TaskResource = ramlResource('task') fromObject
   title: 'Tasks'
   baseUri: 'http://localhost:9001/data/task'
   resources: [

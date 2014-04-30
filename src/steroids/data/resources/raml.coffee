@@ -8,7 +8,7 @@ uriToFunction = (uri) ->
     uriTemplate {id}
 
 
-module.exports = ramlResourceFromSchema = (resourceName, schema) ->
+module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
   restful {
     baseUrl: schema.baseUri
   }, (api) ->
