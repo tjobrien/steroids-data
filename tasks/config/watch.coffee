@@ -10,4 +10,7 @@ module.exports =
       '<%= dir.test %>/**/*Spec.coffee'
       '<%= dir.test %>/data/**/*.*'
     ]
-    tasks: 'test'
+    tasks: [
+      'coffeelint'
+      'test'
+    ]
