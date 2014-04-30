@@ -53,9 +53,6 @@ describe "steroids.data.schema.raml", ->
       serviceSchema.should.not.be.empty
 
     describe "each schema", ->
-      xit "should be a fixed point", ->
-        fromObject(serviceSchema).should.deep.equal serviceSchema
-
       it "should allow folding nested resources into a list of actions by their name", ->
         do (actions = serviceSchema.actions()) ->
           actions.should.have.property 'findAll'
@@ -201,16 +198,3 @@ describe "steroids.data.schema.raml", ->
   it "should have a function for converting a schema to a resource", ->
     ramlSchema.toResource.should.be.a 'function'
 
-  xdescribe "converting a schema to a resource", ->
-    schema = ramlSchema.fromFile schemaFileUrl
-    {toResource} = ramlSchema
-
-    it "should accept a schema and return a resource object", ->
-      toResource(schema).should.be.an.object
-
-    describe "the resulting resource object", ->
-      resource = toResource(schema)
-
-      it "should have a method for each path in the schema", ->
-        (methodName for methodName, method of resource when method instanceof Function)
-          .should.have.length.of 2
