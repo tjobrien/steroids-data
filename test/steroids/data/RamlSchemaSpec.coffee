@@ -53,10 +53,10 @@ describe "steroids.data.schema.raml", ->
       xit "should be a fixed point", ->
         fromObject(serviceSchema).should.deep.equal serviceSchema
 
-      it "should allow folding nested resources into a list of actions by their relative uri", ->
+      it "should allow folding nested resources into a list of actions by their name", ->
         do (actions = serviceSchema.actions()) ->
-          actions.should.have.property '/objects'
-          actions.should.have.property '/objects/nestedObject'
+          actions.should.have.property 'findAll'
+          actions.should.have.property 'find'
 
   it "should have a function for reading a schema from a file", ->
     ramlSchema.fromFile.should.be.a 'function'
