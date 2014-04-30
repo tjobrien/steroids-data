@@ -23,8 +23,10 @@ class ServiceSchema
       actions = {}
 
       for action in resource.actions
-        actionUri = [relativeUri, resource.relativeUri].join ''
-        actions[actionUri] = action
+        actions[action.name()] = {
+          relativeUri: [relativeUri, resource.relativeUri].join ''
+          action: action
+        }
 
       actions
 
@@ -63,6 +65,9 @@ class ServiceSchema
         @responses = (new ResponseSchema code, (response || {}) for code, response of responses)
         @headers = (new HeaderSchema name, (header || {}) for name, header of headers)
         @metadata = new DescriptionSchema JSON.parse description
+
+      name: ->
+        @metadata.name || ''
 
       class DescriptionSchema
         constructor: ({
