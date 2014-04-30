@@ -1,3 +1,4 @@
+_ = require 'lodash'
 Promise = require 'bluebird'
 ajax = require '../ajax'
 ramlParser = require 'raml-parser'
@@ -17,12 +18,30 @@ class ServiceSchema
     @resources = (new ResourceSchema resource for resource in resources)
 
   # Flattens nested resources to a map from relative uris to actions
-  actions: ->
-    actions = {}
-    for resource in @resources
+  actions: do ->
+    resourceToActions = (relativeUri, resource) ->
+      actions = {}
+
       for action in resource.actions
-        actions[resource.relativeUri] = action
-    actions
+        actionUri = [relativeUri, resource.relativeUri].join ''
+        actions[actionUri] = action
+
+      actions
+
+    scanResourcesForActions = (relativeUri, resources) ->
+      actions = {}
+
+      for resource in resources
+        _.merge(
+          actions
+          resourceToActions(relativeUri, resource)
+          scanResourcesForActions(resource.relativeUri, resource.resources)
+        )
+
+      actions
+
+    ->
+      scanResourcesForActions '', @resources
 
   class ResourceSchema
     constructor: ({
