@@ -24,34 +24,6 @@ class ServiceSchema
 
     throw new Error "Resource '#{name}' not found in schema"
 
-  # Flattens nested resources to a map from relative uris to actions
-  actions: do ->
-    resourceToActions = (relativeUri, resource) ->
-      actions = {}
-
-      for action in resource.actions
-        actions[action.name()] = {
-          relativeUri: [relativeUri, resource.relativeUri].join ''
-          action: action
-        }
-
-      actions
-
-    scanResourcesForActions = (relativeUri, resources) ->
-      actions = {}
-
-      for resource in resources
-        _.merge(
-          actions
-          resourceToActions(relativeUri, resource)
-          scanResourcesForActions(resource.relativeUri, resource.resources)
-        )
-
-      actions
-
-    ->
-      scanResourcesForActions '', @resources
-
   class ResourceSchema
     constructor: ({
       @relativeUri
@@ -62,6 +34,36 @@ class ServiceSchema
       @actions = (new ActionSchema method for method in methods)
       @resources = (new ResourceSchema resource for resource in resources || [])
       @metadata = new ResourceMetadataSchema JSON.parse (description || '{}')
+
+    # Flattens nested resources to a map from action names to actions
+    actionsByName: do ->
+      resourceActionsAndUriByName = (relativeUri, resourceActions) ->
+        actions = {}
+
+        for action in resourceActions
+          actions[action.name()] = {
+            relativeUri: relativeUri
+            action: action
+          }
+
+        actions
+
+      scanResourcesForActions = (relativeUri, resources) ->
+        actions = {}
+
+        for resource in resources
+          uri = ([relativeUri, resource.relativeUri].join '')
+
+          _.merge(
+            actions
+            resourceActionsAndUriByName(uri, resource.actions)
+            scanResourcesForActions(uri, resource.resources)
+          )
+
+        actions
+
+      ->
+        scanResourcesForActions '', [this]
 
     class ResourceMetadataSchema
       constructor: ({

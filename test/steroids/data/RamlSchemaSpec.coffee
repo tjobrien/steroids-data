@@ -59,7 +59,7 @@ describe "steroids.data.schema.raml", ->
 
       describe "each resource", ->
         it "should allow folding nested resources into a list of actions by their name", ->
-          do (actions = serviceSchema.resource('object').actions()) ->
+          do (actions = serviceSchema.resource('object').actionsByName()) ->
             actions.should.have.property 'findAll'
             actions.should.have.property 'find'
 

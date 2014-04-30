@@ -8,13 +8,13 @@ uriToFunction = (uri) ->
     uriTemplate {id}
 
 
-module.exports = ramlResourceFromSchema = (schema) ->
+module.exports = ramlResourceFromSchema = (resourceName, schema) ->
   restful {
     baseUrl: schema.baseUri
   }, (api) ->
     actions = {}
 
-    for name, {relativeUri, action} of schema.actions()
+    for name, {relativeUri, action} of schema.resource(resourceName).actionsByName()
       actions[name] = api[action.method]
         path: uriToFunction relativeUri
         expect: types.Any

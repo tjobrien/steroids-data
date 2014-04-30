@@ -3,11 +3,14 @@ require('chai').should()
 {fromObject} = require '../../../src/steroids/data/schema/raml'
 ramlResource = require '../../../src/steroids/data/resources/raml'
 
-TaskResource = ramlResource fromObject
+TaskResource = ramlResource 'task', fromObject
   title: 'Tasks'
   baseUri: 'http://localhost:9001/data/task'
   resources: [
     {
+      description: JSON.stringify {
+        resourceName: "task"
+      }
       relativeUri: '/objects.json'
       methods: [
         {
@@ -25,6 +28,9 @@ TaskResource = ramlResource fromObject
       ]
     }
     {
+      description: JSON.stringify {
+        resourceName: "task"
+      }
       relativeUri: '/objects/{id}.json'
       methods: [
         {
