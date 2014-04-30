@@ -46,6 +46,19 @@ describe "steroids.data.schema.raml", ->
             ]
           ]
         }
+        {
+          relativeUri: '/elsewhere'
+          description: JSON.stringify {
+            resourceName: "object"
+          }
+          methods: [
+            {
+              description: JSON.stringify {
+                action: "somethingElse"
+              }
+            }
+          ]
+        }
       ]
     }
 
@@ -63,6 +76,11 @@ describe "steroids.data.schema.raml", ->
             actions.should.have.property 'findAll'
             actions.should.have.property 'find'
 
+        # NOTE: This will preclude support for structures where not everything
+        # pertaining to one logical resource is under one resource-specific root
+        it "will not contain actions defined in paths other than the first one", ->
+          do (actions = serviceSchema.resource('object').actionsByName()) ->
+            actions.should.not.have.property 'somethingElse'
 
   it "should have a function for reading a schema from a file", ->
     ramlSchema.fromFile.should.be.a 'function'
