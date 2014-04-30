@@ -11,35 +11,37 @@ TaskResource = ramlResource 'task', fromObject
       description: JSON.stringify {
         resourceName: "task"
       }
-      relativeUri: '/objects.json'
-      methods: [
+      relativeUri: '/objects'
+      resources: [
         {
-          method: 'get'
-          description: JSON.stringify {
-            action: "findAll"
-          }
-          body: {}
-          headers:
-            application_uid:
-              default: 'steroids-data-test-app'
-            application_api_key:
-              default: 'blt349bf00642a3a1b7'
+          relativeUri: '.json'
+          methods: [
+            {
+              method: 'get'
+              description: JSON.stringify {
+                action: "findAll"
+              }
+              body: {}
+              headers:
+                application_uid:
+                  default: 'steroids-data-test-app'
+                application_api_key:
+                  default: 'blt349bf00642a3a1b7'
+            }
+          ]
         }
-      ]
-    }
-    {
-      description: JSON.stringify {
-        resourceName: "task"
-      }
-      relativeUri: '/objects/{id}.json'
-      methods: [
         {
-          method: 'get'
-          description: JSON.stringify {
-            action: "find"
-          }
-          body: {}
-          headers: {}
+          relativeUri: '/{id}.json'
+          methods: [
+            {
+              method: 'get'
+              description: JSON.stringify {
+                action: "find"
+              }
+              body: {}
+              headers: {}
+            }
+          ]
         }
       ]
     }
