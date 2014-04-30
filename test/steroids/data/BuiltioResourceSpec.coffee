@@ -1,4 +1,4 @@
-require('chai').should()
+require('chai').use(require 'chai-as-promised')
 
 BuiltioResource = require '../../../src/steroids/data/resources/builtio'
 types = require '../../../src/steroids/data/types'
@@ -32,11 +32,6 @@ describe "Accessing data from Built.io backend", ->
         TaskResource.update(task.uid, completed: true).then (updatedTask) ->
           updatedTask.completed.should.be.true
 
-    it "can delete a newly created task", ->
-      createSampleTask.then (task) ->
-        TaskResource.del(task.uid).then (done) ->
-          done.should.be.defined
-
     it "can find all tasks", ->
       createSampleTask.then (task) ->
         TaskResource.findAll().then (tasks) ->
@@ -58,3 +53,10 @@ describe "Accessing data from Built.io backend", ->
       it "has a completion status", ->
         foundTask.then (task) ->
           task.completed.should.be.a 'boolean'
+
+    it "can delete a newly created task", ->
+      createSampleTask.then (task) ->
+        TaskResource.del(task.uid).then (done) ->
+          done.should.be.defined
+          
+          TaskResource.find(task.uid).should.be.rejected
