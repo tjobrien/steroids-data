@@ -13,12 +13,12 @@ TaskResource = restful {
   findAll: api.get
     path: -> '/objects.json'
     through: types.Project.Property 'objects'
-    expect: types.List Task
+    expect: api.response types.List Task
 
   find: api.get
     path: (id) -> "/objects/#{id}.json"
     through: types.Project.Property 'object'
-    expect: Task
+    expect: api.response Task
 
 
 describe "Accessing data from a static REST backend with steroids.data.resources.restful", ->
