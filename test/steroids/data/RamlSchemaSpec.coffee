@@ -215,6 +215,12 @@ describe "steroids.data.schema.raml", ->
                 (response) -> response.body.should.be.an.object
               )
 
+            it "can have metadata with a rootKey", ->
+              forSomeResponse(
+                (response) -> response.metadata.rootKey?
+                (response) -> response.metadata.rootKey.should.be.a.string
+              )
+
 
   it "should have a function for converting a schema to a resource", ->
     ramlSchema.toResource.should.be.a 'function'
