@@ -104,6 +104,12 @@ class ServiceSchema
           response
         ) ->
           @body = response.body ? {}
+          @metadata = new ResponseMetadataSchema JSON.parse response.description || '{}'
+
+        class ResponseMetadataSchema
+          constructor: ({
+            @rootKey
+          }) ->
 
       class HeaderSchema
         constructor: (
