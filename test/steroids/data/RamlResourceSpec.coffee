@@ -22,6 +22,13 @@ TaskResource = ramlResource('task') fromObject
                 action: "findAll"
               }
               body: {}
+              responses:
+                200:
+                  description: JSON.stringify {
+                    rootKey: "objects"
+                  }
+                  body:
+                    "application/json": {}
               headers:
                 application_uid:
                   default: 'steroids-data-test-app'
@@ -39,6 +46,13 @@ TaskResource = ramlResource('task') fromObject
                 action: "find"
               }
               body: {}
+              responses:
+                200:
+                  description: JSON.stringify {
+                    rootKey: "object"
+                  }
+                  body:
+                    "application/json": {}
               headers: {}
             }
           ]
@@ -64,8 +78,7 @@ describe "Accessing data from a static REST backend with steroids.data.resources
       sampleTask.then (task) ->
         task.should.be.an 'object'
 
-    # TODO: Add rootKey discovery to dig response data from {object}
-    xdescribe "A single task received from TaskResource", ->
+    describe "A single task received from TaskResource", ->
       it "has a description", ->
         sampleTask.then (task) ->
           task.description.should.be.a 'string'
