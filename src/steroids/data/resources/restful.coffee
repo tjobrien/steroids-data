@@ -71,5 +71,7 @@ restMethodBuilder = (options) ->
   delete: withDefaultOptions rest.deleter
   put: withDefaultOptions rest.putter
 
+  response: (type) -> type
+
 module.exports = restful = (options, apiDescriptor) ->
   apiDescriptor restMethodBuilder options
