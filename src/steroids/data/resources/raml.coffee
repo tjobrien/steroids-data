@@ -17,7 +17,16 @@ module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
     for name, {relativeUri, action} of schema.resource(resourceName).actionsByName()
       actions[name] = api[action.method]
         path: uriToFunction relativeUri
-        receive: api.response types.Any
+        receive: api.response _.object (
+          for response in action.responses
+            [
+              response.code
+              if response.metadata.rootKey
+                types.Property response.metadata.rootKey
+              else
+                types.Any
+            ]
+        )
         options:
           headers: action.headerDefaults()
 
