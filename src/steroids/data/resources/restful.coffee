@@ -19,15 +19,21 @@ validatorToPromised = (validator) -> (args...) ->
 
 deepDefaults = partialRight merge, defaults
 
-responseBodyValidator = (responseDataValidator) -> (response) ->
-  if response.error
-    Failure [response.error]
-  else if response.body
-    responseDataValidator response.body
+validatorToResponseValidator = (validator) -> (response) ->
+  if response.body
+    validator response.body
   else if response.text
-    responseDataValidator response.text
+    validator response.text
   else
     Failure ["Empty response"]
+
+responseValidator = (responseDataValidator) ->
+  validateResponse = validatorToResponseValidator responseDataValidator
+  (response) ->
+    if response.error
+      Failure [response.error]
+    else
+      validateResponse response
 
 rest =
   # path: (args...) -> url
@@ -86,7 +92,7 @@ restMethodBuilder = (options) ->
   delete: withDefaultOptions rest.deleter
   put: withDefaultOptions rest.putter
 
-  response: responseBodyValidator
+  response: responseValidator
 
 module.exports = restful = (options, apiDescriptor) ->
   apiDescriptor restMethodBuilder options
