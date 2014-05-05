@@ -2,6 +2,7 @@
 ajax = require '../ajax'
 Promise = require 'bluebird'
 {Success, Failure} = require 'data.validation'
+types = require '../types'
 
 # Validation a -> Promise a
 validationToPromise = (validation) ->
@@ -19,13 +20,11 @@ validatorToPromised = (validator) -> (args...) ->
 
 deepDefaults = partialRight merge, defaults
 
-validatorToResponseValidator = (validator) -> (response) ->
-  if response.body
-    validator response.body
-  else if response.text
-    validator response.text
-  else
-    Failure ["Empty response"]
+validatorToResponseValidator = (validator) ->
+  types.OneOf [
+    types.Property 'body', validator
+    types.Property 'text', validator
+  ]
 
 responseValidator = (responseDataValidator) ->
   validateResponse = validatorToResponseValidator responseDataValidator
