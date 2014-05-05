@@ -76,5 +76,6 @@ describe "Accessing data from a static REST backend with steroids.data.resources
       it "is an object", ->
         sampleTask.should.eventually.be.an.object
 
-      xit "has a description", ->
+      it "has a description", ->
         sampleTask.should.eventually.have.property 'description'
+
