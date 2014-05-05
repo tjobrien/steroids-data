@@ -17,8 +17,7 @@ module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
     for name, {relativeUri, action} of schema.resource(resourceName).actionsByName()
       actions[name] = api[action.method]
         path: uriToFunction relativeUri
-        expect: types.Any
-        through: types.Project.Identity
+        receive: api.response types.Any
         options:
           headers: action.headerDefaults()
 
