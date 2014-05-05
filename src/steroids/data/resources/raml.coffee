@@ -7,6 +7,24 @@ uriToFunction = (uri) ->
   (id) ->
     uriTemplate {id}
 
+responseValidationsForAction = do ->
+  typeByRootKey = (rootKey) ->
+    if rootKey
+      types.Property rootKey
+    else
+      types.Any
+
+  (action) ->
+    if !action.responses.length
+      return types.Any
+
+    _.object (
+      for response in action.responses
+        [
+          response.code
+          typeByRootKey response.metadata.rootKey
+        ]
+    )
 
 module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
   restful {
@@ -17,16 +35,7 @@ module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
     for name, {relativeUri, action} of schema.resource(resourceName).actionsByName()
       actions[name] = api[action.method]
         path: uriToFunction relativeUri
-        receive: api.response _.object (
-          for response in action.responses
-            [
-              response.code
-              if response.metadata.rootKey
-                types.Property response.metadata.rootKey
-              else
-                types.Any
-            ]
-        )
+        receive: api.response responseValidationsForAction action
         options:
           headers: action.headerDefaults()
 
