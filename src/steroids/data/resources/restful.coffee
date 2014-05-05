@@ -1,6 +1,7 @@
 {partialRight, merge, defaults} = require 'lodash'
 ajax = require '../ajax'
 Promise = require 'bluebird'
+{Success, Failure} = require 'data.validation'
 
 # Validation a -> Promise a
 validationToPromise = (validation) ->
@@ -9,21 +10,35 @@ validationToPromise = (validation) ->
     (value) -> Promise.resolve value
   )
 
+# (a -> Validation b) -> (a -> Promise b)
+validatorToPromised = (validator) -> (args...) ->
+  validator(args...).fold(
+    (errors) -> Promise.reject new Error JSON.stringify(errors)
+    (value) -> Promise.resolve value
+  )
+
 deepDefaults = partialRight merge, defaults
+
+responseBodyValidator = (responseDataValidator) -> (response) ->
+  if response.error
+    Failure [response.error]
+  else if response.body
+    responseDataValidator response.body
+  else if response.text
+    responseDataValidator response.text
+  else
+    Failure ["Empty response"]
 
 rest =
   # path: (args...) -> url
-  # through: Project data
-  # expect: (data) -> Validation data
+  # receive: (response) -> Validation data
   # options: {}
-  getter: ({path, through, expect, options}) -> (args...) ->
+  getter: ({path, receive, options}) -> (args...) ->
     url = path args...
+
     ajax
-      .get(url, options || {})
-      .then(through.from)
-      .then(validationToPromise)
-      .then(expect)
-      .then(validationToPromise)
+      .request('get', url, options || {})
+      .then(validatorToPromised receive)
 
   # path: (data) -> url
   # through: Project data
@@ -71,7 +86,7 @@ restMethodBuilder = (options) ->
   delete: withDefaultOptions rest.deleter
   put: withDefaultOptions rest.putter
 
-  response: (type) -> type
+  response: responseBodyValidator
 
 module.exports = restful = (options, apiDescriptor) ->
   apiDescriptor restMethodBuilder options
