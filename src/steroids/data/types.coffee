@@ -58,7 +58,14 @@ module.exports = types =
       Failure ["Input was undefined"]
 
   OneOf: (types) -> (input) ->
-
+    fail = Failure []
+    for type in types
+      validation = type(input)
+      if validation.isSuccess
+        return validation
+      else
+        fail = fail.ap validation
+    fail
 
   String: nativeTypeValidator 'string'
 

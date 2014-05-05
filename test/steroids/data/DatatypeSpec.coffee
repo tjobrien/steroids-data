@@ -144,6 +144,10 @@ describe "Typing data with steroids.data.types", ->
       for booleanOrStringValue in [true, false, 'anything']
         BooleanOrString(booleanOrStringValue).isSuccess.should.be.true
 
+    it "Should not accept values not accepted by any inner type", ->
+      for notABooleanOrStringValue in [null, {}, [], 123]
+        BooleanOrString(notABooleanOrStringValue).isFailure.should.be.true
+
   it "Should have a Property projection", ->
     types.Project.Property.should.be.a 'function'
 
