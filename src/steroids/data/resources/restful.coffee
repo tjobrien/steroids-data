@@ -16,11 +16,9 @@ validationToPromise = (validation) ->
   )
 
 # (a -> Validation b) -> (a -> Promise b)
-validatorToPromised = (validator) -> (args...) ->
-  validator(args...).fold(
-    (errors) -> Promise.reject new Error JSON.stringify(errors)
-    (value) -> Promise.resolve value
-  )
+validatorToPromised = (validator) ->
+  (args...) ->
+    validationToPromise validator(args...)
 
 deepDefaults = partialRight merge, defaults
 
