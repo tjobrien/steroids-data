@@ -57,6 +57,9 @@ module.exports = types =
     else
       Failure ["Input was undefined"]
 
+  OneOf: (types) -> (input) ->
+
+
   String: nativeTypeValidator 'string'
 
   Boolean: nativeTypeValidator 'boolean'

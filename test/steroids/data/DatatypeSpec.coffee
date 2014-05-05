@@ -131,6 +131,19 @@ describe "Typing data with steroids.data.types", ->
     it 'Should not accept values not accepted by the inner type', ->
       OptionalBoolean('anything').isFailure.should.be.true
 
+  it "Should have a disjunction type", ->
+    types.OneOf.should.be.a.function
+
+  describe "Disjunction type OneOf", ->
+    BooleanOrString = types.OneOf([types.Boolean, types.String])
+
+    it "Should accept a list of types and return a validator", ->
+      BooleanOrString.should.be.a.function
+
+    it "Should accept any of the provided types", ->
+      for booleanOrStringValue in [true, false, 'anything']
+        BooleanOrString(booleanOrStringValue).isSuccess.should.be.true
+
   it "Should have a Property projection", ->
     types.Project.Property.should.be.a 'function'
 
