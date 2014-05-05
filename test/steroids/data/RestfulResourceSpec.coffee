@@ -1,4 +1,4 @@
-require('chai').should()
+require('chai').use(require 'chai-as-promised')
 
 restful = require '../../../src/steroids/data/resources/restful'
 types = require '../../../src/steroids/data/types'
@@ -27,17 +27,14 @@ describe "Accessing data from a static REST backend with steroids.data.resources
 
   describe "A user-defined TaskResource", ->
     it "can find all tasks", ->
-      TaskResource.findAll().then (tasks) ->
-        tasks.should.not.be.empty
+      TaskResource.findAll().should.eventually.not.be.empty
 
     sampleTask = TaskResource.find('bltc95644acbfe2ca34')
 
     it "can find a single task", ->
-      sampleTask.then (task) ->
-        task.should.be.an 'object'
+      sampleTask.should.eventually.be.an.object
 
     describe "A single task received from TaskResource", ->
       it "has a description", ->
-        sampleTask.then (task) ->
-          task.description.should.be.a 'string'
+        sampleTask.should.eventually.have.property 'description'
 
