@@ -13,13 +13,11 @@ module.exports = builtio = ({applicationApiKey, applicationUid, name, schema}) -
 
     findAll: rest.get
       path: -> '/objects.json'
-      through: types.Project.Property 'objects'
-      expect: types.List schema
+      receive: rest.response types.Property 'objects', types.List schema
 
     find: rest.get
       path: (id) -> "/objects/#{id}.json"
-      through: types.Project.Property 'object'
-      expect: schema
+      receive: rest.response types.Property 'object', schema
 
     create: rest.post
       through: types.Project.Property 'object'
