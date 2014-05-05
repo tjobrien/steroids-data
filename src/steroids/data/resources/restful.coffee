@@ -1,7 +1,11 @@
-{partialRight, merge, defaults} = require 'lodash'
-ajax = require '../ajax'
+
+assert = require 'assert-plus'
 Promise = require 'bluebird'
+
+{partialRight, merge, defaults} = require 'lodash'
 {Success, Failure} = require 'data.validation'
+
+ajax = require '../ajax'
 types = require '../types'
 
 # Validation a -> Promise a
@@ -27,23 +31,28 @@ validatorToResponseValidator = (validator) ->
   ]
 
 responseValidator = (responseDataValidator) ->
-  validateResponse = validatorToResponseValidator responseDataValidator
-  (response) ->
-    if response.error
-      Failure [response.error]
-    else
-      validateResponse response
+  do (validateResponse = validatorToResponseValidator responseDataValidator) ->
+    (response) ->
+      if response.error
+        Failure [response.error]
+      else
+        validateResponse response
 
 rest =
   # path: (args...) -> url
   # receive: (response) -> Validation data
   # options: {}
-  getter: ({path, receive, options}) -> (args...) ->
-    url = path args...
+  getter: ({path, receive, options}) ->
+    assert.func path, 'path'
+    assert.func receive, 'receive'
+    assert.optionalObject options, 'options'
 
-    ajax
-      .request('get', url, options || {})
-      .then(validatorToPromised receive)
+    (args...) ->
+      url = path args...
+
+      ajax
+        .request('get', url, options || {})
+        .then(validatorToPromised receive)
 
   # path: (data) -> url
   # through: Project data
