@@ -1,4 +1,4 @@
-require('chai').should()
+require('chai').use(require 'chai-as-promised')
 
 {fromObject} = require '../../../src/steroids/data/schema/raml'
 ramlResource = require '../../../src/steroids/data/resources/raml'
@@ -68,18 +68,15 @@ describe "Accessing data from a static REST backend with steroids.data.resources
 
   describe "A user-defined TaskResource", ->
     it "can find all tasks", ->
-      TaskResource.findAll().then (tasks) ->
-        tasks.should.not.be.empty
+      TaskResource.findAll().should.eventually.not.be.empty
 
     sampleTask = null
 
     it "can find a single task", ->
       sampleTask = TaskResource.find('bltc95644acbfe2ca34')
-      sampleTask.then (task) ->
-        task.should.be.an 'object'
+      sampleTask.should.eventually.be.an.object
 
     xdescribe "A single task received from TaskResource", ->
       it "has a description", ->
-        sampleTask.then (task) ->
-          task.description.should.be.a 'string'
+        sampleTask.should.eventually.have.property 'description'
 
