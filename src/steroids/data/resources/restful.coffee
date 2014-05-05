@@ -23,10 +23,16 @@ validatorToPromised = (validator) ->
 deepDefaults = partialRight merge, defaults
 
 validatorToResponseValidator = (validator) ->
-  types.OneOf [
-    types.Property 'body', validator
-    types.Property 'text', validator
-  ]
+  if typeof validator is 'function'
+    types.OneOf [
+      types.Property 'body', validator
+      types.Property 'text', validator
+    ]
+  else
+    types.OneOf (
+      for responseCode, responseBodyValidator of validator
+        validatorToResponseValidator responseBodyValidator
+    )
 
 responseValidator = (responseDataValidator) ->
   do (validateResponse = validatorToResponseValidator responseDataValidator) ->
