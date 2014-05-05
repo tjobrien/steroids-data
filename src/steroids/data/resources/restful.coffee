@@ -31,6 +31,8 @@ validatorToResponseValidator = (validator) ->
   else
     types.OneOf (
       for responseCode, responseBodyValidator of validator
+        # NOTE: This checks for the contents but not response code
+        # TODO: Check for response status
         validatorToResponseValidator responseBodyValidator
     )
 
