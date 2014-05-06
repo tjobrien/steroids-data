@@ -6,19 +6,28 @@ get:
     }
   responses:
     200:
+      description: |
+        {
+          "rootKey": "object"
+        }
       body:
         application/json:
           schema: <<resourcePathName>> # e.g. car
 put:
   description:  |
     {
-      "action": "update"
+      "action": "update",
+      "rootKey": "object"
     }
   body:
     application/json:
       schema: <<resourcePathName | !singularize>>
   responses:
     200:
+      description: |
+        {
+          "rootKey": "object"
+        }
       body:
         application/json:
           schema: <<resourcePathName>>

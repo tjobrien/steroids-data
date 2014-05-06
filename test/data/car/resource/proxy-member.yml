@@ -3,8 +3,7 @@ is: [ securedBySteroidsApiKey ]
 get:
   description: |
     {
-      "action": "find",
-      "rootKey": "object"
+      "action": "find"
     }
   responses:
     200:

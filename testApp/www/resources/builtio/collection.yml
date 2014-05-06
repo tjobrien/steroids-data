@@ -7,19 +7,28 @@ get:
     }
   responses:
     200:
+      description: |
+        {
+          "rootKey": "objects"
+        }
       body:
         application/json:
           schema: <<resourcePathName>> # e.g cars
 post:
   description:  |
     {
-      "action": "create"
+      "action": "create",
+      "rootKey": "object"
     }
   body:
     application/json:
       schema: <<resourcePathName | !singularize>>
   responses:
     200:
+      description: |
+        {
+          "rootKey": "object"
+        }
       body:
         application/json:
           schema: <<resourcePathName | !singularize>> # e.g. car
