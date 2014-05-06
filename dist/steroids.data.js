@@ -32348,11 +32348,11 @@ module.exports = builtio = function(_arg) {
         receive: rest.response(types.Property('object', schema))
       }),
       create: rest.post({
-        through: types.Project.Property('object'),
+        send: rest.request(types.projections.Property('object')),
         path: function() {
           return "/objects";
         },
-        expect: schema
+        receive: rest.response(types.Property('object', schema))
       }),
       del: rest["delete"]({
         path: function(id) {
@@ -32360,11 +32360,11 @@ module.exports = builtio = function(_arg) {
         }
       }),
       update: rest.put({
-        through: types.Project.Property('object'),
+        send: rest.request(types.projections.Property('object')),
         path: function(id) {
           return "/objects/" + id + ".json";
         },
-        expect: schema
+        receive: rest.response(types.Property('object', schema))
       })
     };
   });
@@ -32372,7 +32372,7 @@ module.exports = builtio = function(_arg) {
 
 
 },{"../types":107,"./restful":104}],103:[function(_dereq_,module,exports){
-var ramlResourceFromSchema, responseValidationsForAction, restful, types, uriToFunction, _;
+var ramlResourceFromSchema, requestValidationForAction, responseValidationsForAction, restful, types, uriToFunction, _;
 
 _ = _dereq_('lodash');
 
@@ -32419,6 +32419,14 @@ responseValidationsForAction = (function() {
   };
 })();
 
+requestValidationForAction = function(action) {
+  if (action.metadata.rootKey != null) {
+    return types.projections.Property(action.metadata.rootKey);
+  } else {
+    return types.Any;
+  }
+};
+
 module.exports = ramlResourceFromSchema = function(resourceName) {
   return function(schema) {
     return restful({
@@ -32431,6 +32439,7 @@ module.exports = ramlResourceFromSchema = function(resourceName) {
         _ref1 = _ref[name], relativeUri = _ref1.relativeUri, action = _ref1.action;
         actions[name] = api[action.method]({
           path: uriToFunction(relativeUri),
+          send: api.request(requestValidationForAction(action)),
           receive: api.response(responseValidationsForAction(action)),
           options: {
             headers: action.headerDefaults()
@@ -32521,16 +32530,21 @@ rest = {
     };
   },
   poster: function(_arg) {
-    var expect, options, path, through;
-    path = _arg.path, through = _arg.through, expect = _arg.expect, options = _arg.options;
-    return function(data) {
+    var doPostRequest, options, path, receive, send;
+    path = _arg.path, send = _arg.send, receive = _arg.receive, options = _arg.options;
+    assert.func(path, 'path');
+    assert.func(send, 'send');
+    assert.func(receive, 'receive');
+    assert.optionalObject(options, 'options');
+    doPostRequest = function(data) {
       var url;
       url = path(data);
-      return validationToPromise(through.to(data)).then(function(data) {
-        return ajax.post(url, defaults({
-          data: data
-        }, options || {}));
-      }).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
+      return ajax.request('post', url, defaults({
+        data: data
+      }, options || {}));
+    };
+    return function(data) {
+      return validationToPromise(send(data)).then(doPostRequest).then(validatorToPromised(receive));
     };
   },
   deleter: function(_arg) {
@@ -32544,17 +32558,25 @@ rest = {
     };
   },
   putter: function(_arg) {
-    var expect, options, path, through;
-    path = _arg.path, through = _arg.through, expect = _arg.expect, options = _arg.options;
-    return function() {
-      var args, data, url, _i;
-      args = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), data = arguments[_i++];
+    var doPutRequest, options, path, receive, send;
+    path = _arg.path, send = _arg.send, receive = _arg.receive, options = _arg.options;
+    assert.func(path, 'path');
+    assert.func(send, 'send');
+    assert.func(receive, 'receive');
+    assert.optionalObject(options, 'options');
+    doPutRequest = function(args) {
+      var url;
       url = path.apply(null, args);
-      return validationToPromise(through.to(data)).then(function(data) {
-        return ajax.put(url, defaults({
+      return function(data) {
+        return ajax.request('put', url, defaults({
           data: data
         }, options || {}));
-      }).then(through.from).then(validationToPromise).then(expect).then(validationToPromise);
+      };
+    };
+    return function() {
+      var args, data, _i;
+      args = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), data = arguments[_i++];
+      return validationToPromise(send(data)).then(doPutRequest(args)).then(validatorToPromised(receive));
     };
   }
 };
@@ -32573,7 +32595,10 @@ restMethodBuilder = function(options) {
     post: withDefaultOptions(rest.poster),
     "delete": withDefaultOptions(rest.deleter),
     put: withDefaultOptions(rest.putter),
-    response: responseValidator
+    response: responseValidator,
+    request: function(projection) {
+      return projection;
+    }
   };
 };
 
@@ -32818,7 +32843,7 @@ ServiceSchema = (function() {
       ActionMetadataSchema = (function() {
         function ActionMetadataSchema(_arg) {
           var action;
-          action = _arg.action;
+          action = _arg.action, this.rootKey = _arg.rootKey;
           this.name = action;
         }
 
@@ -33067,26 +33092,13 @@ module.exports = types = {
       }
     };
   },
-  Project: {
-    Identity: {
-      to: Success,
-      from: Success
-    },
+  projections: {
     Property: function(name, type) {
       if (type == null) {
         type = types.Any;
       }
-      return {
-        to: function(value) {
-          return type(value).map(objectWithProperty(name));
-        },
-        from: function(object) {
-          if ((object != null ? object[name] : void 0) != null) {
-            return type(object[name]).leftMap(objectWithProperty(name));
-          } else {
-            return Failure(["Object did not have property " + name]);
-          }
-        }
+      return function(value) {
+        return type(value).map(objectWithProperty(name));
       };
     }
   }
