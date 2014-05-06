@@ -162,4 +162,10 @@ describe "Typing data with steroids.data.types", ->
         projectedString.isSuccess.should.be.true
         projectedString.get().should.deep.equal stringProperty: 'anything'
 
+    it "Should not project anything that doesn't match the property type", ->
+      for totallyNotAString in [false, null, {}, []]
+        notAProjectedString = projectToStringProperty totallyNotAString
+        notAProjectedString.isFailure.should.be.true
+
+
 
