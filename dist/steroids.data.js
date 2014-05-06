@@ -32318,9 +32318,9 @@ module.exports = ajax = {
 var ResourceProxy, ramlSchemaFromFile, ramlSchemaToResource, resourceByName, schema,
   __slice = [].slice;
 
-ramlSchemaFromFile = steroids.data.schema.raml.fromFile;
+ramlSchemaFromFile = _dereq_('./schema/raml').fromFile;
 
-ramlSchemaToResource = steroids.data.resources.raml;
+ramlSchemaToResource = _dereq_('./resources/raml');
 
 schema = (function() {
   var cloudSchema, localSchema;
@@ -32367,7 +32367,7 @@ module.exports = resourceByName = function(name) {
 };
 
 
-},{}],103:[function(_dereq_,module,exports){
+},{"./resources/raml":104,"./schema/raml":107}],103:[function(_dereq_,module,exports){
 var builtio, builtioResourceBaseUrl, restful, types;
 
 restful = _dereq_('./restful');

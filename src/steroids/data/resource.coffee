@@ -1,5 +1,5 @@
-ramlSchemaFromFile = steroids.data.schema.raml.fromFile
-ramlSchemaToResource = steroids.data.resources.raml
+ramlSchemaFromFile = require('./schema/raml').fromFile
+ramlSchemaToResource = require './resources/raml'
 
 schema = do ->
   localSchema = '//localhost/local.raml'
