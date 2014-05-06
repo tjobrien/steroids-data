@@ -95,6 +95,7 @@ class ServiceSchema
       class ActionMetadataSchema
         constructor: ({
           action
+          @rootKey
         }) ->
           @name = action
 
