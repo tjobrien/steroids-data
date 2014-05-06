@@ -27,7 +27,10 @@ responseValidationsForAction = do ->
     )
 
 requestValidationForAction = (action) ->
-  types.Any
+  if action.metadata.rootKey?
+    types.projections.Property action.metadata.rootKey
+  else
+    types.Any
 
 module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
   restful {
