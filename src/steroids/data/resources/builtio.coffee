@@ -22,7 +22,7 @@ module.exports = builtio = ({applicationApiKey, applicationUid, name, schema}) -
     create: rest.post
       through: types.Project.Property 'object'
       path: -> "/objects"
-      expect: schema
+      receive: rest.response types.Property 'object', schema
 
     del: rest.delete
       path: (id) -> "/objects/#{id}.json"
@@ -30,4 +30,4 @@ module.exports = builtio = ({applicationApiKey, applicationUid, name, schema}) -
     update: rest.put
       through: types.Project.Property 'object'
       path: (id) -> "/objects/#{id}.json"
-      expect: schema
+      receive: rest.response types.Property 'object', schema
