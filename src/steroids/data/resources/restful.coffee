@@ -116,7 +116,7 @@ restMethodBuilder = (options) ->
   put: withDefaultOptions rest.putter
 
   response: responseValidator
-  request: (project) -> project.to
+  request: (projection) -> projection
 
 module.exports = restful = (options, apiDescriptor) ->
   apiDescriptor restMethodBuilder options

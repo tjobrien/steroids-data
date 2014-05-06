@@ -149,36 +149,17 @@ describe "Typing data with steroids.data.types", ->
         BooleanOrString(notABooleanOrStringValue).isFailure.should.be.true
 
   it "Should have a Property projection", ->
-    types.Project.Property.should.be.a 'function'
+    types.projections.Property.should.be.a 'function'
 
   describe "Object property projection", ->
+    projectToStringProperty = types.projections.Property('stringProperty', types.String)
 
-    property = types.Project.Property('property')
+    it "Should accept a property name and return a projection", ->
+      projectToStringProperty.should.be.a.function
 
-    describe "Creating a projection", ->
-      it "Should accept a property name and return a projection", ->
-        property.should.have.property 'to'
-        property.should.have.property 'from'
+    it 'Should project the value into a validation', ->
+      do (projectedString = projectToStringProperty('anything')) ->
+        projectedString.isSuccess.should.be.true
+        projectedString.get().should.deep.equal stringProperty: 'anything'
 
-    describe "Projecting to a property", ->
-      it 'Should accept a value and return a projector', ->
-        property.to.should.be.a 'function'
-
-      it 'Should project the value into a validation', ->
-        do (anything = property.to('anything')) ->
-          anything.isSuccess.should.be.true
-          anything.get().should.deep.equal property: 'anything'
-
-    describe "Projecting from a property", ->
-      it 'Should accept a value and return a validator', ->
-        property.from.should.be.a 'function'
-
-      it 'Should fail if there is no property', ->
-        property.from().isFailure.should.be.true
-
-      it 'Should succeed if the property exists', ->
-        property.from({ property: 'anything' }).isSuccess.should.be.true
-
-      it 'Should contain value extracted from property', ->
-        property.from({ property: 'anything' }).get().should.equal 'anything'
 

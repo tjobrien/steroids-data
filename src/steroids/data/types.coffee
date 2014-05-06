@@ -114,20 +114,7 @@ module.exports = types =
     else
       Success null
 
-  Project:
-    Identity:
-      to: Success
-      from: Success
-    
-    Property: (name, type = types.Any) ->
-
-      to: (value) ->
-        type(value).map(objectWithProperty name)
-
-      from: (object) ->
-        if object?[name]?
-          type(object[name]).leftMap(objectWithProperty name)
-        else
-          Failure ["Object did not have property #{name}"]
-
+  projections:
+    Property: (name, type = types.Any) -> (value) ->
+      type(value).map(objectWithProperty name)
 
