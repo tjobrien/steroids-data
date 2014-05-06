@@ -5,21 +5,20 @@ autoTaskApp = angular.module("autoTaskApp", [
 
 # Index: http://localhost/views/autoTask/index.html
 autoTaskApp.controller "IndexCtrl", ($scope, AutoTaskResource) ->
-
   refreshTasks = ->
     AutoTaskResource.then (tasks) ->
-      tasks.findAll().then ({objects}) ->
+      tasks.findAll().then (objects) ->
         $scope.$apply ->
           $scope.tasks = objects
 
   $scope.complete = (id) ->
     AutoTaskResource.then (tasks) ->
-      tasks.update(id, object: { completed: true })
+      tasks.update(id, { completed: true })
         .then refreshTasks
 
   $scope.undo = (id) ->
     AutoTaskResource.then (tasks) ->
-      tasks.update(id, object: { completed: false })
+      tasks.update(id, { completed: false })
         .then refreshTasks
 
   $scope.todo = ''
@@ -27,7 +26,7 @@ autoTaskApp.controller "IndexCtrl", ($scope, AutoTaskResource) ->
   $scope.create = (todo) ->
     $scope.todo = ''
     AutoTaskResource.then (tasks) ->
-      tasks.create(object: { description: todo, completed: false })
+      tasks.create({ description: todo, completed: false })
         .then refreshTasks
   
   # -- Native navigation
