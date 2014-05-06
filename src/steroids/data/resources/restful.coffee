@@ -61,12 +61,12 @@ rest =
         .then(validatorToPromised receive)
 
   # path: (data) -> url
-  # through: Project data
-  # receive: (response) -> Validation data
+  # send: (data) -> Validation data
+  # receive: (response) -> Validation response
   # options: {}
-  poster: ({path, through, receive, options}) ->
+  poster: ({path, send, receive, options}) ->
     assert.func path, 'path'
-    assert.object through, 'through'
+    assert.func send, 'send'
     assert.func receive, 'receive'
     assert.optionalObject options, 'options'
 
@@ -75,7 +75,7 @@ rest =
       ajax.request('post', url, defaults({data}, options || {}))
 
     (data) ->
-      validationToPromise(through.to data)
+      validationToPromise(send data)
         .then(doPostRequest)
         .then(validatorToPromised receive)
 
@@ -87,12 +87,12 @@ rest =
       .del(url, options || {})
 
   # path: (args..., data) -> url
-  # through: Project data
+  # send: (data) -> Validation data
   # receive: (response) -> Validation data
   # options: {}
-  putter: ({path, through, receive, options}) ->
+  putter: ({path, send, receive, options}) ->
     assert.func path, 'path'
-    assert.object through, 'through'
+    assert.func send, 'send'
     assert.func receive, 'receive'
     assert.optionalObject options, 'options'
 
@@ -102,7 +102,7 @@ rest =
         ajax.request('put', url, defaults({data}, options || {}))
 
     (args..., data) ->
-      validationToPromise(through.to data)
+      validationToPromise(send data)
         .then(doPutRequest(args))
         .then(validatorToPromised receive)
 
@@ -116,6 +116,7 @@ restMethodBuilder = (options) ->
   put: withDefaultOptions rest.putter
 
   response: responseValidator
+  request: (project) -> project.to
 
 module.exports = restful = (options, apiDescriptor) ->
   apiDescriptor restMethodBuilder options
