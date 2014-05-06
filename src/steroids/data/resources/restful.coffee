@@ -62,18 +62,22 @@ rest =
 
   # path: (data) -> url
   # through: Project data
-  # expect: (data) -> Validation data
+  # receive: (response) -> Validation data
   # options: {}
-  poster: ({path, through, expect, options}) -> (data) ->
-    url = path data
-    validationToPromise(through.to data)
-      .then((data) ->
-        ajax.post(url, defaults({data}, options || {}))
-      )
-      .then(through.from)
-      .then(validationToPromise)
-      .then(expect)
-      .then(validationToPromise)
+  poster: ({path, through, receive, options}) ->
+    assert.func path, 'path'
+    assert.object through, 'through'
+    assert.func receive, 'receive'
+    assert.optionalObject options, 'options'
+
+    doPostRequest = (data) ->
+      url = path data
+      ajax.request('post', url, defaults({data}, options || {}))
+
+    (data) ->
+      validationToPromise(through.to data)
+        .then(doPostRequest)
+        .then(validatorToPromised receive)
 
   # path: (args...) -> url
   # options: {}
@@ -84,18 +88,23 @@ rest =
 
   # path: (args..., data) -> url
   # through: Project data
-  # expect: (data) -> Validation data
+  # receive: (response) -> Validation data
   # options: {}
-  putter: ({path, through, expect, options}) -> (args..., data) ->
-    url = path args...
-    validationToPromise(through.to data)
-      .then((data) ->
-        ajax.put(url, defaults({data}, options || {}))
-      )
-      .then(through.from)
-      .then(validationToPromise)
-      .then(expect)
-      .then(validationToPromise)
+  putter: ({path, through, receive, options}) ->
+    assert.func path, 'path'
+    assert.object through, 'through'
+    assert.func receive, 'receive'
+    assert.optionalObject options, 'options'
+
+    doPutRequest = (args) ->
+      url = path args...
+      (data) ->
+        ajax.request('put', url, defaults({data}, options || {}))
+
+    (args..., data) ->
+      validationToPromise(through.to data)
+        .then(doPutRequest(args))
+        .then(validatorToPromised receive)
 
 restMethodBuilder = (options) ->
   withDefaultOptions = (resourceBuilder) -> (resourceDescription) ->
