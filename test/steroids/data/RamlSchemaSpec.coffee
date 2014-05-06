@@ -142,6 +142,12 @@ describe "steroids.data.schema.raml", ->
               action.metadata.should.be.an.object
               action.metadata.name.should.be.a.string
 
+          it "can have a rootKey as metadata", ->
+            forSomeAction(
+              (action) -> action.metadata.rootKey?
+              (action) -> action.metadata.rootKey.should.be.a.string
+            )
+
           it "should have a method", ->
             forEachAction (action) ->
               action.should.have.property 'method'
