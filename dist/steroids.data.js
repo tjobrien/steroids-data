@@ -32219,6 +32219,7 @@ module.exports = function(arr, fn, initial){
 module.exports = {
   ajax: _dereq_('./data/ajax'),
   types: _dereq_('./data/types'),
+  resource: _dereq_('./data/resource'),
   resources: {
     restful: _dereq_('./data/resources/restful'),
     builtio: _dereq_('./data/resources/builtio'),
@@ -32231,7 +32232,7 @@ module.exports = {
 };
 
 
-},{"./data/ajax":101,"./data/resources/builtio":102,"./data/resources/raml":103,"./data/resources/restful":104,"./data/schema/json":105,"./data/schema/raml":106,"./data/types":107}],101:[function(_dereq_,module,exports){
+},{"./data/ajax":101,"./data/resource":102,"./data/resources/builtio":103,"./data/resources/raml":104,"./data/resources/restful":105,"./data/schema/json":106,"./data/schema/raml":107,"./data/types":108}],101:[function(_dereq_,module,exports){
 var Promise, ajax, request, requestBuilderToResponsePromise, requestDataByMethod, responsetoResponseBody, superagent;
 
 superagent = _dereq_('superagent');
@@ -32314,6 +32315,59 @@ module.exports = ajax = {
 
 
 },{"bluebird":4,"superagent":97}],102:[function(_dereq_,module,exports){
+var ResourceProxy, ramlSchemaFromFile, ramlSchemaToResource, resourceByName, schema,
+  __slice = [].slice;
+
+ramlSchemaFromFile = steroids.data.schema.raml.fromFile;
+
+ramlSchemaToResource = steroids.data.resources.raml;
+
+schema = (function() {
+  var cloudSchema, localSchema;
+  localSchema = '//localhost/local.raml';
+  cloudSchema = '//localhost/cloud.raml';
+  return ramlSchemaFromFile(localSchema).error(function() {
+    return ramlSchemaFromFile(cloudSchema);
+  });
+})();
+
+ResourceProxy = (function() {
+  var proxy;
+
+  proxy = function(method) {
+    return function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.resource.then(function(res) {
+        return res[method].apply(res, args);
+      });
+    };
+  };
+
+  function ResourceProxy(resource) {
+    this.resource = resource;
+  }
+
+  ResourceProxy.prototype.findAll = proxy('findAll');
+
+  ResourceProxy.prototype.create = proxy('create');
+
+  ResourceProxy.prototype.find = proxy('find');
+
+  ResourceProxy.prototype.update = proxy('update');
+
+  ResourceProxy.prototype.remove = proxy('remove');
+
+  return ResourceProxy;
+
+})();
+
+module.exports = resourceByName = function(name) {
+  return new ResourceProxy(schema.then(ramlSchemaToResource(name)));
+};
+
+
+},{}],103:[function(_dereq_,module,exports){
 var builtio, builtioResourceBaseUrl, restful, types;
 
 restful = _dereq_('./restful');
@@ -32371,7 +32425,7 @@ module.exports = builtio = function(_arg) {
 };
 
 
-},{"../types":107,"./restful":104}],103:[function(_dereq_,module,exports){
+},{"../types":108,"./restful":105}],104:[function(_dereq_,module,exports){
 var ramlResourceFromSchema, requestValidationForAction, responseValidationsForAction, restful, types, uriToFunction, _;
 
 _ = _dereq_('lodash');
@@ -32452,7 +32506,7 @@ module.exports = ramlResourceFromSchema = function(resourceName) {
 };
 
 
-},{"../types":107,"./restful":104,"lodash":70}],104:[function(_dereq_,module,exports){
+},{"../types":108,"./restful":105,"lodash":70}],105:[function(_dereq_,module,exports){
 var Failure, Promise, Success, ajax, assert, deepDefaults, defaults, merge, partialRight, responseValidator, rest, restMethodBuilder, restful, types, validationToPromise, validatorToPromised, validatorToResponseValidator, _ref, _ref1,
   __slice = [].slice;
 
@@ -32607,7 +32661,7 @@ module.exports = restful = function(options, apiDescriptor) {
 };
 
 
-},{"../ajax":101,"../types":107,"assert-plus":1,"bluebird":4,"data.validation":69,"lodash":70}],105:[function(_dereq_,module,exports){
+},{"../ajax":101,"../types":108,"assert-plus":1,"bluebird":4,"data.validation":69,"lodash":70}],106:[function(_dereq_,module,exports){
 var Failure, Success, ajax, arrayTypeFromItemSchema, contains, mapValues, objectTypeFromPropertySchema, typeFromJsonSchema, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), mapValues = _ref.mapValues, contains = _ref.contains;
@@ -32666,7 +32720,7 @@ module.exports = {
 };
 
 
-},{"../ajax":101,"../types":107,"data.validation":69,"lodash":70}],106:[function(_dereq_,module,exports){
+},{"../ajax":101,"../types":108,"data.validation":69,"lodash":70}],107:[function(_dereq_,module,exports){
 var FileReader, Promise, ServiceSchema, ajax, ramlParser, _,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32911,7 +32965,7 @@ module.exports = {
 };
 
 
-},{"../ajax":101,"bluebird":4,"lodash":70,"raml-parser":80}],107:[function(_dereq_,module,exports){
+},{"../ajax":101,"bluebird":4,"lodash":70,"raml-parser":80}],108:[function(_dereq_,module,exports){
 var Failure, Success, isArray, isObject, listSequence, map, mapValues, nativeTypeValidator, objectSequence, objectWithProperty, pairs, pairsToObject, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), pairs = _ref.pairs, map = _ref.map, mapValues = _ref.mapValues;
