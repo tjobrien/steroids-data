@@ -17,7 +17,8 @@ get:
 post:
   description: |
     {
-      "action": "create"
+      "action": "create",
+      "rootKey": "object"
     }
   body:
     application/json:

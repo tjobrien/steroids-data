@@ -3,7 +3,8 @@ is: [ securedBySteroidsApiKey ]
 get:
   description: |
     {
-      "action": "find"
+      "action": "find",
+      "rootKey": "object"
     }
   responses:
     200:
@@ -17,7 +18,8 @@ get:
 put:
   description: |
     {
-      "action": "update"
+      "action": "update",
+      "rootKey": "object"
     }
   body:
     application/json:
