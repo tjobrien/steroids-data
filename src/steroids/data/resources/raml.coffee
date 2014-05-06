@@ -26,6 +26,9 @@ responseValidationsForAction = do ->
         ]
     )
 
+requestValidationForAction = (action) ->
+  types.Any
+
 module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
   restful {
     baseUrl: schema.baseUri
@@ -35,6 +38,7 @@ module.exports = ramlResourceFromSchema = (resourceName) -> (schema) ->
     for name, {relativeUri, action} of schema.resource(resourceName).actionsByName()
       actions[name] = api[action.method]
         path: uriToFunction relativeUri
+        send: api.request requestValidationForAction action
         receive: api.response responseValidationsForAction action
         options:
           headers: action.headerDefaults()
