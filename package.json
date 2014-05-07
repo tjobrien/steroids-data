@@ -1,6 +1,6 @@
 {
   "name": "steroids-data",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Composable primitives for accessing cloud data in your steroids application.",
   "main": "dist/steroids.data.js",
   "scripts": {
