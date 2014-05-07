@@ -5,7 +5,7 @@ schema = do ->
   localSchema = '//localhost/local.raml'
   cloudSchema = '//localhost/cloud.raml'
 
-  ramlSchemaFromFile(localSchema).error ->
+  ramlSchemaFromFile(localSchema).catch ->
     ramlSchemaFromFile(cloudSchema)
 
 

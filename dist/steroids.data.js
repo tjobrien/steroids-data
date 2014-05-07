@@ -32326,7 +32326,7 @@ schema = (function() {
   var cloudSchema, localSchema;
   localSchema = '//localhost/local.raml';
   cloudSchema = '//localhost/cloud.raml';
-  return ramlSchemaFromFile(localSchema).error(function() {
+  return ramlSchemaFromFile(localSchema)["catch"](function() {
     return ramlSchemaFromFile(cloudSchema);
   });
 })();
