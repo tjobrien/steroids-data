@@ -17,6 +17,9 @@
     "src",
     "tasks",
     "test",
-    "testApp"
+    "testApp",
+    "coffeelint.json",
+    "Gruntfile.coffee",
+    "package.json"
   ]
 }
