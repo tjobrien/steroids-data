@@ -32348,7 +32348,7 @@ ResourceProxy = (function() {
     this.resource = resource;
   }
 
-  ResourceProxy.prototype.findAll = proxy('findAll');
+  ResourceProxy.prototype.findAll = proxy('collection');
 
   ResourceProxy.prototype.create = proxy('create');
 

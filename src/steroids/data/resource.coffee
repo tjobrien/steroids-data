@@ -16,7 +16,7 @@ class ResourceProxy
 
   constructor: (@resource) ->
 
-  findAll: proxy 'findAll'
+  findAll: proxy 'collection'
   create: proxy 'create'
   find: proxy 'find'
   update: proxy 'update'
