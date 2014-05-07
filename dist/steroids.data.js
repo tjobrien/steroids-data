@@ -32253,7 +32253,7 @@ requestBuilderToResponsePromise = function(requestBuilder) {
 
 responsetoResponseBody = function(response) {
   if (response.error) {
-    throw new Error(response.error);
+    throw new Error(response.status);
   } else if (response.body) {
     return response.body;
   } else if (response.text) {
@@ -32744,7 +32744,13 @@ FileReader = (function(_super) {
     return ajax.request('get', url, {
       buffer: true
     }).then(function(response) {
-      return response.text;
+      if (response.error) {
+        throw new Error(response.status);
+      } else if (response.text) {
+        return response.text;
+      } else {
+        throw new Error("Empty response");
+      }
     });
   };
 
