@@ -12,7 +12,7 @@ requestBuilderToResponsePromise = (requestBuilder) ->
 
 responsetoResponseBody = (response) ->
   if response.error
-    throw new Error response.error
+    throw new Error response.status
   else if response.body
     response.body
   else if response.text

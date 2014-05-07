@@ -7,7 +7,14 @@ class FileReader extends ramlParser.FileReader
   fetchFileAsync: (url) ->
     ajax
       .request('get', url, buffer: true)
-      .then((response) -> response.text)
+      .then((response) ->
+        if response.error
+          throw new Error response.status
+        else if response.text
+          response.text
+        else
+          throw new Error "Empty response"
+      )
 
 class ServiceSchema
   constructor: ({
