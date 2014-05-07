@@ -1,7 +1,0 @@
-headers:
-  application_uid:
-    type: string
-    default: steroids-data-test-app
-  application_api_key:
-    type: string
-    default: blt349bf00642a3a1b7
