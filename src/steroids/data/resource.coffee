@@ -20,7 +20,7 @@ class ResourceProxy
   create: proxy 'create'
   find: proxy 'find'
   update: proxy 'update'
-  remove: proxy 'remove'
+  remove: proxy 'destroy'
 
 
 module.exports = resourceByName = (name) ->

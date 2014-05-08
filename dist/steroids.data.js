@@ -32356,7 +32356,7 @@ ResourceProxy = (function() {
 
   ResourceProxy.prototype.update = proxy('update');
 
-  ResourceProxy.prototype.remove = proxy('remove');
+  ResourceProxy.prototype.remove = proxy('destroy');
 
   return ResourceProxy;
 
