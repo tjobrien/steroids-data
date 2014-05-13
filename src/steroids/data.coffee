@@ -2,6 +2,7 @@
 module.exports =
   ajax: require './data/ajax'
   types: require './data/types'
+  reactive: require './data/reactive'
   resource: require './data/resource'
   resources:
     restful: require './data/resources/restful'
