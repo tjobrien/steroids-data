@@ -44,6 +44,7 @@
     "lodash": "~2.4.1",
     "raml-parser": "~0.8.7",
     "chai-as-promised": "~4.1.1",
-    "assert-plus": "~0.1.5"
+    "assert-plus": "~0.1.5",
+    "baconjs": "~0.7.11"
   }
 }
