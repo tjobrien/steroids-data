@@ -247,7 +247,2923 @@ Object.keys(assert).forEach(function (k) {
 });
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),_dereq_("buffer").Buffer)
-},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53,"assert":40,"buffer":43,"stream":59,"util":68}],2:[function(_dereq_,module,exports){
+},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54,"assert":41,"buffer":44,"stream":60,"util":69}],2:[function(_dereq_,module,exports){
+(function() {
+  var Bacon, BufferingSource, Bus, CompositeUnsubscribe, ConsumingSource, Desc, Dispatcher, End, Error, Event, EventStream, Initial, Next, None, Observable, Property, PropertyDispatcher, Some, Source, UpdateBarrier, addPropertyInitValueToStream, assert, assertArray, assertEventStream, assertFunction, assertNoArguments, assertString, cloneArray, compositeUnsubscribe, containsDuplicateDeps, convertArgsToFunction, describe, end, eventIdCounter, flatMap_, former, idCounter, initial, isArray, isFieldKey, isFunction, isObservable, latterF, liftCallback, makeFunction, makeFunctionArgs, makeFunction_, makeObservable, makeSpawner, next, nop, partiallyApplied, recursionDepth, registerObs, spys, toCombinator, toEvent, toFieldExtractor, toFieldKey, toOption, toSimpleExtractor, withDescription, withMethodCallSupport, _, _ref,
+    __slice = [].slice,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Bacon = {
+    toString: function() {
+      return "Bacon";
+    }
+  };
+
+  Bacon.version = '0.7.11';
+
+  Bacon.fromBinder = function(binder, eventTransformer) {
+    if (eventTransformer == null) {
+      eventTransformer = _.id;
+    }
+    return new EventStream(describe(Bacon, "fromBinder", binder, eventTransformer), function(sink) {
+      var unbinder;
+      return unbinder = binder(function() {
+        var args, event, reply, value, _i, _len;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        value = eventTransformer.apply(null, args);
+        if (!(isArray(value) && _.last(value) instanceof Event)) {
+          value = [value];
+        }
+        reply = Bacon.more;
+        for (_i = 0, _len = value.length; _i < _len; _i++) {
+          event = value[_i];
+          reply = sink(event = toEvent(event));
+          if (reply === Bacon.noMore || event.isEnd()) {
+            if (unbinder != null) {
+              unbinder();
+            } else {
+              Bacon.scheduler.setTimeout((function() {
+                return unbinder();
+              }), 0);
+            }
+            return reply;
+          }
+        }
+        return reply;
+      });
+    });
+  };
+
+  Bacon.$ = {
+    asEventStream: function(eventName, selector, eventTransformer) {
+      var _ref;
+      if (isFunction(selector)) {
+        _ref = [selector, null], eventTransformer = _ref[0], selector = _ref[1];
+      }
+      return withDescription(this.selector || this, "asEventStream", eventName, Bacon.fromBinder((function(_this) {
+        return function(handler) {
+          _this.on(eventName, selector, handler);
+          return function() {
+            return _this.off(eventName, selector, handler);
+          };
+        };
+      })(this), eventTransformer));
+    }
+  };
+
+  if ((_ref = typeof jQuery !== "undefined" && jQuery !== null ? jQuery : typeof Zepto !== "undefined" && Zepto !== null ? Zepto : null) != null) {
+    _ref.fn.asEventStream = Bacon.$.asEventStream;
+  }
+
+  Bacon.fromEventTarget = function(target, eventName, eventTransformer) {
+    var sub, unsub, _ref1, _ref2, _ref3, _ref4;
+    sub = (_ref1 = target.addEventListener) != null ? _ref1 : (_ref2 = target.addListener) != null ? _ref2 : target.bind;
+    unsub = (_ref3 = target.removeEventListener) != null ? _ref3 : (_ref4 = target.removeListener) != null ? _ref4 : target.unbind;
+    return withDescription(Bacon, "fromEventTarget", target, eventName, Bacon.fromBinder(function(handler) {
+      sub.call(target, eventName, handler);
+      return function() {
+        return unsub.call(target, eventName, handler);
+      };
+    }, eventTransformer));
+  };
+
+  Bacon.fromPromise = function(promise, abort) {
+    return withDescription(Bacon, "fromPromise", promise, Bacon.fromBinder(function(handler) {
+      promise.then(handler, function(e) {
+        return handler(new Error(e));
+      });
+      return function() {
+        if (abort) {
+          return typeof promise.abort === "function" ? promise.abort() : void 0;
+        }
+      };
+    }, (function(value) {
+      return [value, end()];
+    })));
+  };
+
+  Bacon.noMore = ["<no-more>"];
+
+  Bacon.more = ["<more>"];
+
+  Bacon.later = function(delay, value) {
+    return withDescription(Bacon, "later", delay, value, Bacon.sequentially(delay, [value]));
+  };
+
+  Bacon.sequentially = function(delay, values) {
+    var index;
+    index = 0;
+    return withDescription(Bacon, "sequentially", delay, values, Bacon.fromPoll(delay, function() {
+      var value;
+      value = values[index++];
+      if (index < values.length) {
+        return value;
+      } else if (index === values.length) {
+        return [value, end()];
+      } else {
+        return end();
+      }
+    }));
+  };
+
+  Bacon.repeatedly = function(delay, values) {
+    var index;
+    index = 0;
+    return withDescription(Bacon, "repeatedly", delay, values, Bacon.fromPoll(delay, function() {
+      return values[index++ % values.length];
+    }));
+  };
+
+  Bacon.spy = function(spy) {
+    return spys.push(spy);
+  };
+
+  spys = [];
+
+  registerObs = function(obs) {
+    var spy, _i, _len, _results;
+    if (spys.length) {
+      if (!registerObs.running) {
+        try {
+          registerObs.running = true;
+          _results = [];
+          for (_i = 0, _len = spys.length; _i < _len; _i++) {
+            spy = spys[_i];
+            _results.push(spy(obs));
+          }
+          return _results;
+        } finally {
+          delete registerObs.running;
+        }
+      }
+    }
+  };
+
+  withMethodCallSupport = function(wrapped) {
+    return function() {
+      var args, context, f, methodName;
+      f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (typeof f === "object" && args.length) {
+        context = f;
+        methodName = args[0];
+        f = function() {
+          return context[methodName].apply(context, arguments);
+        };
+        args = args.slice(1);
+      }
+      return wrapped.apply(null, [f].concat(__slice.call(args)));
+    };
+  };
+
+  liftCallback = function(desc, wrapped) {
+    return withMethodCallSupport(function() {
+      var args, f, stream;
+      f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      stream = partiallyApplied(wrapped, [
+        function(values, callback) {
+          return f.apply(null, __slice.call(values).concat([callback]));
+        }
+      ]);
+      return withDescription.apply(null, [Bacon, desc, f].concat(__slice.call(args), [Bacon.combineAsArray(args).flatMap(stream)]));
+    });
+  };
+
+  Bacon.fromCallback = liftCallback("fromCallback", function() {
+    var args, f;
+    f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    return Bacon.fromBinder(function(handler) {
+      makeFunction(f, args)(handler);
+      return nop;
+    }, (function(value) {
+      return [value, end()];
+    }));
+  });
+
+  Bacon.fromNodeCallback = liftCallback("fromNodeCallback", function() {
+    var args, f;
+    f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    return Bacon.fromBinder(function(handler) {
+      makeFunction(f, args)(handler);
+      return nop;
+    }, function(error, value) {
+      if (error) {
+        return [new Error(error), end()];
+      }
+      return [value, end()];
+    });
+  });
+
+  Bacon.fromPoll = function(delay, poll) {
+    return withDescription(Bacon, "fromPoll", delay, poll, Bacon.fromBinder((function(handler) {
+      var id;
+      id = Bacon.scheduler.setInterval(handler, delay);
+      return function() {
+        return Bacon.scheduler.clearInterval(id);
+      };
+    }), poll));
+  };
+
+  Bacon.interval = function(delay, value) {
+    if (value == null) {
+      value = {};
+    }
+    return withDescription(Bacon, "interval", delay, value, Bacon.fromPoll(delay, function() {
+      return next(value);
+    }));
+  };
+
+  Bacon.constant = function(value) {
+    return new Property(describe(Bacon, "constant", value), function(sink) {
+      sink(initial(value));
+      sink(end());
+      return nop;
+    });
+  };
+
+  Bacon.never = function() {
+    return withDescription(Bacon, "never", Bacon.fromArray([]));
+  };
+
+  Bacon.once = function(value) {
+    return withDescription(Bacon, "once", value, Bacon.fromArray([value]));
+  };
+
+  Bacon.fromArray = function(values) {
+    assertArray(values);
+    values = cloneArray(values);
+    return new EventStream(describe(Bacon, "fromArray", values), function(sink) {
+      var send, unsubd;
+      unsubd = false;
+      send = function() {
+        var reply, value;
+        if (_.empty(values)) {
+          return sink(end());
+        } else {
+          value = values.splice(0, 1)[0];
+          reply = sink(toEvent(value));
+          if ((reply !== Bacon.noMore) && !unsubd) {
+            return send();
+          }
+        }
+      };
+      send();
+      return function() {
+        return unsubd = true;
+      };
+    });
+  };
+
+  Bacon.mergeAll = function() {
+    var streams;
+    streams = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    if (isArray(streams[0])) {
+      streams = streams[0];
+    }
+    return withDescription.apply(null, [Bacon, "mergeAll"].concat(__slice.call(streams), [_.fold(streams, Bacon.never(), (function(a, b) {
+      return a.merge(b);
+    }))]));
+  };
+
+  Bacon.zipAsArray = function() {
+    var streams;
+    streams = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    if (isArray(streams[0])) {
+      streams = streams[0];
+    }
+    return withDescription.apply(null, [Bacon, "zipAsArray"].concat(__slice.call(streams), [Bacon.zipWith(streams, function() {
+      var xs;
+      xs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return xs;
+    })]));
+  };
+
+  Bacon.zipWith = function() {
+    var f, streams, _ref1;
+    f = arguments[0], streams = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    if (!isFunction(f)) {
+      _ref1 = [f, streams[0]], streams = _ref1[0], f = _ref1[1];
+    }
+    streams = _.map((function(s) {
+      return s.toEventStream();
+    }), streams);
+    return withDescription.apply(null, [Bacon, "zipWith", f].concat(__slice.call(streams), [Bacon.when(streams, f)]));
+  };
+
+  Bacon.groupSimultaneous = function() {
+    var s, sources, streams;
+    streams = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    if (streams.length === 1 && isArray(streams[0])) {
+      streams = streams[0];
+    }
+    sources = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = streams.length; _i < _len; _i++) {
+        s = streams[_i];
+        _results.push(new BufferingSource(s));
+      }
+      return _results;
+    })();
+    return withDescription.apply(null, [Bacon, "groupSimultaneous"].concat(__slice.call(streams), [Bacon.when(sources, (function() {
+      var xs;
+      xs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return xs;
+    }))]));
+  };
+
+  Bacon.combineAsArray = function() {
+    var index, s, sources, stream, streams, _i, _len;
+    streams = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    if (streams.length === 1 && isArray(streams[0])) {
+      streams = streams[0];
+    }
+    for (index = _i = 0, _len = streams.length; _i < _len; index = ++_i) {
+      stream = streams[index];
+      if (!(isObservable(stream))) {
+        streams[index] = Bacon.constant(stream);
+      }
+    }
+    if (streams.length) {
+      sources = (function() {
+        var _j, _len1, _results;
+        _results = [];
+        for (_j = 0, _len1 = streams.length; _j < _len1; _j++) {
+          s = streams[_j];
+          _results.push(new Source(s, true, s.subscribeInternal));
+        }
+        return _results;
+      })();
+      return withDescription.apply(null, [Bacon, "combineAsArray"].concat(__slice.call(streams), [Bacon.when(sources, (function() {
+        var xs;
+        xs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return xs;
+      })).toProperty()]));
+    } else {
+      return Bacon.constant([]);
+    }
+  };
+
+  Bacon.onValues = function() {
+    var f, streams, _i;
+    streams = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), f = arguments[_i++];
+    return Bacon.combineAsArray(streams).onValues(f);
+  };
+
+  Bacon.combineWith = function() {
+    var f, streams;
+    f = arguments[0], streams = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    return withDescription.apply(null, [Bacon, "combineWith", f].concat(__slice.call(streams), [Bacon.combineAsArray(streams).map(function(values) {
+      return f.apply(null, values);
+    })]));
+  };
+
+  Bacon.combineTemplate = function(template) {
+    var applyStreamValue, combinator, compile, compileTemplate, constantValue, current, funcs, mkContext, setValue, streams;
+    funcs = [];
+    streams = [];
+    current = function(ctxStack) {
+      return ctxStack[ctxStack.length - 1];
+    };
+    setValue = function(ctxStack, key, value) {
+      return current(ctxStack)[key] = value;
+    };
+    applyStreamValue = function(key, index) {
+      return function(ctxStack, values) {
+        return setValue(ctxStack, key, values[index]);
+      };
+    };
+    constantValue = function(key, value) {
+      return function(ctxStack) {
+        return setValue(ctxStack, key, value);
+      };
+    };
+    mkContext = function(template) {
+      if (isArray(template)) {
+        return [];
+      } else {
+        return {};
+      }
+    };
+    compile = function(key, value) {
+      var popContext, pushContext;
+      if (isObservable(value)) {
+        streams.push(value);
+        return funcs.push(applyStreamValue(key, streams.length - 1));
+      } else if (value === Object(value) && typeof value !== "function" && !(value instanceof RegExp) && !(value instanceof Date)) {
+        pushContext = function(key) {
+          return function(ctxStack) {
+            var newContext;
+            newContext = mkContext(value);
+            setValue(ctxStack, key, newContext);
+            return ctxStack.push(newContext);
+          };
+        };
+        popContext = function(ctxStack) {
+          return ctxStack.pop();
+        };
+        funcs.push(pushContext(key));
+        compileTemplate(value);
+        return funcs.push(popContext);
+      } else {
+        return funcs.push(constantValue(key, value));
+      }
+    };
+    compileTemplate = function(template) {
+      return _.each(template, compile);
+    };
+    compileTemplate(template);
+    combinator = function(values) {
+      var ctxStack, f, rootContext, _i, _len;
+      rootContext = mkContext(template);
+      ctxStack = [rootContext];
+      for (_i = 0, _len = funcs.length; _i < _len; _i++) {
+        f = funcs[_i];
+        f(ctxStack, values);
+      }
+      return rootContext;
+    };
+    return withDescription(Bacon, "combineTemplate", template, Bacon.combineAsArray(streams).map(combinator));
+  };
+
+  eventIdCounter = 0;
+
+  Event = (function() {
+    function Event() {
+      this.id = ++eventIdCounter;
+    }
+
+    Event.prototype.isEvent = function() {
+      return true;
+    };
+
+    Event.prototype.isEnd = function() {
+      return false;
+    };
+
+    Event.prototype.isInitial = function() {
+      return false;
+    };
+
+    Event.prototype.isNext = function() {
+      return false;
+    };
+
+    Event.prototype.isError = function() {
+      return false;
+    };
+
+    Event.prototype.hasValue = function() {
+      return false;
+    };
+
+    Event.prototype.filter = function() {
+      return true;
+    };
+
+    Event.prototype.inspect = function() {
+      return this.toString();
+    };
+
+    Event.prototype.log = function() {
+      return this.toString();
+    };
+
+    return Event;
+
+  })();
+
+  Next = (function(_super) {
+    __extends(Next, _super);
+
+    function Next(valueF) {
+      Next.__super__.constructor.call(this);
+      if (isFunction(valueF)) {
+        this.value = _.cached(valueF);
+      } else {
+        this.value = _.always(valueF);
+      }
+    }
+
+    Next.prototype.isNext = function() {
+      return true;
+    };
+
+    Next.prototype.hasValue = function() {
+      return true;
+    };
+
+    Next.prototype.fmap = function(f) {
+      var value;
+      value = this.value;
+      return this.apply(function() {
+        return f(value());
+      });
+    };
+
+    Next.prototype.apply = function(value) {
+      return new Next(value);
+    };
+
+    Next.prototype.filter = function(f) {
+      return f(this.value());
+    };
+
+    Next.prototype.toString = function() {
+      return _.toString(this.value());
+    };
+
+    Next.prototype.log = function() {
+      return this.value();
+    };
+
+    return Next;
+
+  })(Event);
+
+  Initial = (function(_super) {
+    __extends(Initial, _super);
+
+    function Initial() {
+      return Initial.__super__.constructor.apply(this, arguments);
+    }
+
+    Initial.prototype.isInitial = function() {
+      return true;
+    };
+
+    Initial.prototype.isNext = function() {
+      return false;
+    };
+
+    Initial.prototype.apply = function(value) {
+      return new Initial(value);
+    };
+
+    Initial.prototype.toNext = function() {
+      return new Next(this.value);
+    };
+
+    return Initial;
+
+  })(Next);
+
+  End = (function(_super) {
+    __extends(End, _super);
+
+    function End() {
+      return End.__super__.constructor.apply(this, arguments);
+    }
+
+    End.prototype.isEnd = function() {
+      return true;
+    };
+
+    End.prototype.fmap = function() {
+      return this;
+    };
+
+    End.prototype.apply = function() {
+      return this;
+    };
+
+    End.prototype.toString = function() {
+      return "<end>";
+    };
+
+    return End;
+
+  })(Event);
+
+  Error = (function(_super) {
+    __extends(Error, _super);
+
+    function Error(error) {
+      this.error = error;
+    }
+
+    Error.prototype.isError = function() {
+      return true;
+    };
+
+    Error.prototype.fmap = function() {
+      return this;
+    };
+
+    Error.prototype.apply = function() {
+      return this;
+    };
+
+    Error.prototype.toString = function() {
+      return "<error> " + _.toString(this.error);
+    };
+
+    return Error;
+
+  })(Event);
+
+  idCounter = 0;
+
+  Observable = (function() {
+    function Observable(desc) {
+      this.id = ++idCounter;
+      withDescription(desc, this);
+    }
+
+    Observable.prototype.onValue = function() {
+      var f;
+      f = makeFunctionArgs(arguments);
+      return this.subscribe(function(event) {
+        if (event.hasValue()) {
+          return f(event.value());
+        }
+      });
+    };
+
+    Observable.prototype.onValues = function(f) {
+      return this.onValue(function(args) {
+        return f.apply(null, args);
+      });
+    };
+
+    Observable.prototype.onError = function() {
+      var f;
+      f = makeFunctionArgs(arguments);
+      return this.subscribe(function(event) {
+        if (event.isError()) {
+          return f(event.error);
+        }
+      });
+    };
+
+    Observable.prototype.onEnd = function() {
+      var f;
+      f = makeFunctionArgs(arguments);
+      return this.subscribe(function(event) {
+        if (event.isEnd()) {
+          return f();
+        }
+      });
+    };
+
+    Observable.prototype.errors = function() {
+      return withDescription(this, "errors", this.filter(function() {
+        return false;
+      }));
+    };
+
+    Observable.prototype.filter = function() {
+      var args, f;
+      f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      return convertArgsToFunction(this, f, args, function(f) {
+        return withDescription(this, "filter", f, this.withHandler(function(event) {
+          if (event.filter(f)) {
+            return this.push(event);
+          } else {
+            return Bacon.more;
+          }
+        }));
+      });
+    };
+
+    Observable.prototype.takeWhile = function() {
+      var args, f;
+      f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      return convertArgsToFunction(this, f, args, function(f) {
+        return withDescription(this, "takeWhile", f, this.withHandler(function(event) {
+          if (event.filter(f)) {
+            return this.push(event);
+          } else {
+            this.push(end());
+            return Bacon.noMore;
+          }
+        }));
+      });
+    };
+
+    Observable.prototype.endOnError = function() {
+      var args, f;
+      f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (f == null) {
+        f = true;
+      }
+      return convertArgsToFunction(this, f, args, function(f) {
+        return withDescription(this, "endOnError", this.withHandler(function(event) {
+          if (event.isError() && f(event.error)) {
+            this.push(event);
+            return this.push(end());
+          } else {
+            return this.push(event);
+          }
+        }));
+      });
+    };
+
+    Observable.prototype.take = function(count) {
+      if (count <= 0) {
+        return Bacon.never();
+      }
+      return withDescription(this, "take", count, this.withHandler(function(event) {
+        if (!event.hasValue()) {
+          return this.push(event);
+        } else {
+          count--;
+          if (count > 0) {
+            return this.push(event);
+          } else {
+            if (count === 0) {
+              this.push(event);
+            }
+            this.push(end());
+            return Bacon.noMore;
+          }
+        }
+      }));
+    };
+
+    Observable.prototype.map = function() {
+      var args, p;
+      p = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (p instanceof Property) {
+        return p.sampledBy(this, former);
+      } else {
+        return convertArgsToFunction(this, p, args, function(f) {
+          return withDescription(this, "map", f, this.withHandler(function(event) {
+            return this.push(event.fmap(f));
+          }));
+        });
+      }
+    };
+
+    Observable.prototype.mapError = function() {
+      var f;
+      f = makeFunctionArgs(arguments);
+      return withDescription(this, "mapError", f, this.withHandler(function(event) {
+        if (event.isError()) {
+          return this.push(next(f(event.error)));
+        } else {
+          return this.push(event);
+        }
+      }));
+    };
+
+    Observable.prototype.mapEnd = function() {
+      var f;
+      f = makeFunctionArgs(arguments);
+      return withDescription(this, "mapEnd", f, this.withHandler(function(event) {
+        if (event.isEnd()) {
+          this.push(next(f(event)));
+          this.push(end());
+          return Bacon.noMore;
+        } else {
+          return this.push(event);
+        }
+      }));
+    };
+
+    Observable.prototype.doAction = function() {
+      var f;
+      f = makeFunctionArgs(arguments);
+      return withDescription(this, "doAction", f, this.withHandler(function(event) {
+        if (event.hasValue()) {
+          f(event.value());
+        }
+        return this.push(event);
+      }));
+    };
+
+    Observable.prototype.skip = function(count) {
+      return withDescription(this, "skip", count, this.withHandler(function(event) {
+        if (!event.hasValue()) {
+          return this.push(event);
+        } else if (count > 0) {
+          count--;
+          return Bacon.more;
+        } else {
+          return this.push(event);
+        }
+      }));
+    };
+
+    Observable.prototype.skipDuplicates = function(isEqual) {
+      if (isEqual == null) {
+        isEqual = function(a, b) {
+          return a === b;
+        };
+      }
+      return withDescription(this, "skipDuplicates", this.withStateMachine(None, function(prev, event) {
+        if (!event.hasValue()) {
+          return [prev, [event]];
+        } else if (event.isInitial() || prev === None || !isEqual(prev.get(), event.value())) {
+          return [new Some(event.value()), [event]];
+        } else {
+          return [prev, []];
+        }
+      }));
+    };
+
+    Observable.prototype.skipErrors = function() {
+      return withDescription(this, "skipErrors", this.withHandler(function(event) {
+        if (event.isError()) {
+          return Bacon.more;
+        } else {
+          return this.push(event);
+        }
+      }));
+    };
+
+    Observable.prototype.withStateMachine = function(initState, f) {
+      var state;
+      state = initState;
+      return withDescription(this, "withStateMachine", initState, f, this.withHandler(function(event) {
+        var fromF, newState, output, outputs, reply, _i, _len;
+        fromF = f(state, event);
+        newState = fromF[0], outputs = fromF[1];
+        state = newState;
+        reply = Bacon.more;
+        for (_i = 0, _len = outputs.length; _i < _len; _i++) {
+          output = outputs[_i];
+          reply = this.push(output);
+          if (reply === Bacon.noMore) {
+            return reply;
+          }
+        }
+        return reply;
+      }));
+    };
+
+    Observable.prototype.scan = function(seed, f, lazyF) {
+      var acc, f_, resultProperty, subscribe;
+      f_ = toCombinator(f);
+      f = lazyF ? f_ : function(x, y) {
+        return f_(x(), y());
+      };
+      acc = toOption(seed).map(function(x) {
+        return _.always(x);
+      });
+      subscribe = (function(_this) {
+        return function(sink) {
+          var initSent, reply, sendInit, unsub;
+          initSent = false;
+          unsub = nop;
+          reply = Bacon.more;
+          sendInit = function() {
+            if (!initSent) {
+              return acc.forEach(function(valueF) {
+                initSent = true;
+                reply = sink(new Initial(valueF));
+                if (reply === Bacon.noMore) {
+                  unsub();
+                  return unsub = nop;
+                }
+              });
+            }
+          };
+          unsub = _this.subscribeInternal(function(event) {
+            var next, prev;
+            if (event.hasValue()) {
+              if (initSent && event.isInitial()) {
+                return Bacon.more;
+              } else {
+                if (!event.isInitial()) {
+                  sendInit();
+                }
+                initSent = true;
+                prev = acc.getOrElse(function() {
+                  return void 0;
+                });
+                next = _.cached(function() {
+                  return f(prev, event.value);
+                });
+                acc = new Some(next);
+                return sink(event.apply(next));
+              }
+            } else {
+              if (event.isEnd()) {
+                reply = sendInit();
+              }
+              if (reply !== Bacon.noMore) {
+                return sink(event);
+              }
+            }
+          });
+          UpdateBarrier.whenDoneWith(resultProperty, sendInit);
+          return unsub;
+        };
+      })(this);
+      return resultProperty = new Property(describe(this, "scan", seed, f), subscribe);
+    };
+
+    Observable.prototype.fold = function(seed, f) {
+      return withDescription(this, "fold", seed, f, this.scan(seed, f).sampledBy(this.filter(false).mapEnd().toProperty()));
+    };
+
+    Observable.prototype.zip = function(other, f) {
+      if (f == null) {
+        f = Array;
+      }
+      return withDescription(this, "zip", other, Bacon.zipWith([this, other], f));
+    };
+
+    Observable.prototype.diff = function(start, f) {
+      f = toCombinator(f);
+      return withDescription(this, "diff", start, f, this.scan([start], function(prevTuple, next) {
+        return [next, f(prevTuple[0], next)];
+      }).filter(function(tuple) {
+        return tuple.length === 2;
+      }).map(function(tuple) {
+        return tuple[1];
+      }));
+    };
+
+    Observable.prototype.flatMap = function() {
+      return flatMap_(this, makeSpawner(arguments));
+    };
+
+    Observable.prototype.flatMapFirst = function() {
+      return flatMap_(this, makeSpawner(arguments), true);
+    };
+
+    Observable.prototype.flatMapLatest = function() {
+      var f, stream;
+      f = makeSpawner(arguments);
+      stream = this.toEventStream();
+      return withDescription(this, "flatMapLatest", f, stream.flatMap(function(value) {
+        return makeObservable(f(value)).takeUntil(stream);
+      }));
+    };
+
+    Observable.prototype.not = function() {
+      return withDescription(this, "not", this.map(function(x) {
+        return !x;
+      }));
+    };
+
+    Observable.prototype.log = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      this.subscribe(function(event) {
+        return typeof console !== "undefined" && console !== null ? typeof console.log === "function" ? console.log.apply(console, __slice.call(args).concat([event.log()])) : void 0 : void 0;
+      });
+      return this;
+    };
+
+    Observable.prototype.slidingWindow = function(n, minValues) {
+      if (minValues == null) {
+        minValues = 0;
+      }
+      return withDescription(this, "slidingWindow", n, minValues, this.scan([], (function(window, value) {
+        return window.concat([value]).slice(-n);
+      })).filter((function(values) {
+        return values.length >= minValues;
+      })));
+    };
+
+    Observable.prototype.combine = function(other, f) {
+      var combinator;
+      combinator = toCombinator(f);
+      return withDescription(this, "combine", other, f, Bacon.combineAsArray(this, other).map(function(values) {
+        return combinator(values[0], values[1]);
+      }));
+    };
+
+    Observable.prototype.decode = function(cases) {
+      return withDescription(this, "decode", cases, this.combine(Bacon.combineTemplate(cases), function(key, values) {
+        return values[key];
+      }));
+    };
+
+    Observable.prototype.awaiting = function(other) {
+      return withDescription(this, "awaiting", other, Bacon.groupSimultaneous(this, other).map(function(_arg) {
+        var myValues, otherValues;
+        myValues = _arg[0], otherValues = _arg[1];
+        return otherValues.length === 0;
+      }).toProperty(false).skipDuplicates());
+    };
+
+    Observable.prototype.name = function(name) {
+      this.toString = function() {
+        return name;
+      };
+      return this;
+    };
+
+    Observable.prototype.withDescription = function() {
+      return describe.apply(null, arguments).apply(this);
+    };
+
+    return Observable;
+
+  })();
+
+  Observable.prototype.reduce = Observable.prototype.fold;
+
+  Observable.prototype.assign = Observable.prototype.onValue;
+
+  flatMap_ = function(root, f, firstOnly) {
+    return new EventStream(describe(root, "flatMap" + (firstOnly ? "First" : ""), f), function(sink) {
+      var checkEnd, composite;
+      composite = new CompositeUnsubscribe();
+      checkEnd = function(unsub) {
+        unsub();
+        if (composite.empty()) {
+          return sink(end());
+        }
+      };
+      composite.add(function(__, unsubRoot) {
+        return root.subscribeInternal(function(event) {
+          var child;
+          if (event.isEnd()) {
+            return checkEnd(unsubRoot);
+          } else if (event.isError()) {
+            return sink(event);
+          } else if (firstOnly && composite.count() > 1) {
+            return Bacon.more;
+          } else {
+            if (composite.unsubscribed) {
+              return Bacon.noMore;
+            }
+            child = makeObservable(f(event.value()));
+            return composite.add(function(unsubAll, unsubMe) {
+              return child.subscribeInternal(function(event) {
+                var reply;
+                if (event.isEnd()) {
+                  checkEnd(unsubMe);
+                  return Bacon.noMore;
+                } else {
+                  if (event instanceof Initial) {
+                    event = event.toNext();
+                  }
+                  reply = sink(event);
+                  if (reply === Bacon.noMore) {
+                    unsubAll();
+                  }
+                  return reply;
+                }
+              });
+            });
+          }
+        });
+      });
+      return composite.unsubscribe;
+    });
+  };
+
+  EventStream = (function(_super) {
+    __extends(EventStream, _super);
+
+    function EventStream(desc, subscribe) {
+      var dispatcher;
+      if (isFunction(desc)) {
+        subscribe = desc;
+        desc = [];
+      }
+      EventStream.__super__.constructor.call(this, desc);
+      assertFunction(subscribe);
+      dispatcher = new Dispatcher(subscribe);
+      this.subscribeInternal = dispatcher.subscribe;
+      this.subscribe = UpdateBarrier.wrappedSubscribe(this);
+      this.hasSubscribers = dispatcher.hasSubscribers;
+      registerObs(this);
+    }
+
+    EventStream.prototype.delay = function(delay) {
+      return withDescription(this, "delay", delay, this.flatMap(function(value) {
+        return Bacon.later(delay, value);
+      }));
+    };
+
+    EventStream.prototype.debounce = function(delay) {
+      return withDescription(this, "debounce", delay, this.flatMapLatest(function(value) {
+        return Bacon.later(delay, value);
+      }));
+    };
+
+    EventStream.prototype.debounceImmediate = function(delay) {
+      return withDescription(this, "debounceImmediate", delay, this.flatMapFirst(function(value) {
+        return Bacon.once(value).concat(Bacon.later(delay).filter(false));
+      }));
+    };
+
+    EventStream.prototype.throttle = function(delay) {
+      return withDescription(this, "throttle", delay, this.bufferWithTime(delay).map(function(values) {
+        return values[values.length - 1];
+      }));
+    };
+
+    EventStream.prototype.bufferWithTime = function(delay) {
+      return withDescription(this, "bufferWithTime", delay, this.bufferWithTimeOrCount(delay, Number.MAX_VALUE));
+    };
+
+    EventStream.prototype.bufferWithCount = function(count) {
+      return withDescription(this, "bufferWithCount", count, this.bufferWithTimeOrCount(void 0, count));
+    };
+
+    EventStream.prototype.bufferWithTimeOrCount = function(delay, count) {
+      var flushOrSchedule;
+      flushOrSchedule = function(buffer) {
+        if (buffer.values.length === count) {
+          return buffer.flush();
+        } else if (delay !== void 0) {
+          return buffer.schedule();
+        }
+      };
+      return withDescription(this, "bufferWithTimeOrCount", delay, count, this.buffer(delay, flushOrSchedule, flushOrSchedule));
+    };
+
+    EventStream.prototype.buffer = function(delay, onInput, onFlush) {
+      var buffer, delayMs, reply;
+      if (onInput == null) {
+        onInput = (function() {});
+      }
+      if (onFlush == null) {
+        onFlush = (function() {});
+      }
+      buffer = {
+        scheduled: false,
+        end: null,
+        values: [],
+        flush: function() {
+          var reply;
+          this.scheduled = false;
+          if (this.values.length > 0) {
+            reply = this.push(next(this.values));
+            this.values = [];
+            if (this.end != null) {
+              return this.push(this.end);
+            } else if (reply !== Bacon.noMore) {
+              return onFlush(this);
+            }
+          } else {
+            if (this.end != null) {
+              return this.push(this.end);
+            }
+          }
+        },
+        schedule: function() {
+          if (!this.scheduled) {
+            this.scheduled = true;
+            return delay((function(_this) {
+              return function() {
+                return _this.flush();
+              };
+            })(this));
+          }
+        }
+      };
+      reply = Bacon.more;
+      if (!isFunction(delay)) {
+        delayMs = delay;
+        delay = function(f) {
+          return Bacon.scheduler.setTimeout(f, delayMs);
+        };
+      }
+      return withDescription(this, "buffer", this.withHandler(function(event) {
+        buffer.push = this.push;
+        if (event.isError()) {
+          reply = this.push(event);
+        } else if (event.isEnd()) {
+          buffer.end = event;
+          if (!buffer.scheduled) {
+            buffer.flush();
+          }
+        } else {
+          buffer.values.push(event.value());
+          onInput(buffer);
+        }
+        return reply;
+      }));
+    };
+
+    EventStream.prototype.merge = function(right) {
+      var left;
+      assertEventStream(right);
+      left = this;
+      return new EventStream(describe(left, "merge", right), function(sink) {
+        var ends, smartSink;
+        ends = 0;
+        smartSink = function(obs) {
+          return function(unsubBoth) {
+            return obs.subscribeInternal(function(event) {
+              var reply;
+              if (event.isEnd()) {
+                ends++;
+                if (ends === 2) {
+                  return sink(end());
+                } else {
+                  return Bacon.more;
+                }
+              } else {
+                reply = sink(event);
+                if (reply === Bacon.noMore) {
+                  unsubBoth();
+                }
+                return reply;
+              }
+            });
+          };
+        };
+        return compositeUnsubscribe(smartSink(left), smartSink(right));
+      });
+    };
+
+    EventStream.prototype.toProperty = function(initValue) {
+      if (arguments.length === 0) {
+        initValue = None;
+      }
+      return withDescription(this, "toProperty", initValue, this.scan(initValue, latterF, true));
+    };
+
+    EventStream.prototype.toEventStream = function() {
+      return this;
+    };
+
+    EventStream.prototype.sampledBy = function(sampler, combinator) {
+      return withDescription(this, "sampledBy", sampler, combinator, this.toProperty().sampledBy(sampler, combinator));
+    };
+
+    EventStream.prototype.concat = function(right) {
+      var left;
+      left = this;
+      return new EventStream(describe(left, "concat", right), function(sink) {
+        var unsubLeft, unsubRight;
+        unsubRight = nop;
+        unsubLeft = left.subscribeInternal(function(e) {
+          if (e.isEnd()) {
+            return unsubRight = right.subscribeInternal(sink);
+          } else {
+            return sink(e);
+          }
+        });
+        return function() {
+          unsubLeft();
+          return unsubRight();
+        };
+      });
+    };
+
+    EventStream.prototype.takeUntil = function(stopper) {
+      var endMarker;
+      endMarker = {};
+      return withDescription(this, "takeUntil", stopper, Bacon.groupSimultaneous(this.mapEnd(endMarker), stopper.skipErrors()).withHandler(function(event) {
+        var data, reply, value, _i, _len, _ref1;
+        if (!event.hasValue()) {
+          return this.push(event);
+        } else {
+          _ref1 = event.value(), data = _ref1[0], stopper = _ref1[1];
+          if (stopper.length) {
+            return this.push(end());
+          } else {
+            reply = Bacon.more;
+            for (_i = 0, _len = data.length; _i < _len; _i++) {
+              value = data[_i];
+              if (value === endMarker) {
+                reply = this.push(end());
+              } else {
+                reply = this.push(next(value));
+              }
+            }
+            return reply;
+          }
+        }
+      }));
+    };
+
+    EventStream.prototype.skipUntil = function(starter) {
+      var started;
+      started = starter.take(1).map(true).toProperty(false);
+      return withDescription(this, "skipUntil", starter, this.filter(started));
+    };
+
+    EventStream.prototype.skipWhile = function() {
+      var args, f, ok;
+      f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      ok = false;
+      return convertArgsToFunction(this, f, args, function(f) {
+        return withDescription(this, "skipWhile", f, this.withHandler(function(event) {
+          if (ok || !event.hasValue() || !f(event.value())) {
+            if (event.hasValue()) {
+              ok = true;
+            }
+            return this.push(event);
+          } else {
+            return Bacon.more;
+          }
+        }));
+      });
+    };
+
+    EventStream.prototype.startWith = function(seed) {
+      return withDescription(this, "startWith", seed, Bacon.once(seed).concat(this));
+    };
+
+    EventStream.prototype.withHandler = function(handler) {
+      var dispatcher;
+      dispatcher = new Dispatcher(this.subscribeInternal, handler);
+      return new EventStream(describe(this, "withHandler", handler), dispatcher.subscribe);
+    };
+
+    return EventStream;
+
+  })(Observable);
+
+  Property = (function(_super) {
+    __extends(Property, _super);
+
+    function Property(desc, subscribe, handler) {
+      if (isFunction(desc)) {
+        handler = subscribe;
+        subscribe = desc;
+        desc = [];
+      }
+      Property.__super__.constructor.call(this, desc);
+      assertFunction(subscribe);
+      if (handler === true) {
+        this.subscribeInternal = subscribe;
+      } else {
+        this.subscribeInternal = new PropertyDispatcher(this, subscribe, handler).subscribe;
+      }
+      this.subscribe = UpdateBarrier.wrappedSubscribe(this);
+      registerObs(this);
+    }
+
+    Property.prototype.sampledBy = function(sampler, combinator) {
+      var lazy, result, samplerSource, stream, thisSource;
+      if (combinator != null) {
+        combinator = toCombinator(combinator);
+      } else {
+        lazy = true;
+        combinator = function(f) {
+          return f();
+        };
+      }
+      thisSource = new Source(this, false, this.subscribeInternal, lazy);
+      samplerSource = new Source(sampler, true, sampler.subscribeInternal, lazy);
+      stream = Bacon.when([thisSource, samplerSource], combinator);
+      result = sampler instanceof Property ? stream.toProperty() : stream;
+      return withDescription(this, "sampledBy", sampler, combinator, result);
+    };
+
+    Property.prototype.sample = function(interval) {
+      return withDescription(this, "sample", interval, this.sampledBy(Bacon.interval(interval, {})));
+    };
+
+    Property.prototype.changes = function() {
+      return new EventStream(describe(this, "changes"), (function(_this) {
+        return function(sink) {
+          return _this.subscribeInternal(function(event) {
+            if (!event.isInitial()) {
+              return sink(event);
+            }
+          });
+        };
+      })(this));
+    };
+
+    Property.prototype.withHandler = function(handler) {
+      return new Property(describe(this, "withHandler", handler), this.subscribeInternal, handler);
+    };
+
+    Property.prototype.toProperty = function() {
+      assertNoArguments(arguments);
+      return this;
+    };
+
+    Property.prototype.toEventStream = function() {
+      return new EventStream(describe(this, "toEventStream"), (function(_this) {
+        return function(sink) {
+          return _this.subscribeInternal(function(event) {
+            if (event.isInitial()) {
+              event = event.toNext();
+            }
+            return sink(event);
+          });
+        };
+      })(this));
+    };
+
+    Property.prototype.and = function(other) {
+      return withDescription(this, "and", other, this.combine(other, function(x, y) {
+        return x && y;
+      }));
+    };
+
+    Property.prototype.or = function(other) {
+      return withDescription(this, "or", other, this.combine(other, function(x, y) {
+        return x || y;
+      }));
+    };
+
+    Property.prototype.delay = function(delay) {
+      return this.delayChanges("delay", delay, function(changes) {
+        return changes.delay(delay);
+      });
+    };
+
+    Property.prototype.debounce = function(delay) {
+      return this.delayChanges("debounce", delay, function(changes) {
+        return changes.debounce(delay);
+      });
+    };
+
+    Property.prototype.throttle = function(delay) {
+      return this.delayChanges("throttle", delay, function(changes) {
+        return changes.throttle(delay);
+      });
+    };
+
+    Property.prototype.delayChanges = function() {
+      var desc, f, _i;
+      desc = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), f = arguments[_i++];
+      return withDescription.apply(null, [this].concat(__slice.call(desc), [addPropertyInitValueToStream(this, f(this.changes()))]));
+    };
+
+    Property.prototype.takeUntil = function(stopper) {
+      var changes;
+      changes = this.changes().takeUntil(stopper);
+      return withDescription(this, "takeUntil", stopper, addPropertyInitValueToStream(this, changes));
+    };
+
+    Property.prototype.startWith = function(value) {
+      return withDescription(this, "startWith", value, this.scan(value, function(prev, next) {
+        return next;
+      }));
+    };
+
+    return Property;
+
+  })(Observable);
+
+  convertArgsToFunction = function(obs, f, args, method) {
+    var sampled;
+    if (f instanceof Property) {
+      sampled = f.sampledBy(obs, function(p, s) {
+        return [p, s];
+      });
+      return method.apply(sampled, [
+        function(_arg) {
+          var p, s;
+          p = _arg[0], s = _arg[1];
+          return p;
+        }
+      ]).map(function(_arg) {
+        var p, s;
+        p = _arg[0], s = _arg[1];
+        return s;
+      });
+    } else {
+      f = makeFunction(f, args);
+      return method.apply(obs, [f]);
+    }
+  };
+
+  addPropertyInitValueToStream = function(property, stream) {
+    var justInitValue;
+    justInitValue = new EventStream(describe(property, "justInitValue"), function(sink) {
+      var unsub, value;
+      value = null;
+      unsub = property.subscribeInternal(function(event) {
+        if (event.hasValue()) {
+          value = event;
+        }
+        return Bacon.noMore;
+      });
+      UpdateBarrier.whenDoneWith(justInitValue, function() {
+        if (value != null) {
+          sink(value);
+        }
+        return sink(end());
+      });
+      return unsub;
+    });
+    return justInitValue.concat(stream).toProperty();
+  };
+
+  Dispatcher = (function() {
+    function Dispatcher(subscribe, handleEvent) {
+      var done, ended, prevError, pushIt, pushing, queue, removeSub, subscriptions, unsubscribeFromSource, waiters;
+      if (subscribe == null) {
+        subscribe = function() {
+          return nop;
+        };
+      }
+      subscriptions = [];
+      queue = [];
+      pushing = false;
+      ended = false;
+      this.hasSubscribers = function() {
+        return subscriptions.length > 0;
+      };
+      prevError = null;
+      unsubscribeFromSource = nop;
+      removeSub = function(subscription) {
+        return subscriptions = _.without(subscription, subscriptions);
+      };
+      waiters = null;
+      done = function() {
+        var w, ws, _i, _len, _results;
+        if (waiters != null) {
+          ws = waiters;
+          waiters = null;
+          _results = [];
+          for (_i = 0, _len = ws.length; _i < _len; _i++) {
+            w = ws[_i];
+            _results.push(w());
+          }
+          return _results;
+        }
+      };
+      pushIt = function(event) {
+        var reply, sub, success, tmp, _i, _len;
+        if (!pushing) {
+          if (event === prevError) {
+            return;
+          }
+          if (event.isError()) {
+            prevError = event;
+          }
+          success = false;
+          try {
+            pushing = true;
+            tmp = subscriptions;
+            for (_i = 0, _len = tmp.length; _i < _len; _i++) {
+              sub = tmp[_i];
+              reply = sub.sink(event);
+              if (reply === Bacon.noMore || event.isEnd()) {
+                removeSub(sub);
+              }
+            }
+            success = true;
+          } finally {
+            pushing = false;
+            if (!success) {
+              queue = [];
+            }
+          }
+          success = true;
+          while (queue.length) {
+            event = queue.shift();
+            this.push(event);
+          }
+          done(event);
+          if (this.hasSubscribers()) {
+            return Bacon.more;
+          } else {
+            unsubscribeFromSource();
+            return Bacon.noMore;
+          }
+        } else {
+          queue.push(event);
+          return Bacon.more;
+        }
+      };
+      this.push = (function(_this) {
+        return function(event) {
+          return UpdateBarrier.inTransaction(event, _this, pushIt, [event]);
+        };
+      })(this);
+      if (handleEvent == null) {
+        handleEvent = function(event) {
+          return this.push(event);
+        };
+      }
+      this.handleEvent = (function(_this) {
+        return function(event) {
+          if (event.isEnd()) {
+            ended = true;
+          }
+          return handleEvent.apply(_this, [event]);
+        };
+      })(this);
+      this.subscribe = (function(_this) {
+        return function(sink) {
+          var subscription, unsubSrc;
+          if (ended) {
+            sink(end());
+            return nop;
+          } else {
+            assertFunction(sink);
+            subscription = {
+              sink: sink
+            };
+            subscriptions.push(subscription);
+            if (subscriptions.length === 1) {
+              unsubSrc = subscribe(_this.handleEvent);
+              unsubscribeFromSource = function() {
+                unsubSrc();
+                return unsubscribeFromSource = nop;
+              };
+            }
+            assertFunction(unsubscribeFromSource);
+            return function() {
+              removeSub(subscription);
+              if (!_this.hasSubscribers()) {
+                return unsubscribeFromSource();
+              }
+            };
+          }
+        };
+      })(this);
+    }
+
+    return Dispatcher;
+
+  })();
+
+  PropertyDispatcher = (function(_super) {
+    __extends(PropertyDispatcher, _super);
+
+    function PropertyDispatcher(p, subscribe, handleEvent) {
+      var current, currentValueRootId, ended, push;
+      PropertyDispatcher.__super__.constructor.call(this, subscribe, handleEvent);
+      current = None;
+      currentValueRootId = void 0;
+      push = this.push;
+      subscribe = this.subscribe;
+      ended = false;
+      this.push = (function(_this) {
+        return function(event) {
+          if (event.isEnd()) {
+            ended = true;
+          }
+          if (event.hasValue()) {
+            current = new Some(event);
+            currentValueRootId = UpdateBarrier.currentEventId();
+          }
+          return push.apply(_this, [event]);
+        };
+      })(this);
+      this.subscribe = (function(_this) {
+        return function(sink) {
+          var dispatchingId, initSent, maybeSubSource, reply, valId;
+          initSent = false;
+          reply = Bacon.more;
+          maybeSubSource = function() {
+            if (reply === Bacon.noMore) {
+              return nop;
+            } else if (ended) {
+              sink(end());
+              return nop;
+            } else {
+              return subscribe.apply(this, [sink]);
+            }
+          };
+          if (current.isDefined && (_this.hasSubscribers() || ended)) {
+            dispatchingId = UpdateBarrier.currentEventId();
+            valId = currentValueRootId;
+            if (!ended && valId && dispatchingId && dispatchingId !== valId) {
+              UpdateBarrier.whenDoneWith(p, function() {
+                if (currentValueRootId === valId) {
+                  return sink(initial(current.get().value()));
+                }
+              });
+              return maybeSubSource();
+            } else {
+              UpdateBarrier.inTransaction(void 0, _this, (function() {
+                return reply = sink(initial(current.get().value()));
+              }), []);
+              return maybeSubSource();
+            }
+          } else {
+            return maybeSubSource();
+          }
+        };
+      })(this);
+    }
+
+    return PropertyDispatcher;
+
+  })(Dispatcher);
+
+  Bus = (function(_super) {
+    __extends(Bus, _super);
+
+    function Bus() {
+      var ended, guardedSink, sink, subscribeAll, subscribeInput, subscriptions, unsubAll, unsubscribeInput;
+      sink = void 0;
+      subscriptions = [];
+      ended = false;
+      guardedSink = (function(_this) {
+        return function(input) {
+          return function(event) {
+            if (event.isEnd()) {
+              unsubscribeInput(input);
+              return Bacon.noMore;
+            } else {
+              return sink(event);
+            }
+          };
+        };
+      })(this);
+      unsubAll = function() {
+        var sub, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = subscriptions.length; _i < _len; _i++) {
+          sub = subscriptions[_i];
+          _results.push(typeof sub.unsub === "function" ? sub.unsub() : void 0);
+        }
+        return _results;
+      };
+      subscribeInput = function(subscription) {
+        return subscription.unsub = subscription.input.subscribeInternal(guardedSink(subscription.input));
+      };
+      unsubscribeInput = function(input) {
+        var i, sub, _i, _len;
+        for (i = _i = 0, _len = subscriptions.length; _i < _len; i = ++_i) {
+          sub = subscriptions[i];
+          if (sub.input === input) {
+            if (typeof sub.unsub === "function") {
+              sub.unsub();
+            }
+            subscriptions.splice(i, 1);
+            return;
+          }
+        }
+      };
+      subscribeAll = (function(_this) {
+        return function(newSink) {
+          var subscription, _i, _len, _ref1;
+          sink = newSink;
+          _ref1 = cloneArray(subscriptions);
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            subscription = _ref1[_i];
+            subscribeInput(subscription);
+          }
+          return unsubAll;
+        };
+      })(this);
+      Bus.__super__.constructor.call(this, describe(Bacon, "Bus"), subscribeAll);
+      this.plug = (function(_this) {
+        return function(input) {
+          var sub;
+          if (ended) {
+            return;
+          }
+          sub = {
+            input: input
+          };
+          subscriptions.push(sub);
+          if ((sink != null)) {
+            subscribeInput(sub);
+          }
+          return function() {
+            return unsubscribeInput(input);
+          };
+        };
+      })(this);
+      this.push = (function(_this) {
+        return function(value) {
+          return typeof sink === "function" ? sink(next(value)) : void 0;
+        };
+      })(this);
+      this.error = (function(_this) {
+        return function(error) {
+          return typeof sink === "function" ? sink(new Error(error)) : void 0;
+        };
+      })(this);
+      this.end = (function(_this) {
+        return function() {
+          ended = true;
+          unsubAll();
+          return typeof sink === "function" ? sink(end()) : void 0;
+        };
+      })(this);
+    }
+
+    return Bus;
+
+  })(EventStream);
+
+  Source = (function() {
+    function Source(obs, sync, subscribe, lazy) {
+      this.obs = obs;
+      this.sync = sync;
+      this.subscribe = subscribe;
+      this.lazy = lazy != null ? lazy : false;
+      this.queue = [];
+      if (this.subscribe == null) {
+        this.subscribe = this.obs.subscribeInternal;
+      }
+      this.toString = this.obs.toString;
+    }
+
+    Source.prototype.markEnded = function() {
+      return this.ended = true;
+    };
+
+    Source.prototype.consume = function() {
+      if (this.lazy) {
+        return _.always(this.queue[0]);
+      } else {
+        return this.queue[0];
+      }
+    };
+
+    Source.prototype.push = function(x) {
+      return this.queue = [x];
+    };
+
+    Source.prototype.mayHave = function() {
+      return true;
+    };
+
+    Source.prototype.hasAtLeast = function() {
+      return this.queue.length;
+    };
+
+    Source.prototype.flatten = true;
+
+    return Source;
+
+  })();
+
+  ConsumingSource = (function(_super) {
+    __extends(ConsumingSource, _super);
+
+    function ConsumingSource() {
+      return ConsumingSource.__super__.constructor.apply(this, arguments);
+    }
+
+    ConsumingSource.prototype.consume = function() {
+      return this.queue.shift();
+    };
+
+    ConsumingSource.prototype.push = function(x) {
+      return this.queue.push(x);
+    };
+
+    ConsumingSource.prototype.mayHave = function(c) {
+      return !this.ended || this.queue.length >= c;
+    };
+
+    ConsumingSource.prototype.hasAtLeast = function(c) {
+      return this.queue.length >= c;
+    };
+
+    ConsumingSource.prototype.flatten = false;
+
+    return ConsumingSource;
+
+  })(Source);
+
+  BufferingSource = (function(_super) {
+    __extends(BufferingSource, _super);
+
+    function BufferingSource(obs) {
+      this.obs = obs;
+      BufferingSource.__super__.constructor.call(this, this.obs, true, this.obs.subscribeInternal);
+    }
+
+    BufferingSource.prototype.consume = function() {
+      var values;
+      values = this.queue;
+      this.queue = [];
+      return function() {
+        return values;
+      };
+    };
+
+    BufferingSource.prototype.push = function(x) {
+      return this.queue.push(x());
+    };
+
+    BufferingSource.prototype.hasAtLeast = function() {
+      return true;
+    };
+
+    return BufferingSource;
+
+  })(Source);
+
+  Source.fromObservable = function(s) {
+    if (s instanceof Source) {
+      return s;
+    } else if (s instanceof Property) {
+      return new Source(s, false);
+    } else {
+      return new ConsumingSource(s, true);
+    }
+  };
+
+  describe = function() {
+    var args, context, method;
+    context = arguments[0], method = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+    if ((context || method) instanceof Desc) {
+      return context || method;
+    } else {
+      return new Desc(context, method, args);
+    }
+  };
+
+  Desc = (function() {
+    function Desc(context, method, args) {
+      var collectDeps, dependsOn, findDeps, flatDeps;
+      findDeps = function(x) {
+        if (isArray(x)) {
+          return _.flatMap(findDeps, x);
+        } else if (isObservable(x)) {
+          return [x];
+        } else if (x instanceof Source) {
+          return [x.obs];
+        } else {
+          return [];
+        }
+      };
+      flatDeps = null;
+      collectDeps = function(o) {
+        var dep, deps, _i, _len, _results;
+        deps = o.internalDeps();
+        _results = [];
+        for (_i = 0, _len = deps.length; _i < _len; _i++) {
+          dep = deps[_i];
+          flatDeps[dep.id] = true;
+          _results.push(collectDeps(dep));
+        }
+        return _results;
+      };
+      dependsOn = function(b) {
+        if (flatDeps == null) {
+          flatDeps = {};
+          collectDeps(this);
+        }
+        return flatDeps[b.id];
+      };
+      this.apply = function(obs) {
+        var deps;
+        deps = _.cached((function() {
+          return findDeps([context].concat(args));
+        }));
+        obs.internalDeps = obs.internalDeps || deps;
+        obs.dependsOn = dependsOn;
+        obs.deps = deps;
+        obs.toString = function() {
+          return _.toString(context) + "." + _.toString(method) + "(" + _.map(_.toString, args) + ")";
+        };
+        obs.inspect = function() {
+          return obs.toString();
+        };
+        obs.desc = function() {
+          return {
+            context: context,
+            method: method,
+            args: args
+          };
+        };
+        return obs;
+      };
+    }
+
+    return Desc;
+
+  })();
+
+  withDescription = function() {
+    var desc, obs, _i;
+    desc = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), obs = arguments[_i++];
+    return describe.apply(null, desc).apply(obs);
+  };
+
+  Bacon.when = function() {
+    var f, i, index, ix, len, needsBarrier, pat, patSources, pats, patterns, resultStream, s, sources, usage, _i, _j, _len, _len1, _ref1;
+    patterns = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    if (patterns.length === 0) {
+      return Bacon.never();
+    }
+    len = patterns.length;
+    usage = "when: expecting arguments in the form (Observable+,function)+";
+    assert(usage, len % 2 === 0);
+    sources = [];
+    pats = [];
+    i = 0;
+    while (i < len) {
+      patSources = _.toArray(patterns[i]);
+      f = patterns[i + 1];
+      pat = {
+        f: (isFunction(f) ? f : (function() {
+          return f;
+        })),
+        ixs: []
+      };
+      for (_i = 0, _len = patSources.length; _i < _len; _i++) {
+        s = patSources[_i];
+        assert(isObservable(s), usage);
+        index = _.indexOf(sources, s);
+        if (index < 0) {
+          sources.push(s);
+          index = sources.length - 1;
+        }
+        _ref1 = pat.ixs;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          ix = _ref1[_j];
+          if (ix.index === index) {
+            ix.count++;
+          }
+        }
+        pat.ixs.push({
+          index: index,
+          count: 1
+        });
+      }
+      if (patSources.length > 0) {
+        pats.push(pat);
+      }
+      i = i + 2;
+    }
+    if (!sources.length) {
+      return Bacon.never();
+    }
+    sources = _.map(Source.fromObservable, sources);
+    needsBarrier = (_.any(sources, function(s) {
+      return s.flatten;
+    })) && (containsDuplicateDeps(_.map((function(s) {
+      return s.obs;
+    }), sources)));
+    return resultStream = new EventStream(describe.apply(null, [Bacon, "when"].concat(__slice.call(patterns))), function(sink) {
+      var cannotMatch, cannotSync, ends, match, nonFlattened, part, triggers;
+      triggers = [];
+      ends = false;
+      match = function(p) {
+        var _k, _len2, _ref2;
+        _ref2 = p.ixs;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          i = _ref2[_k];
+          if (!sources[i.index].hasAtLeast(i.count)) {
+            return false;
+          }
+        }
+        return true;
+      };
+      cannotSync = function(source) {
+        return !source.sync || source.ended;
+      };
+      cannotMatch = function(p) {
+        var _k, _len2, _ref2;
+        _ref2 = p.ixs;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          i = _ref2[_k];
+          if (!sources[i.index].mayHave(i.count)) {
+            return true;
+          }
+        }
+      };
+      nonFlattened = function(trigger) {
+        return !trigger.source.flatten;
+      };
+      part = function(source) {
+        return function(unsubAll) {
+          var flush, flushLater, flushWhileTriggers;
+          flushLater = function() {
+            return UpdateBarrier.whenDoneWith(resultStream, flush);
+          };
+          flushWhileTriggers = function() {
+            var functions, p, reply, trigger, _k, _len2;
+            if (triggers.length > 0) {
+              reply = Bacon.more;
+              trigger = triggers.pop();
+              for (_k = 0, _len2 = pats.length; _k < _len2; _k++) {
+                p = pats[_k];
+                if (match(p)) {
+                  functions = (function() {
+                    var _l, _len3, _ref2, _results;
+                    _ref2 = p.ixs;
+                    _results = [];
+                    for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                      i = _ref2[_l];
+                      _results.push(sources[i.index].consume());
+                    }
+                    return _results;
+                  })();
+                  reply = sink(trigger.e.apply(function() {
+                    var fun, values;
+                    values = (function() {
+                      var _l, _len3, _results;
+                      _results = [];
+                      for (_l = 0, _len3 = functions.length; _l < _len3; _l++) {
+                        fun = functions[_l];
+                        _results.push(fun());
+                      }
+                      return _results;
+                    })();
+                    return p.f.apply(p, values);
+                  }));
+                  if (triggers.length && needsBarrier) {
+                    triggers = _.filter(nonFlattened, triggers);
+                  }
+                  if (reply === Bacon.noMore) {
+                    return reply;
+                  } else {
+                    return flushWhileTriggers();
+                  }
+                }
+              }
+            } else {
+              return Bacon.more;
+            }
+          };
+          flush = function() {
+            var reply;
+            reply = flushWhileTriggers();
+            if (ends) {
+              ends = false;
+              if (_.all(sources, cannotSync) || _.all(pats, cannotMatch)) {
+                reply = Bacon.noMore;
+                sink(end());
+              }
+            }
+            if (reply === Bacon.noMore) {
+              unsubAll();
+            }
+            return reply;
+          };
+          return source.subscribe(function(e) {
+            var reply;
+            if (e.isEnd()) {
+              ends = true;
+              source.markEnded();
+              flushLater();
+            } else if (e.isError()) {
+              reply = sink(e);
+            } else {
+              source.push(e.value);
+              if (source.sync) {
+                triggers.push({
+                  source: source,
+                  e: e
+                });
+                if (needsBarrier) {
+                  flushLater();
+                } else {
+                  flush();
+                }
+              }
+            }
+            if (reply === Bacon.noMore) {
+              unsubAll();
+            }
+            return reply || Bacon.more;
+          });
+        };
+      };
+      return compositeUnsubscribe.apply(null, (function() {
+        var _k, _len2, _results;
+        _results = [];
+        for (_k = 0, _len2 = sources.length; _k < _len2; _k++) {
+          s = sources[_k];
+          _results.push(part(s));
+        }
+        return _results;
+      })());
+    });
+  };
+
+  containsDuplicateDeps = function(observables, state) {
+    var checkObservable;
+    if (state == null) {
+      state = [];
+    }
+    checkObservable = function(obs) {
+      var deps;
+      if (Bacon._.contains(state, obs)) {
+        return true;
+      } else {
+        deps = obs.internalDeps();
+        if (deps.length) {
+          state.push(obs);
+          return Bacon._.any(deps, checkObservable);
+        } else {
+          state.push(obs);
+          return false;
+        }
+      }
+    };
+    return Bacon._.any(observables, checkObservable);
+  };
+
+  Bacon.update = function() {
+    var i, initial, lateBindFirst, patterns;
+    initial = arguments[0], patterns = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    lateBindFirst = function(f) {
+      return function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return function(i) {
+          return f.apply(null, [i].concat(args));
+        };
+      };
+    };
+    i = patterns.length - 1;
+    while (i > 0) {
+      if (!(patterns[i] instanceof Function)) {
+        patterns[i] = (function(x) {
+          return function() {
+            return x;
+          };
+        })(patterns[i]);
+      }
+      patterns[i] = lateBindFirst(patterns[i]);
+      i = i - 2;
+    }
+    return withDescription.apply(null, [Bacon, "update", initial].concat(__slice.call(patterns), [Bacon.when.apply(Bacon, patterns).scan(initial, (function(x, f) {
+      return f(x);
+    }))]));
+  };
+
+  compositeUnsubscribe = function() {
+    var ss;
+    ss = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return new CompositeUnsubscribe(ss).unsubscribe;
+  };
+
+  CompositeUnsubscribe = (function() {
+    function CompositeUnsubscribe(ss) {
+      var s, _i, _len;
+      if (ss == null) {
+        ss = [];
+      }
+      this.unsubscribe = __bind(this.unsubscribe, this);
+      this.unsubscribed = false;
+      this.subscriptions = [];
+      this.starting = [];
+      for (_i = 0, _len = ss.length; _i < _len; _i++) {
+        s = ss[_i];
+        this.add(s);
+      }
+    }
+
+    CompositeUnsubscribe.prototype.add = function(subscription) {
+      var ended, unsub, unsubMe;
+      if (this.unsubscribed) {
+        return;
+      }
+      ended = false;
+      unsub = nop;
+      this.starting.push(subscription);
+      unsubMe = (function(_this) {
+        return function() {
+          if (_this.unsubscribed) {
+            return;
+          }
+          ended = true;
+          _this.remove(unsub);
+          return _.remove(subscription, _this.starting);
+        };
+      })(this);
+      unsub = subscription(this.unsubscribe, unsubMe);
+      if (!(this.unsubscribed || ended)) {
+        this.subscriptions.push(unsub);
+      }
+      _.remove(subscription, this.starting);
+      return unsub;
+    };
+
+    CompositeUnsubscribe.prototype.remove = function(unsub) {
+      if (this.unsubscribed) {
+        return;
+      }
+      if ((_.remove(unsub, this.subscriptions)) !== void 0) {
+        return unsub();
+      }
+    };
+
+    CompositeUnsubscribe.prototype.unsubscribe = function() {
+      var s, _i, _len, _ref1;
+      if (this.unsubscribed) {
+        return;
+      }
+      this.unsubscribed = true;
+      _ref1 = this.subscriptions;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        s = _ref1[_i];
+        s();
+      }
+      this.subscriptions = [];
+      return this.starting = [];
+    };
+
+    CompositeUnsubscribe.prototype.count = function() {
+      if (this.unsubscribed) {
+        return 0;
+      }
+      return this.subscriptions.length + this.starting.length;
+    };
+
+    CompositeUnsubscribe.prototype.empty = function() {
+      return this.count() === 0;
+    };
+
+    return CompositeUnsubscribe;
+
+  })();
+
+  Bacon.CompositeUnsubscribe = CompositeUnsubscribe;
+
+  Some = (function() {
+    function Some(value) {
+      this.value = value;
+    }
+
+    Some.prototype.getOrElse = function() {
+      return this.value;
+    };
+
+    Some.prototype.get = function() {
+      return this.value;
+    };
+
+    Some.prototype.filter = function(f) {
+      if (f(this.value)) {
+        return new Some(this.value);
+      } else {
+        return None;
+      }
+    };
+
+    Some.prototype.map = function(f) {
+      return new Some(f(this.value));
+    };
+
+    Some.prototype.forEach = function(f) {
+      return f(this.value);
+    };
+
+    Some.prototype.isDefined = true;
+
+    Some.prototype.toArray = function() {
+      return [this.value];
+    };
+
+    Some.prototype.inspect = function() {
+      return "Some(" + this.value + ")";
+    };
+
+    Some.prototype.toString = function() {
+      return this.inspect();
+    };
+
+    return Some;
+
+  })();
+
+  None = {
+    getOrElse: function(value) {
+      return value;
+    },
+    filter: function() {
+      return None;
+    },
+    map: function() {
+      return None;
+    },
+    forEach: function() {},
+    isDefined: false,
+    toArray: function() {
+      return [];
+    },
+    inspect: function() {
+      return "None";
+    },
+    toString: function() {
+      return this.inspect();
+    }
+  };
+
+  UpdateBarrier = (function() {
+    var afterTransaction, afters, currentEventId, findIndependent, flush, inTransaction, independent, rootEvent, waiters, whenDoneWith, wrappedSubscribe;
+    rootEvent = void 0;
+    waiters = [];
+    afters = [];
+    afterTransaction = function(f) {
+      if (rootEvent) {
+        return afters.push(f);
+      } else {
+        return f();
+      }
+    };
+    independent = function(waiter) {
+      return !_.any(waiters, (function(other) {
+        return waiter.obs.dependsOn(other.obs);
+      }));
+    };
+    whenDoneWith = function(obs, f) {
+      if (rootEvent) {
+        return waiters.push({
+          obs: obs,
+          f: f
+        });
+      } else {
+        return f();
+      }
+    };
+    findIndependent = function() {
+      while (!independent(waiters[0])) {
+        waiters.push(waiters.splice(0, 1)[0]);
+      }
+      return waiters.splice(0, 1)[0];
+    };
+    flush = function() {
+      var _results;
+      _results = [];
+      while (waiters.length) {
+        _results.push(findIndependent().f());
+      }
+      return _results;
+    };
+    inTransaction = function(event, context, f, args) {
+      var result;
+      if (rootEvent) {
+        return f.apply(context, args);
+      } else {
+        rootEvent = event;
+        try {
+          result = f.apply(context, args);
+          flush();
+        } finally {
+          rootEvent = void 0;
+          while (afters.length) {
+            f = afters.splice(0, 1)[0];
+            f();
+          }
+        }
+        return result;
+      }
+    };
+    currentEventId = function() {
+      if (rootEvent) {
+        return rootEvent.id;
+      } else {
+        return void 0;
+      }
+    };
+    wrappedSubscribe = function(obs) {
+      return function(sink) {
+        var doUnsub, unsub, unsubd;
+        unsubd = false;
+        doUnsub = function() {};
+        unsub = function() {
+          unsubd = true;
+          return doUnsub();
+        };
+        if (!unsubd) {
+          doUnsub = obs.subscribeInternal(function(event) {
+            return afterTransaction(function() {
+              var reply;
+              if (!unsubd) {
+                reply = sink(event);
+                if (reply === Bacon.noMore) {
+                  return unsub();
+                }
+              }
+            });
+          });
+        }
+        return unsub;
+      };
+    };
+    return {
+      whenDoneWith: whenDoneWith,
+      inTransaction: inTransaction,
+      currentEventId: currentEventId,
+      wrappedSubscribe: wrappedSubscribe
+    };
+  })();
+
+  Bacon.EventStream = EventStream;
+
+  Bacon.Property = Property;
+
+  Bacon.Observable = Observable;
+
+  Bacon.Bus = Bus;
+
+  Bacon.Initial = Initial;
+
+  Bacon.Next = Next;
+
+  Bacon.End = End;
+
+  Bacon.Error = Error;
+
+  nop = function() {};
+
+  latterF = function(_, x) {
+    return x();
+  };
+
+  former = function(x, _) {
+    return x;
+  };
+
+  initial = function(value) {
+    return new Initial(_.always(value));
+  };
+
+  next = function(value) {
+    return new Next(_.always(value));
+  };
+
+  end = function() {
+    return new End();
+  };
+
+  toEvent = function(x) {
+    if (x instanceof Event) {
+      return x;
+    } else {
+      return next(x);
+    }
+  };
+
+  cloneArray = function(xs) {
+    return xs.slice(0);
+  };
+
+  assert = function(message, condition) {
+    if (!condition) {
+      throw message;
+    }
+  };
+
+  assertEventStream = function(event) {
+    if (!(event instanceof EventStream)) {
+      throw "not an EventStream : " + event;
+    }
+  };
+
+  assertFunction = function(f) {
+    return assert("not a function : " + f, isFunction(f));
+  };
+
+  isFunction = function(f) {
+    return typeof f === "function";
+  };
+
+  isArray = function(xs) {
+    return xs instanceof Array;
+  };
+
+  isObservable = function(x) {
+    return x instanceof Observable;
+  };
+
+  assertArray = function(xs) {
+    if (!isArray(xs)) {
+      throw "not an array : " + xs;
+    }
+  };
+
+  assertNoArguments = function(args) {
+    return assert("no arguments supported", args.length === 0);
+  };
+
+  assertString = function(x) {
+    if (typeof x !== "string") {
+      throw "not a string : " + x;
+    }
+  };
+
+  partiallyApplied = function(f, applied) {
+    return function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return f.apply(null, applied.concat(args));
+    };
+  };
+
+  makeSpawner = function(args) {
+    if (args.length === 1 && isObservable(args[0])) {
+      return _.always(args[0]);
+    } else {
+      return makeFunctionArgs(args);
+    }
+  };
+
+  makeFunctionArgs = function(args) {
+    args = Array.prototype.slice.call(args);
+    return makeFunction_.apply(null, args);
+  };
+
+  makeFunction_ = withMethodCallSupport(function() {
+    var args, f;
+    f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    if (isFunction(f)) {
+      if (args.length) {
+        return partiallyApplied(f, args);
+      } else {
+        return f;
+      }
+    } else if (isFieldKey(f)) {
+      return toFieldExtractor(f, args);
+    } else {
+      return _.always(f);
+    }
+  });
+
+  makeFunction = function(f, args) {
+    return makeFunction_.apply(null, [f].concat(__slice.call(args)));
+  };
+
+  makeObservable = function(x) {
+    if (isObservable(x)) {
+      return x;
+    } else {
+      return Bacon.once(x);
+    }
+  };
+
+  isFieldKey = function(f) {
+    return (typeof f === "string") && f.length > 1 && f.charAt(0) === ".";
+  };
+
+  Bacon.isFieldKey = isFieldKey;
+
+  toFieldExtractor = function(f, args) {
+    var partFuncs, parts;
+    parts = f.slice(1).split(".");
+    partFuncs = _.map(toSimpleExtractor(args), parts);
+    return function(value) {
+      var _i, _len;
+      for (_i = 0, _len = partFuncs.length; _i < _len; _i++) {
+        f = partFuncs[_i];
+        value = f(value);
+      }
+      return value;
+    };
+  };
+
+  toSimpleExtractor = function(args) {
+    return function(key) {
+      return function(value) {
+        var fieldValue;
+        if (value == null) {
+          return void 0;
+        } else {
+          fieldValue = value[key];
+          if (isFunction(fieldValue)) {
+            return fieldValue.apply(value, args);
+          } else {
+            return fieldValue;
+          }
+        }
+      };
+    };
+  };
+
+  toFieldKey = function(f) {
+    return f.slice(1);
+  };
+
+  toCombinator = function(f) {
+    var key;
+    if (isFunction(f)) {
+      return f;
+    } else if (isFieldKey(f)) {
+      key = toFieldKey(f);
+      return function(left, right) {
+        return left[key](right);
+      };
+    } else {
+      return assert("not a function or a field key: " + f, false);
+    }
+  };
+
+  toOption = function(v) {
+    if (v instanceof Some || v === None) {
+      return v;
+    } else {
+      return new Some(v);
+    }
+  };
+
+  _ = {
+    indexOf: Array.prototype.indexOf ? function(xs, x) {
+      return xs.indexOf(x);
+    } : function(xs, x) {
+      var i, y, _i, _len;
+      for (i = _i = 0, _len = xs.length; _i < _len; i = ++_i) {
+        y = xs[i];
+        if (x === y) {
+          return i;
+        }
+      }
+      return -1;
+    },
+    indexWhere: function(xs, f) {
+      var i, y, _i, _len;
+      for (i = _i = 0, _len = xs.length; _i < _len; i = ++_i) {
+        y = xs[i];
+        if (f(y)) {
+          return i;
+        }
+      }
+      return -1;
+    },
+    head: function(xs) {
+      return xs[0];
+    },
+    always: function(x) {
+      return function() {
+        return x;
+      };
+    },
+    negate: function(f) {
+      return function(x) {
+        return !f(x);
+      };
+    },
+    empty: function(xs) {
+      return xs.length === 0;
+    },
+    tail: function(xs) {
+      return xs.slice(1, xs.length);
+    },
+    filter: function(f, xs) {
+      var filtered, x, _i, _len;
+      filtered = [];
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        if (f(x)) {
+          filtered.push(x);
+        }
+      }
+      return filtered;
+    },
+    map: function(f, xs) {
+      var x, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        _results.push(f(x));
+      }
+      return _results;
+    },
+    each: function(xs, f) {
+      var key, value, _results;
+      _results = [];
+      for (key in xs) {
+        value = xs[key];
+        _results.push(f(key, value));
+      }
+      return _results;
+    },
+    toArray: function(xs) {
+      if (isArray(xs)) {
+        return xs;
+      } else {
+        return [xs];
+      }
+    },
+    contains: function(xs, x) {
+      return _.indexOf(xs, x) !== -1;
+    },
+    id: function(x) {
+      return x;
+    },
+    last: function(xs) {
+      return xs[xs.length - 1];
+    },
+    all: function(xs, f) {
+      var x, _i, _len;
+      if (f == null) {
+        f = _.id;
+      }
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        if (!f(x)) {
+          return false;
+        }
+      }
+      return true;
+    },
+    any: function(xs, f) {
+      var x, _i, _len;
+      if (f == null) {
+        f = _.id;
+      }
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        if (f(x)) {
+          return true;
+        }
+      }
+      return false;
+    },
+    without: function(x, xs) {
+      return _.filter((function(y) {
+        return y !== x;
+      }), xs);
+    },
+    remove: function(x, xs) {
+      var i;
+      i = _.indexOf(xs, x);
+      if (i >= 0) {
+        return xs.splice(i, 1);
+      }
+    },
+    fold: function(xs, seed, f) {
+      var x, _i, _len;
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        seed = f(seed, x);
+      }
+      return seed;
+    },
+    flatMap: function(f, xs) {
+      return _.fold(xs, [], (function(ys, x) {
+        return ys.concat(f(x));
+      }));
+    },
+    cached: function(f) {
+      var value;
+      value = None;
+      return function() {
+        if (value === None) {
+          value = f();
+          f = null;
+        }
+        return value;
+      };
+    },
+    toString: function(obj) {
+      var ex, internals, key, value;
+      try {
+        recursionDepth++;
+        if (obj == null) {
+          return "undefined";
+        } else if (isFunction(obj)) {
+          return "function";
+        } else if (isArray(obj)) {
+          if (recursionDepth > 5) {
+            return "[..]";
+          }
+          return "[" + _.map(_.toString, obj).toString() + "]";
+        } else if (((obj != null ? obj.toString : void 0) != null) && obj.toString !== Object.prototype.toString) {
+          return obj.toString();
+        } else if (typeof obj === "object") {
+          if (recursionDepth > 5) {
+            return "{..}";
+          }
+          internals = (function() {
+            var _results;
+            _results = [];
+            for (key in obj) {
+              if (!__hasProp.call(obj, key)) continue;
+              value = (function() {
+                try {
+                  return obj[key];
+                } catch (_error) {
+                  ex = _error;
+                  return ex;
+                }
+              })();
+              _results.push(_.toString(key) + ":" + _.toString(value));
+            }
+            return _results;
+          })();
+          return "{" + internals + "}";
+        } else {
+          return obj;
+        }
+      } finally {
+        recursionDepth--;
+      }
+    }
+  };
+
+  recursionDepth = 0;
+
+  Bacon._ = _;
+
+  Bacon.scheduler = {
+    setTimeout: function(f, d) {
+      return setTimeout(f, d);
+    },
+    setInterval: function(f, i) {
+      return setInterval(f, i);
+    },
+    clearInterval: function(id) {
+      return clearInterval(id);
+    },
+    now: function() {
+      return new Date().getTime();
+    }
+  };
+
+  if ((typeof define !== "undefined" && define !== null) && (define.amd != null)) {
+    define([], function() {
+      return Bacon;
+    });
+    this.Bacon = Bacon;
+  } else if (typeof module !== "undefined" && module !== null) {
+    module.exports = Bacon;
+    Bacon.Bacon = Bacon;
+  } else {
+    this.Bacon = Bacon;
+  }
+
+}).call(this);
+
+},{}],3:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -302,7 +3218,7 @@ Promise.prototype.any = function Promise$any() {
 
 };
 
-},{"./some_promise_array.js":34}],3:[function(_dereq_,module,exports){
+},{"./some_promise_array.js":35}],4:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -415,7 +3331,7 @@ Async.prototype._reset = function Async$_reset() {
 
 module.exports = new Async();
 
-},{"./global.js":16,"./queue.js":27,"./schedule.js":30,"./util.js":38}],4:[function(_dereq_,module,exports){
+},{"./global.js":17,"./queue.js":28,"./schedule.js":31,"./util.js":39}],5:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -441,7 +3357,7 @@ module.exports = new Async();
 "use strict";
 var Promise = _dereq_("./promise.js")();
 module.exports = Promise;
-},{"./promise.js":20}],5:[function(_dereq_,module,exports){
+},{"./promise.js":21}],6:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -496,7 +3412,7 @@ Promise.prototype.get = function Promise$get(propertyName) {
 };
 };
 
-},{}],6:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -571,7 +3487,7 @@ function Promise$fork(didFulfill, didReject, didProgress) {
 };
 };
 
-},{"./async.js":3,"./errors.js":10}],7:[function(_dereq_,module,exports){
+},{"./async.js":4,"./errors.js":11}],8:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -795,7 +3711,7 @@ var captureStackTrace = (function stackDetection() {
 return CapturedTrace;
 };
 
-},{"./es5.js":12,"./util.js":38}],8:[function(_dereq_,module,exports){
+},{"./es5.js":13,"./util.js":39}],9:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -891,7 +3807,7 @@ CatchFilter.prototype.doFilter = function CatchFilter$_doFilter(e) {
 return CatchFilter;
 };
 
-},{"./errors.js":10,"./es5.js":12,"./util.js":38}],9:[function(_dereq_,module,exports){
+},{"./errors.js":11,"./es5.js":13,"./util.js":39}],10:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -972,7 +3888,7 @@ function Promise$thenThrow(reason) {
 };
 };
 
-},{"./util.js":38}],10:[function(_dereq_,module,exports){
+},{"./util.js":39}],11:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1088,7 +4004,7 @@ module.exports = {
     canAttach: canAttach
 };
 
-},{"./es5.js":12,"./global.js":16,"./util.js":38}],11:[function(_dereq_,module,exports){
+},{"./es5.js":13,"./global.js":17,"./util.js":39}],12:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1128,7 +4044,7 @@ function apiRejection(msg) {
 return apiRejection;
 };
 
-},{"./errors.js":10}],12:[function(_dereq_,module,exports){
+},{"./errors.js":11}],13:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1219,7 +4135,7 @@ else {
     };
 }
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1272,7 +4188,7 @@ Promise.prototype.filter = function Promise$filter(fn) {
 };
 };
 
-},{"./util.js":38}],14:[function(_dereq_,module,exports){
+},{"./util.js":39}],15:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1397,7 +4313,7 @@ Promise.prototype.tap = function Promise$tap(handler) {
 };
 };
 
-},{"./util.js":38}],15:[function(_dereq_,module,exports){
+},{"./util.js":39}],16:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1455,7 +4371,7 @@ Promise.spawn = function Promise$Spawn(generatorFunction) {
 };
 };
 
-},{"./errors.js":10,"./promise_spawn.js":23,"./util.js":38}],16:[function(_dereq_,module,exports){
+},{"./errors.js":11,"./promise_spawn.js":24,"./util.js":39}],17:[function(_dereq_,module,exports){
 (function (process,global){
 /**
  * Copyright (c) 2014 Petka Antonov
@@ -1501,7 +4417,7 @@ if (typeof window !== "undefined" &&
 })();
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53}],17:[function(_dereq_,module,exports){
+},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54}],18:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1679,7 +4595,7 @@ Promise.map = function Promise$Map(promises, fn, ref) {
 };
 };
 
-},{"./errors.js":10,"./util.js":38}],18:[function(_dereq_,module,exports){
+},{"./errors.js":11,"./util.js":39}],19:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1743,7 +4659,7 @@ Promise.prototype.nodeify = function Promise$nodeify(nodeback) {
 };
 };
 
-},{"./async.js":3,"./util.js":38}],19:[function(_dereq_,module,exports){
+},{"./async.js":4,"./util.js":39}],20:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -1856,7 +4772,7 @@ function Promise$_progressUnchecked(progressValue) {
 };
 };
 
-},{"./async.js":3,"./errors.js":10,"./util.js":38}],20:[function(_dereq_,module,exports){
+},{"./async.js":4,"./errors.js":11,"./util.js":39}],21:[function(_dereq_,module,exports){
 (function (process){
 /**
  * Copyright (c) 2014 Petka Antonov
@@ -2992,7 +5908,7 @@ return Promise;
 };
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./any.js":2,"./async.js":3,"./call_get.js":5,"./cancel.js":6,"./captured_trace.js":7,"./catch_filter.js":8,"./direct_resolve.js":9,"./errors.js":10,"./errors_api_rejection":11,"./filter.js":13,"./finally.js":14,"./generators.js":15,"./global.js":16,"./map.js":17,"./nodeify.js":18,"./progress.js":19,"./promise_array.js":21,"./promise_resolver.js":22,"./promisify.js":24,"./props.js":26,"./race.js":28,"./reduce.js":29,"./settle.js":31,"./some.js":33,"./synchronous_inspection.js":35,"./thenables.js":36,"./timers.js":37,"./util.js":38,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53}],21:[function(_dereq_,module,exports){
+},{"./any.js":3,"./async.js":4,"./call_get.js":6,"./cancel.js":7,"./captured_trace.js":8,"./catch_filter.js":9,"./direct_resolve.js":10,"./errors.js":11,"./errors_api_rejection":12,"./filter.js":14,"./finally.js":15,"./generators.js":16,"./global.js":17,"./map.js":18,"./nodeify.js":19,"./progress.js":20,"./promise_array.js":22,"./promise_resolver.js":23,"./promisify.js":25,"./props.js":27,"./race.js":29,"./reduce.js":30,"./settle.js":32,"./some.js":34,"./synchronous_inspection.js":36,"./thenables.js":37,"./timers.js":38,"./util.js":39,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54}],22:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3226,7 +6142,7 @@ function PromiseArray$_promiseRejected(reason, index) {
 return PromiseArray;
 };
 
-},{"./async.js":3,"./errors.js":10,"./util.js":38}],22:[function(_dereq_,module,exports){
+},{"./async.js":4,"./errors.js":11,"./util.js":39}],23:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3380,7 +6296,7 @@ function PromiseResolver$_setCarriedStackTrace(trace) {
 
 module.exports = PromiseResolver;
 
-},{"./async.js":3,"./errors.js":10,"./es5.js":12,"./util.js":38}],23:[function(_dereq_,module,exports){
+},{"./async.js":4,"./errors.js":11,"./es5.js":13,"./util.js":39}],24:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3512,7 +6428,7 @@ PromiseSpawn.addYieldHandler = function PromiseSpawn$AddYieldHandler(fn) {
 return PromiseSpawn;
 };
 
-},{"./errors.js":10,"./util.js":38}],24:[function(_dereq_,module,exports){
+},{"./errors.js":11,"./util.js":39}],25:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3792,7 +6708,7 @@ Promise.promisifyAll = function Promise$PromisifyAll(target) {
 };
 
 
-},{"./es5.js":12,"./promise_resolver.js":22,"./util.js":38}],25:[function(_dereq_,module,exports){
+},{"./es5.js":13,"./promise_resolver.js":23,"./util.js":39}],26:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3871,7 +6787,7 @@ PromiseArray.PropertiesPromiseArray = PropertiesPromiseArray;
 return PropertiesPromiseArray;
 };
 
-},{"./es5.js":12,"./util.js":38}],26:[function(_dereq_,module,exports){
+},{"./es5.js":13,"./util.js":39}],27:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -3937,7 +6853,7 @@ Promise.props = function Promise$Props(promises) {
 };
 };
 
-},{"./errors_api_rejection":11,"./properties_promise_array.js":25,"./util.js":38}],27:[function(_dereq_,module,exports){
+},{"./errors_api_rejection":12,"./properties_promise_array.js":26,"./util.js":39}],28:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4074,7 +6990,7 @@ Queue.prototype._resizeTo = function Queue$_resizeTo(capacity) {
 
 module.exports = Queue;
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4160,7 +7076,7 @@ Promise.prototype.race = function Promise$race() {
 
 };
 
-},{"./errors_api_rejection.js":11,"./util.js":38}],29:[function(_dereq_,module,exports){
+},{"./errors_api_rejection.js":12,"./util.js":39}],30:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4323,7 +7239,7 @@ Promise.prototype.reduce = function Promise$reduce(fn, initialValue) {
 };
 };
 
-},{}],30:[function(_dereq_,module,exports){
+},{}],31:[function(_dereq_,module,exports){
 (function (process){
 /**
  * Copyright (c) 2014 Petka Antonov
@@ -4448,7 +7364,7 @@ else {
 module.exports = schedule;
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./global.js":16,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53}],31:[function(_dereq_,module,exports){
+},{"./global.js":17,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54}],32:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4497,7 +7413,7 @@ Promise.prototype.settle = function Promise$settle() {
 };
 };
 
-},{"./settled_promise_array.js":32}],32:[function(_dereq_,module,exports){
+},{"./settled_promise_array.js":33}],33:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4559,7 +7475,7 @@ function SettledPromiseArray$_promiseRejected(reason, index) {
 return SettledPromiseArray;
 };
 
-},{"./util.js":38}],33:[function(_dereq_,module,exports){
+},{"./util.js":39}],34:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4617,7 +7533,7 @@ Promise.prototype.some = function Promise$some(count) {
 
 };
 
-},{"./some_promise_array.js":34}],34:[function(_dereq_,module,exports){
+},{"./some_promise_array.js":35}],35:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4750,7 +7666,7 @@ function SomePromiseArray$_canPossiblyFulfill() {
 return SomePromiseArray;
 };
 
-},{"./errors.js":10,"./util.js":38}],35:[function(_dereq_,module,exports){
+},{"./errors.js":11,"./util.js":39}],36:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4831,7 +7747,7 @@ Promise.prototype.inspect = function Promise$inspect() {
 Promise.PromiseInspection = PromiseInspection;
 };
 
-},{}],36:[function(_dereq_,module,exports){
+},{}],37:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -4968,7 +7884,7 @@ function Promise$_doThenable(x, then, originalPromise) {
 Promise._cast = Promise$_Cast;
 };
 
-},{"./errors.js":10,"./util.js":38}],37:[function(_dereq_,module,exports){
+},{"./errors.js":11,"./util.js":39}],38:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -5073,7 +7989,7 @@ Promise.prototype.timeout = function Promise$timeout(ms, message) {
 
 };
 
-},{"./errors.js":10,"./errors_api_rejection":11,"./global.js":16,"./util.js":38}],38:[function(_dereq_,module,exports){
+},{"./errors.js":11,"./errors_api_rejection":12,"./global.js":17,"./util.js":39}],39:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2014 Petka Antonov
  * 
@@ -5268,9 +8184,9 @@ var ret = {
 
 module.exports = ret;
 
-},{"./es5.js":12,"./global.js":16}],39:[function(_dereq_,module,exports){
+},{"./es5.js":13,"./global.js":17}],40:[function(_dereq_,module,exports){
 
-},{}],40:[function(_dereq_,module,exports){
+},{}],41:[function(_dereq_,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -5632,14 +8548,14 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":42}],41:[function(_dereq_,module,exports){
+},{"util/":43}],42:[function(_dereq_,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],42:[function(_dereq_,module,exports){
+},{}],43:[function(_dereq_,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -6229,7 +9145,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":41,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53,"inherits":52}],43:[function(_dereq_,module,exports){
+},{"./support/isBuffer":42,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54,"inherits":53}],44:[function(_dereq_,module,exports){
 /**
  * The buffer module from node.js, for the browser.
  *
@@ -7346,7 +10262,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":44,"ieee754":45}],44:[function(_dereq_,module,exports){
+},{"base64-js":45,"ieee754":46}],45:[function(_dereq_,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -7469,7 +10385,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	module.exports.fromByteArray = uint8ToBase64
 }())
 
-},{}],45:[function(_dereq_,module,exports){
+},{}],46:[function(_dereq_,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -7555,7 +10471,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],46:[function(_dereq_,module,exports){
+},{}],47:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7857,7 +10773,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],47:[function(_dereq_,module,exports){
+},{}],48:[function(_dereq_,module,exports){
 var http = module.exports;
 var EventEmitter = _dereq_('events').EventEmitter;
 var Request = _dereq_('./lib/request');
@@ -7996,7 +10912,7 @@ http.STATUS_CODES = {
     510 : 'Not Extended',               // RFC 2774
     511 : 'Network Authentication Required' // RFC 6585
 };
-},{"./lib/request":48,"events":46,"url":66}],48:[function(_dereq_,module,exports){
+},{"./lib/request":49,"events":47,"url":67}],49:[function(_dereq_,module,exports){
 var Stream = _dereq_('stream');
 var Response = _dereq_('./response');
 var Base64 = _dereq_('Base64');
@@ -8187,7 +11103,7 @@ var indexOf = function (xs, x) {
     return -1;
 };
 
-},{"./response":49,"Base64":50,"inherits":52,"stream":59}],49:[function(_dereq_,module,exports){
+},{"./response":50,"Base64":51,"inherits":53,"stream":60}],50:[function(_dereq_,module,exports){
 var Stream = _dereq_('stream');
 var util = _dereq_('util');
 
@@ -8309,7 +11225,7 @@ var isArray = Array.isArray || function (xs) {
     return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{"stream":59,"util":68}],50:[function(_dereq_,module,exports){
+},{"stream":60,"util":69}],51:[function(_dereq_,module,exports){
 ;(function () {
 
   var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
@@ -8371,7 +11287,7 @@ var isArray = Array.isArray || function (xs) {
 
 }());
 
-},{}],51:[function(_dereq_,module,exports){
+},{}],52:[function(_dereq_,module,exports){
 var http = _dereq_('http');
 
 var https = module.exports;
@@ -8386,7 +11302,7 @@ https.request = function (params, cb) {
     return http.request.call(this, params, cb);
 }
 
-},{"http":47}],52:[function(_dereq_,module,exports){
+},{"http":48}],53:[function(_dereq_,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -8411,7 +11327,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],53:[function(_dereq_,module,exports){
+},{}],54:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -8473,7 +11389,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],54:[function(_dereq_,module,exports){
+},{}],55:[function(_dereq_,module,exports){
 (function (global){
 /*! http://mths.be/punycode v1.2.4 by @mathias */
 ;(function(root) {
@@ -8984,7 +11900,7 @@ process.chdir = function (dir) {
 }(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],55:[function(_dereq_,module,exports){
+},{}],56:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9070,7 +11986,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],56:[function(_dereq_,module,exports){
+},{}],57:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9157,13 +12073,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],57:[function(_dereq_,module,exports){
+},{}],58:[function(_dereq_,module,exports){
 'use strict';
 
 exports.decode = exports.parse = _dereq_('./decode');
 exports.encode = exports.stringify = _dereq_('./encode');
 
-},{"./decode":55,"./encode":56}],58:[function(_dereq_,module,exports){
+},{"./decode":56,"./encode":57}],59:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9237,7 +12153,7 @@ function onend() {
   });
 }
 
-},{"./readable.js":62,"./writable.js":64,"inherits":52,"process/browser.js":60}],59:[function(_dereq_,module,exports){
+},{"./readable.js":63,"./writable.js":65,"inherits":53,"process/browser.js":61}],60:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9366,7 +12282,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"./duplex.js":58,"./passthrough.js":61,"./readable.js":62,"./transform.js":63,"./writable.js":64,"events":46,"inherits":52}],60:[function(_dereq_,module,exports){
+},{"./duplex.js":59,"./passthrough.js":62,"./readable.js":63,"./transform.js":64,"./writable.js":65,"events":47,"inherits":53}],61:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -9421,7 +12337,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],61:[function(_dereq_,module,exports){
+},{}],62:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9464,7 +12380,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./transform.js":63,"inherits":52}],62:[function(_dereq_,module,exports){
+},{"./transform.js":64,"inherits":53}],63:[function(_dereq_,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -10401,7 +13317,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./index.js":59,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53,"buffer":43,"events":46,"inherits":52,"process/browser.js":60,"string_decoder":65}],63:[function(_dereq_,module,exports){
+},{"./index.js":60,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54,"buffer":44,"events":47,"inherits":53,"process/browser.js":61,"string_decoder":66}],64:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10607,7 +13523,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./duplex.js":58,"inherits":52}],64:[function(_dereq_,module,exports){
+},{"./duplex.js":59,"inherits":53}],65:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -10995,7 +13911,7 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./index.js":59,"buffer":43,"inherits":52,"process/browser.js":60}],65:[function(_dereq_,module,exports){
+},{"./index.js":60,"buffer":44,"inherits":53,"process/browser.js":61}],66:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -11188,7 +14104,7 @@ function base64DetectIncompleteChar(buffer) {
   return incomplete;
 }
 
-},{"buffer":43}],66:[function(_dereq_,module,exports){
+},{"buffer":44}],67:[function(_dereq_,module,exports){
 /*jshint strict:true node:true es5:true onevar:true laxcomma:true laxbreak:true eqeqeq:true immed:true latedef:true*/
 (function () {
   "use strict";
@@ -11821,11 +14737,11 @@ function parseHost(host) {
 
 }());
 
-},{"punycode":54,"querystring":57}],67:[function(_dereq_,module,exports){
-module.exports=_dereq_(41)
-},{}],68:[function(_dereq_,module,exports){
+},{"punycode":55,"querystring":58}],68:[function(_dereq_,module,exports){
 module.exports=_dereq_(42)
-},{"./support/isBuffer":67,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53,"inherits":52}],69:[function(_dereq_,module,exports){
+},{}],69:[function(_dereq_,module,exports){
+module.exports=_dereq_(43)
+},{"./support/isBuffer":68,"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54,"inherits":53}],70:[function(_dereq_,module,exports){
 // Generated by LiveScript 1.2.0
 /** ^
  * Copyright (c) 2013 Quildreen Motta
@@ -12034,7 +14950,7 @@ module.exports=_dereq_(42)
   }
 }).call(this);
 
-},{}],70:[function(_dereq_,module,exports){
+},{}],71:[function(_dereq_,module,exports){
 (function (global){
 /**
  * @license
@@ -18823,7 +21739,7 @@ module.exports=_dereq_(42)
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],71:[function(_dereq_,module,exports){
+},{}],72:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, events, nodes, raml, util, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -19053,7 +21969,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./events":74,"./nodes":77,"./raml":80,"./util":90}],72:[function(_dereq_,module,exports){
+},{"./errors":74,"./events":75,"./nodes":78,"./raml":81,"./util":91}],73:[function(_dereq_,module,exports){
 (function (Buffer){
 (function() {
   var MarkedYAMLError, nodes, util, _ref, _ref1,
@@ -19620,7 +22536,7 @@ module.exports=_dereq_(42)
 }).call(this);
 
 }).call(this,_dereq_("buffer").Buffer)
-},{"./errors":73,"./nodes":77,"./util":90,"buffer":43}],73:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78,"./util":91,"buffer":44}],74:[function(_dereq_,module,exports){
 (function() {
   var _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
@@ -19759,7 +22675,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{}],74:[function(_dereq_,module,exports){
+},{}],75:[function(_dereq_,module,exports){
 (function() {
   var _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __hasProp = {}.hasOwnProperty,
@@ -19949,7 +22865,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{}],75:[function(_dereq_,module,exports){
+},{}],76:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, nodes, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -20059,7 +22975,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77}],76:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78}],77:[function(_dereq_,module,exports){
 (function() {
   var composer, construct, joiner, parser, protocols, reader, resolver, scanner, schemas, securitySchemes, traits, transformations, types, util, validator;
 
@@ -20174,7 +23090,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./composer":71,"./construct":72,"./joiner":75,"./parser":78,"./protocols":79,"./reader":81,"./resolver":82,"./resourceTypes":83,"./scanner":84,"./schemas":85,"./securitySchemes":86,"./traits":88,"./transformations":89,"./util":90,"./validator":91}],77:[function(_dereq_,module,exports){
+},{"./composer":72,"./construct":73,"./joiner":76,"./parser":79,"./protocols":80,"./reader":82,"./resolver":83,"./resourceTypes":84,"./scanner":85,"./schemas":86,"./securitySchemes":87,"./traits":89,"./transformations":90,"./util":91,"./validator":92}],78:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, unique_id, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
@@ -20472,7 +23388,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73}],78:[function(_dereq_,module,exports){
+},{"./errors":74}],79:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, events, tokens, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -21083,7 +23999,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./events":74,"./tokens":87}],79:[function(_dereq_,module,exports){
+},{"./errors":74,"./events":75,"./tokens":88}],80:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, nodes, url, util,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -21164,7 +24080,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77,"./util":90,"url":66}],80:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78,"./util":91,"url":67}],81:[function(_dereq_,module,exports){
 (function() {
   var defaultSettings, util, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -21570,7 +24486,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./loader":76,"./nodes":77,"./util":90,"fs":39,"q":94,"url":66,"xmlhttprequest":96}],81:[function(_dereq_,module,exports){
+},{"./errors":74,"./loader":77,"./nodes":78,"./util":91,"fs":40,"q":95,"url":67,"xmlhttprequest":97}],82:[function(_dereq_,module,exports){
 (function() {
   var Mark, MarkedYAMLError, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
@@ -21673,7 +24589,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73}],82:[function(_dereq_,module,exports){
+},{"./errors":74}],83:[function(_dereq_,module,exports){
 (function() {
   var YAMLError, nodes, util, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
@@ -21882,7 +24798,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77,"./util":90}],83:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78,"./util":91}],84:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, nodes, util, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -22071,7 +24987,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77,"./util":90}],84:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78,"./util":91}],85:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, SimpleKey, tokens, util, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -23576,7 +26492,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./tokens":87,"./util":90}],85:[function(_dereq_,module,exports){
+},{"./errors":74,"./tokens":88,"./util":91}],86:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, nodes, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -23677,7 +26593,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77}],86:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78}],87:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, nodes, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -23749,7 +26665,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77}],87:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78}],88:[function(_dereq_,module,exports){
 (function() {
   var _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
     __hasProp = {}.hasOwnProperty,
@@ -24056,7 +26972,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{}],88:[function(_dereq_,module,exports){
+},{}],89:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, inflection, nodes, util, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
@@ -24314,7 +27230,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77,"./util":90,"inflection":92}],89:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78,"./util":91,"inflection":93}],90:[function(_dereq_,module,exports){
 (function() {
   var nodes, uritemplate, util,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -24831,7 +27747,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./nodes":77,"./util":90,"uritemplate":95}],90:[function(_dereq_,module,exports){
+},{"./nodes":78,"./util":91,"uritemplate":96}],91:[function(_dereq_,module,exports){
 (function() {
   var __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
@@ -24911,7 +27827,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{}],91:[function(_dereq_,module,exports){
+},{}],92:[function(_dereq_,module,exports){
 (function() {
   var MarkedYAMLError, jsonlint, nodes, traits, uritemplate, url, util, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -26436,7 +29352,7 @@ module.exports=_dereq_(42)
 
 }).call(this);
 
-},{"./errors":73,"./nodes":77,"./traits":88,"./util":90,"json-lint":93,"uritemplate":95,"url":66}],92:[function(_dereq_,module,exports){
+},{"./errors":74,"./nodes":78,"./traits":89,"./util":91,"json-lint":94,"uritemplate":96,"url":67}],93:[function(_dereq_,module,exports){
 /*!
  * inflection
  * Copyright(c) 2011 Ben Lin <ben@dreamerslab.com>
@@ -27086,7 +30002,7 @@ module.exports=_dereq_(42)
   module.exports = inflector;
 })( this );
 
-},{}],93:[function(_dereq_,module,exports){
+},{}],94:[function(_dereq_,module,exports){
 (function( glob, undefined ) {
 
 var rnumber = /[0-9]/,
@@ -27593,7 +30509,7 @@ else {
 
 })( this );
 
-},{}],94:[function(_dereq_,module,exports){
+},{}],95:[function(_dereq_,module,exports){
 (function (process){
 // vim:ts=4:sts=4:sw=4:
 /*!
@@ -29534,7 +32450,7 @@ return Q;
 });
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53}],95:[function(_dereq_,module,exports){
+},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54}],96:[function(_dereq_,module,exports){
 (function (global){
 /*global unescape, module, define, window, global*/
 
@@ -30423,7 +33339,7 @@ var UriTemplate = (function () {
 ));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],96:[function(_dereq_,module,exports){
+},{}],97:[function(_dereq_,module,exports){
 (function (process,Buffer){
 /**
  * Wrapper for built-in http.js to emulate the browser XMLHttpRequest object.
@@ -31026,7 +33942,7 @@ exports.XMLHttpRequest = function() {
 };
 
 }).call(this,_dereq_("/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),_dereq_("buffer").Buffer)
-},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":53,"buffer":43,"child_process":39,"fs":39,"http":47,"https":51,"url":66}],97:[function(_dereq_,module,exports){
+},{"/private/var/www/appgyver/steroids/steroids-data/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":54,"buffer":44,"child_process":40,"fs":40,"http":48,"https":52,"url":67}],98:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -32032,7 +34948,7 @@ request.put = function(url, data, fn){
 
 module.exports = request;
 
-},{"emitter":98,"reduce":99}],98:[function(_dereq_,module,exports){
+},{"emitter":99,"reduce":100}],99:[function(_dereq_,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -32190,7 +35106,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],99:[function(_dereq_,module,exports){
+},{}],100:[function(_dereq_,module,exports){
 
 /**
  * Reduce `arr` with `fn`.
@@ -32215,10 +35131,11 @@ module.exports = function(arr, fn, initial){
   
   return curr;
 };
-},{}],100:[function(_dereq_,module,exports){
+},{}],101:[function(_dereq_,module,exports){
 module.exports = {
   ajax: _dereq_('./data/ajax'),
   types: _dereq_('./data/types'),
+  reactive: _dereq_('./data/reactive'),
   resource: _dereq_('./data/resource'),
   resources: {
     restful: _dereq_('./data/resources/restful'),
@@ -32232,7 +35149,7 @@ module.exports = {
 };
 
 
-},{"./data/ajax":101,"./data/resource":102,"./data/resources/builtio":103,"./data/resources/raml":104,"./data/resources/restful":105,"./data/schema/json":106,"./data/schema/raml":107,"./data/types":108}],101:[function(_dereq_,module,exports){
+},{"./data/ajax":102,"./data/reactive":103,"./data/resource":104,"./data/resources/builtio":105,"./data/resources/raml":106,"./data/resources/restful":107,"./data/schema/json":108,"./data/schema/raml":109,"./data/types":110}],102:[function(_dereq_,module,exports){
 var Promise, ajax, request, requestBuilderToResponsePromise, requestDataByMethod, responsetoResponseBody, superagent;
 
 superagent = _dereq_('superagent');
@@ -32314,7 +35231,35 @@ module.exports = ajax = {
 };
 
 
-},{"bluebird":4,"superagent":97}],102:[function(_dereq_,module,exports){
+},{"bluebird":5,"superagent":98}],103:[function(_dereq_,module,exports){
+var Bacon, visibilityState, whenVisible;
+
+Bacon = _dereq_('baconjs').Bacon;
+
+visibilityState = Bacon.fromEventTarget(window.document, 'visibilitychange').map(function(event) {
+  var _ref;
+  return (_ref = event.target) != null ? _ref.visibilityState : void 0;
+}).toProperty(window.document.visibilityState).map(function(stateString) {
+  switch (stateString) {
+    case "visible":
+      return true;
+    case "hidden":
+      return false;
+    default:
+      return false;
+  }
+});
+
+whenVisible = visibilityState.filter(function(v) {
+  return v;
+});
+
+module.exports = {
+  whenVisible: whenVisible
+};
+
+
+},{"baconjs":2}],104:[function(_dereq_,module,exports){
 var ResourceProxy, ramlSchemaFromFile, ramlSchemaToResource, resourceByName, schema,
   __slice = [].slice;
 
@@ -32367,7 +35312,7 @@ module.exports = resourceByName = function(name) {
 };
 
 
-},{"./resources/raml":104,"./schema/raml":107}],103:[function(_dereq_,module,exports){
+},{"./resources/raml":106,"./schema/raml":109}],105:[function(_dereq_,module,exports){
 var builtio, builtioResourceBaseUrl, restful, types;
 
 restful = _dereq_('./restful');
@@ -32425,7 +35370,7 @@ module.exports = builtio = function(_arg) {
 };
 
 
-},{"../types":108,"./restful":105}],104:[function(_dereq_,module,exports){
+},{"../types":110,"./restful":107}],106:[function(_dereq_,module,exports){
 var ramlResourceFromSchema, requestValidationForAction, responseValidationsForAction, restful, types, uriToFunction, _;
 
 _ = _dereq_('lodash');
@@ -32506,7 +35451,7 @@ module.exports = ramlResourceFromSchema = function(resourceName) {
 };
 
 
-},{"../types":108,"./restful":105,"lodash":70}],105:[function(_dereq_,module,exports){
+},{"../types":110,"./restful":107,"lodash":71}],107:[function(_dereq_,module,exports){
 var Failure, Promise, Success, ajax, assert, deepDefaults, defaults, merge, partialRight, responseValidator, rest, restMethodBuilder, restful, types, validationToPromise, validatorToPromised, validatorToResponseValidator, _ref, _ref1,
   __slice = [].slice;
 
@@ -32661,7 +35606,7 @@ module.exports = restful = function(options, apiDescriptor) {
 };
 
 
-},{"../ajax":101,"../types":108,"assert-plus":1,"bluebird":4,"data.validation":69,"lodash":70}],106:[function(_dereq_,module,exports){
+},{"../ajax":102,"../types":110,"assert-plus":1,"bluebird":5,"data.validation":70,"lodash":71}],108:[function(_dereq_,module,exports){
 var Failure, Success, ajax, arrayTypeFromItemSchema, contains, mapValues, objectTypeFromPropertySchema, typeFromJsonSchema, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), mapValues = _ref.mapValues, contains = _ref.contains;
@@ -32720,7 +35665,7 @@ module.exports = {
 };
 
 
-},{"../ajax":101,"../types":108,"data.validation":69,"lodash":70}],107:[function(_dereq_,module,exports){
+},{"../ajax":102,"../types":110,"data.validation":70,"lodash":71}],109:[function(_dereq_,module,exports){
 var FileReader, Promise, ServiceSchema, ajax, ramlParser, _,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -32971,7 +35916,7 @@ module.exports = {
 };
 
 
-},{"../ajax":101,"bluebird":4,"lodash":70,"raml-parser":80}],108:[function(_dereq_,module,exports){
+},{"../ajax":102,"bluebird":5,"lodash":71,"raml-parser":81}],110:[function(_dereq_,module,exports){
 var Failure, Success, isArray, isObject, listSequence, map, mapValues, nativeTypeValidator, objectSequence, objectWithProperty, pairs, pairsToObject, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), pairs = _ref.pairs, map = _ref.map, mapValues = _ref.mapValues;
@@ -33165,6 +36110,6 @@ module.exports = types = {
 };
 
 
-},{"data.validation":69,"lodash":70}]},{},[100])
-(100)
+},{"data.validation":70,"lodash":71}]},{},[101])
+(101)
 });;
