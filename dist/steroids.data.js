@@ -35145,11 +35145,12 @@ module.exports = {
   schema: {
     json: _dereq_('./data/schema/json'),
     raml: _dereq_('./data/schema/raml')
-  }
+  },
+  storage: _dereq_('./data/storage')
 };
 
 
-},{"./data/ajax":102,"./data/reactive":103,"./data/resource":104,"./data/resources/builtio":105,"./data/resources/raml":106,"./data/resources/restful":107,"./data/schema/json":108,"./data/schema/raml":109,"./data/types":110}],102:[function(_dereq_,module,exports){
+},{"./data/ajax":102,"./data/reactive":103,"./data/resource":104,"./data/resources/builtio":105,"./data/resources/raml":106,"./data/resources/restful":107,"./data/schema/json":108,"./data/schema/raml":109,"./data/storage":110,"./data/types":111}],102:[function(_dereq_,module,exports){
 var Promise, ajax, request, requestBuilderToResponsePromise, requestDataByMethod, responsetoResponseBody, superagent;
 
 superagent = _dereq_('superagent');
@@ -35370,7 +35371,7 @@ module.exports = builtio = function(_arg) {
 };
 
 
-},{"../types":110,"./restful":107}],106:[function(_dereq_,module,exports){
+},{"../types":111,"./restful":107}],106:[function(_dereq_,module,exports){
 var ramlResourceFromSchema, requestValidationForAction, responseValidationsForAction, restful, types, uriToFunction, _;
 
 _ = _dereq_('lodash');
@@ -35451,7 +35452,7 @@ module.exports = ramlResourceFromSchema = function(resourceName) {
 };
 
 
-},{"../types":110,"./restful":107,"lodash":71}],107:[function(_dereq_,module,exports){
+},{"../types":111,"./restful":107,"lodash":71}],107:[function(_dereq_,module,exports){
 var Failure, Promise, Success, ajax, assert, deepDefaults, defaults, merge, partialRight, responseValidator, rest, restMethodBuilder, restful, types, validationToPromise, validatorToPromised, validatorToResponseValidator, _ref, _ref1,
   __slice = [].slice;
 
@@ -35606,7 +35607,7 @@ module.exports = restful = function(options, apiDescriptor) {
 };
 
 
-},{"../ajax":102,"../types":110,"assert-plus":1,"bluebird":5,"data.validation":70,"lodash":71}],108:[function(_dereq_,module,exports){
+},{"../ajax":102,"../types":111,"assert-plus":1,"bluebird":5,"data.validation":70,"lodash":71}],108:[function(_dereq_,module,exports){
 var Failure, Success, ajax, arrayTypeFromItemSchema, contains, mapValues, objectTypeFromPropertySchema, typeFromJsonSchema, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), mapValues = _ref.mapValues, contains = _ref.contains;
@@ -35665,7 +35666,7 @@ module.exports = {
 };
 
 
-},{"../ajax":102,"../types":110,"data.validation":70,"lodash":71}],109:[function(_dereq_,module,exports){
+},{"../ajax":102,"../types":111,"data.validation":70,"lodash":71}],109:[function(_dereq_,module,exports){
 var FileReader, Promise, ServiceSchema, ajax, ramlParser, _,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35917,6 +35918,111 @@ module.exports = {
 
 
 },{"../ajax":102,"bluebird":5,"lodash":71,"raml-parser":81}],110:[function(_dereq_,module,exports){
+var Bacon, LocalStorageProperty, PubSubChannel,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __slice = [].slice;
+
+Bacon = _dereq_('baconjs').Bacon;
+
+PubSubChannel = (function() {
+  var inboundStream, outboundBus;
+
+  outboundBus = function(name) {
+    var bus;
+    bus = new Bacon.Bus;
+    bus.map(function(message) {
+      return {
+        channel: name,
+        message: message
+      };
+    }).onValue(function(data) {
+      return window.postMessage(data);
+    });
+    return bus;
+  };
+
+  inboundStream = function(name) {
+    return Bacon.fromEventTarget(window, "message").filter(function(event) {
+      return event.data.channel === name;
+    }).map(function(event) {
+      return event.data.message;
+    });
+  };
+
+  function PubSubChannel(name) {
+    this.name = name;
+    this.subscribe = __bind(this.subscribe, this);
+    this.publish = __bind(this.publish, this);
+    this.outbound = outboundBus(this.name);
+    this.inbound = inboundStream(this.name);
+  }
+
+  PubSubChannel.prototype.publish = function() {
+    var args;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return this.outbound.push(args);
+  };
+
+  PubSubChannel.prototype.subscribe = function(listener) {
+    return this.inbound.onValue(function(args) {
+      return listener.apply(null, args);
+    });
+  };
+
+  return PubSubChannel;
+
+})();
+
+LocalStorageProperty = (function() {
+  LocalStorageProperty.prototype._channel = null;
+
+  LocalStorageProperty.prototype._defaultValue = null;
+
+  LocalStorageProperty.prototype.name = null;
+
+  LocalStorageProperty.prototype.values = null;
+
+  function LocalStorageProperty(name, _defaultValue) {
+    this.name = name;
+    this._defaultValue = _defaultValue != null ? _defaultValue : null;
+    this._channel = new PubSubChannel("steroids.data.storage.LocalStorageProperty:" + this.name);
+    this.values = this._channel.outbound.merge(this._channel.inbound).toProperty(this.get()).skipDuplicates();
+  }
+
+  LocalStorageProperty.prototype.set = function(value) {
+    localStorage.setItem(this.name, JSON.stringify(value));
+    this._channel.publish(value);
+    return this;
+  };
+
+  LocalStorageProperty.prototype.get = function() {
+    var value;
+    value = localStorage.getItem(this.name);
+    if (value != null) {
+      return JSON.parse(value);
+    } else {
+      return this._defaultValue;
+    }
+  };
+
+  LocalStorageProperty.prototype.unset = function() {
+    localStorage.removeItem(this.name);
+    this._channel.publish(this._defaultValue);
+    return this;
+  };
+
+  return LocalStorageProperty;
+
+})();
+
+module.exports = {
+  property: function(name) {
+    return new LocalStorageProperty(name);
+  }
+};
+
+
+},{"baconjs":2}],111:[function(_dereq_,module,exports){
 var Failure, Success, isArray, isObject, listSequence, map, mapValues, nativeTypeValidator, objectSequence, objectWithProperty, pairs, pairsToObject, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), pairs = _ref.pairs, map = _ref.map, mapValues = _ref.mapValues;
