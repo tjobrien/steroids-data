@@ -22,12 +22,11 @@ class PubSubChannel
     @outbound = outboundBus @name
     @inbound = inboundStream @name
 
-  publish: (args...) =>
-    @outbound.push args
+  publish: (value) =>
+    @outbound.push value
 
   subscribe: (listener) =>
-    @inbound.onValue (args) ->
-      listener args...
+    @inbound.onValue listener
 
 class LocalStorageProperty
   _channel: null
