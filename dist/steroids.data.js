@@ -35919,8 +35919,7 @@ module.exports = {
 
 },{"../ajax":102,"bluebird":5,"lodash":71,"raml-parser":81}],110:[function(_dereq_,module,exports){
 var Bacon, LocalStorageProperty, PubSubChannel,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __slice = [].slice;
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Bacon = _dereq_('baconjs').Bacon;
 
@@ -35957,16 +35956,12 @@ PubSubChannel = (function() {
     this.inbound = inboundStream(this.name);
   }
 
-  PubSubChannel.prototype.publish = function() {
-    var args;
-    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    return this.outbound.push(args);
+  PubSubChannel.prototype.publish = function(value) {
+    return this.outbound.push(value);
   };
 
   PubSubChannel.prototype.subscribe = function(listener) {
-    return this.inbound.onValue(function(args) {
-      return listener.apply(null, args);
-    });
+    return this.inbound.onValue(listener);
   };
 
   return PubSubChannel;
