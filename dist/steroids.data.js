@@ -35533,10 +35533,14 @@ rest = {
     assert.func(receive, 'receive');
     assert.optionalObject(options, 'options');
     return function() {
-      var args, url;
+      var args, head, query, tail, url, urlArgs, _i, _ref2;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      url = path.apply(null, args);
-      return ajax.request('get', url, options || {}).then(validatorToPromised(receive));
+      head = 2 <= args.length ? __slice.call(args, 0, _i = args.length - 1) : (_i = 0, []), tail = args[_i++];
+      _ref2 = typeof tail === 'object' ? [head, tail] : [args, {}], urlArgs = _ref2[0], query = _ref2[1];
+      url = path.apply(null, urlArgs);
+      return ajax.request('get', url, defaults({
+        query: query
+      }, options || {})).then(validatorToPromised(receive));
     };
   },
   poster: function(_arg) {

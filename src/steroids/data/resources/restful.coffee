@@ -54,10 +54,18 @@ rest =
     assert.optionalObject options, 'options'
 
     (args...) ->
-      url = path args...
+      # Use the last argument as query params if it's an object
+      # Use the rest to create a url
+      [head..., tail] = args
+      [urlArgs, query] = if typeof tail is 'object'
+          [head, tail]
+        else
+          [args, {}]
+
+      url = path urlArgs...
 
       ajax
-        .request('get', url, options || {})
+        .request('get', url, defaults({query}, options || {}))
         .then(validatorToPromised receive)
 
   # path: (data) -> url
