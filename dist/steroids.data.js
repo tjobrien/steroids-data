@@ -35372,7 +35372,8 @@ module.exports = builtio = function(_arg) {
 
 
 },{"../types":111,"./restful":107}],106:[function(_dereq_,module,exports){
-var ramlResourceFromSchema, requestValidationForAction, responseValidationsForAction, restful, types, uriToFunction, _;
+var ramlResourceFromSchema, requestValidationForAction, responseValidationsForAction, restful, types, uriToFunction, _,
+  __slice = [].slice;
 
 _ = _dereq_('lodash');
 
@@ -35395,8 +35396,14 @@ uriToFunction = function(uri) {
 responseValidationsForAction = (function() {
   var typeByRootKey;
   typeByRootKey = function(rootKey) {
+    var head, tail, _ref;
     if (rootKey) {
-      return types.Property(rootKey);
+      _ref = rootKey.split('.'), head = _ref[0], tail = 2 <= _ref.length ? __slice.call(_ref, 1) : [];
+      if (tail.length) {
+        return types.Property(head, typeByRootKey(tail.join('.')));
+      } else {
+        return types.Property(head);
+      }
     } else {
       return types.Any;
     }
