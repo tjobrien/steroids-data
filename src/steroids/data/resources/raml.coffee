@@ -10,7 +10,11 @@ uriToFunction = (uri) ->
 responseValidationsForAction = do ->
   typeByRootKey = (rootKey) ->
     if rootKey
-      types.Property rootKey
+      [head, tail...] = rootKey.split '.'
+      if tail.length
+        types.Property head, typeByRootKey tail.join '.'
+      else
+        types.Property head
     else
       types.Any
 
