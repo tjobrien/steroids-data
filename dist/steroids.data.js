@@ -35201,6 +35201,9 @@ request = function(method, path, options) {
     if (options.data) {
       requestBuilder.send(options.data);
     }
+    if (options.query) {
+      requestBuilder.query(options.query);
+    }
     if (options.type != null) {
       requestBuilder.type(options.type);
     }

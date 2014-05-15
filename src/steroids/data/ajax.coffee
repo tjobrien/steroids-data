@@ -39,6 +39,9 @@ request = (method, path, options = {}) ->
     if options.data
       requestBuilder.send options.data
 
+    if options.query
+      requestBuilder.query options.query
+
     if options.type?
       requestBuilder.type options.type
 
