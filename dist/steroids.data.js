@@ -35463,8 +35463,10 @@ module.exports = ramlResourceFromSchema = function(resourceName) {
 
 
 },{"../types":111,"./restful":107,"lodash":71}],107:[function(_dereq_,module,exports){
-var Failure, Promise, Success, ajax, assert, deepDefaults, defaults, merge, partialRight, responseValidator, rest, restMethodBuilder, restful, types, validationToPromise, validatorToPromised, validatorToResponseValidator, _ref, _ref1,
+var Failure, Promise, Success, ajax, assert, deepDefaults, defaults, merge, partialRight, responseValidator, rest, restMethodBuilder, restful, types, urlify, validationToPromise, validatorToPromised, validatorToResponseValidator, _, _ref, _ref1,
   __slice = [].slice;
+
+_ = _dereq_('lodash');
 
 assert = _dereq_('assert-plus');
 
@@ -35525,6 +35527,34 @@ responseValidator = function(responseDataValidator) {
   })(validatorToResponseValidator(responseDataValidator));
 };
 
+urlify = function(input) {
+  var item, key, value, _i, _len, _results;
+  if (input == null) {
+    return '';
+  }
+  switch (typeof input) {
+    case 'object':
+      return _.object((function() {
+        var _results;
+        _results = [];
+        for (key in input) {
+          value = input[key];
+          _results.push([key, urlify(value)]);
+        }
+        return _results;
+      })());
+    case 'array':
+      _results = [];
+      for (_i = 0, _len = input.length; _i < _len; _i++) {
+        item = input[_i];
+        _results.push(urlify(item));
+      }
+      return _results;
+    default:
+      return encodeURIComponent(input);
+  }
+};
+
 rest = {
   getter: function(_arg) {
     var options, path, receive;
@@ -35537,7 +35567,7 @@ rest = {
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       head = 2 <= args.length ? __slice.call(args, 0, _i = args.length - 1) : (_i = 0, []), tail = args[_i++];
       _ref2 = typeof tail === 'object' ? [head, tail] : [args, {}], urlArgs = _ref2[0], query = _ref2[1];
-      url = path.apply(null, urlArgs);
+      url = path.apply(null, urlify(urlArgs));
       return ajax.request('get', url, defaults({
         query: query
       }, options || {})).then(validatorToPromised(receive));
@@ -35552,7 +35582,7 @@ rest = {
     assert.optionalObject(options, 'options');
     doPostRequest = function(data) {
       var url;
-      url = path(data);
+      url = path(urlify(data));
       return ajax.request('post', url, defaults({
         data: data
       }, options || {}));
@@ -35567,7 +35597,7 @@ rest = {
     return function() {
       var args, url;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      url = path.apply(null, args);
+      url = path.apply(null, urlify(args));
       return ajax.del(url, options || {});
     };
   },
@@ -35580,7 +35610,7 @@ rest = {
     assert.optionalObject(options, 'options');
     doPutRequest = function(args) {
       var url;
-      url = path.apply(null, args);
+      url = path.apply(null, urlify(args));
       return function(data) {
         return ajax.request('put', url, defaults({
           data: data

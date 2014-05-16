@@ -1,4 +1,4 @@
-
+_ = require 'lodash'
 assert = require 'assert-plus'
 Promise = require 'bluebird'
 
@@ -44,6 +44,14 @@ responseValidator = (responseDataValidator) ->
       else
         validateResponse response
 
+urlify = (input) ->
+  return '' unless input?
+  
+  switch typeof input
+    when 'object' then _.object ([key, urlify value] for key, value of input)
+    when 'array' then (urlify item for item in input)
+    else encodeURIComponent input
+
 rest =
   # path: (args...) -> url
   # receive: (response) -> Validation data
@@ -62,7 +70,7 @@ rest =
         else
           [args, {}]
 
-      url = path urlArgs...
+      url = path (urlify urlArgs)...
 
       ajax
         .request('get', url, defaults({query}, options || {}))
@@ -79,7 +87,7 @@ rest =
     assert.optionalObject options, 'options'
 
     doPostRequest = (data) ->
-      url = path data
+      url = path (urlify data)
       ajax.request('post', url, defaults({data}, options || {}))
 
     (data) ->
@@ -90,7 +98,7 @@ rest =
   # path: (args...) -> url
   # options: {}
   deleter: ({path, options}) -> (args...) ->
-    url = path args...
+    url = path (urlify args)...
     ajax
       .del(url, options || {})
 
@@ -105,7 +113,7 @@ rest =
     assert.optionalObject options, 'options'
 
     doPutRequest = (args) ->
-      url = path args...
+      url = path (urlify args)...
       (data) ->
         ajax.request('put', url, defaults({data}, options || {}))
 
