@@ -35532,8 +35532,8 @@ urlify = function(input) {
   if (input == null) {
     return '';
   }
-  switch (typeof input) {
-    case 'object':
+  switch (Object.prototype.toString.call(input)) {
+    case '[object Object]':
       return _.object((function() {
         var _results;
         _results = [];
@@ -35543,7 +35543,7 @@ urlify = function(input) {
         }
         return _results;
       })());
-    case 'array':
+    case '[object Array]':
       _results = [];
       for (_i = 0, _len = input.length; _i < _len; _i++) {
         item = input[_i];

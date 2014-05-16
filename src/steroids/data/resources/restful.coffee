@@ -47,9 +47,9 @@ responseValidator = (responseDataValidator) ->
 urlify = (input) ->
   return '' unless input?
   
-  switch typeof input
-    when 'object' then _.object ([key, urlify value] for key, value of input)
-    when 'array' then (urlify item for item in input)
+  switch (Object::toString.call input)
+    when '[object Object]' then _.object ([key, urlify value] for key, value of input)
+    when '[object Array]' then (urlify item for item in input)
     else encodeURIComponent input
 
 rest =
