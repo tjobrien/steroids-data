@@ -11,4 +11,5 @@ module.exports =
   schema:
     json: require './data/schema/json'
     raml: require './data/schema/raml'
+  service: require './data/service'
   storage: require './data/storage'
