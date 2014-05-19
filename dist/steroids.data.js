@@ -35146,11 +35146,12 @@ module.exports = {
     json: _dereq_('./data/schema/json'),
     raml: _dereq_('./data/schema/raml')
   },
+  service: _dereq_('./data/service'),
   storage: _dereq_('./data/storage')
 };
 
 
-},{"./data/ajax":102,"./data/reactive":103,"./data/resource":104,"./data/resources/builtio":105,"./data/resources/raml":106,"./data/resources/restful":107,"./data/schema/json":108,"./data/schema/raml":109,"./data/storage":110,"./data/types":111}],102:[function(_dereq_,module,exports){
+},{"./data/ajax":102,"./data/reactive":103,"./data/resource":104,"./data/resources/builtio":105,"./data/resources/raml":106,"./data/resources/restful":107,"./data/schema/json":108,"./data/schema/raml":109,"./data/service":110,"./data/storage":111,"./data/types":112}],102:[function(_dereq_,module,exports){
 var Promise, ajax, request, requestBuilderToResponsePromise, requestDataByMethod, responsetoResponseBody, superagent;
 
 superagent = _dereq_('superagent');
@@ -35374,7 +35375,7 @@ module.exports = builtio = function(_arg) {
 };
 
 
-},{"../types":111,"./restful":107}],106:[function(_dereq_,module,exports){
+},{"../types":112,"./restful":107}],106:[function(_dereq_,module,exports){
 var ramlResourceFromSchema, requestValidationForAction, responseValidationsForAction, restful, types, uriToFunction, _,
   __slice = [].slice;
 
@@ -35462,7 +35463,7 @@ module.exports = ramlResourceFromSchema = function(resourceName) {
 };
 
 
-},{"../types":111,"./restful":107,"lodash":71}],107:[function(_dereq_,module,exports){
+},{"../types":112,"./restful":107,"lodash":71}],107:[function(_dereq_,module,exports){
 var Failure, Promise, Success, ajax, assert, deepDefaults, defaults, merge, partialRight, responseValidator, rest, restMethodBuilder, restful, types, urlify, validationToPromise, validatorToPromised, validatorToResponseValidator, _, _ref, _ref1,
   __slice = [].slice;
 
@@ -35651,7 +35652,7 @@ module.exports = restful = function(options, apiDescriptor) {
 };
 
 
-},{"../ajax":102,"../types":111,"assert-plus":1,"bluebird":5,"data.validation":70,"lodash":71}],108:[function(_dereq_,module,exports){
+},{"../ajax":102,"../types":112,"assert-plus":1,"bluebird":5,"data.validation":70,"lodash":71}],108:[function(_dereq_,module,exports){
 var Failure, Success, ajax, arrayTypeFromItemSchema, contains, mapValues, objectTypeFromPropertySchema, typeFromJsonSchema, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), mapValues = _ref.mapValues, contains = _ref.contains;
@@ -35710,7 +35711,7 @@ module.exports = {
 };
 
 
-},{"../ajax":102,"../types":111,"data.validation":70,"lodash":71}],109:[function(_dereq_,module,exports){
+},{"../ajax":102,"../types":112,"data.validation":70,"lodash":71}],109:[function(_dereq_,module,exports){
 var FileReader, Promise, ServiceSchema, ajax, ramlParser, _,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35962,6 +35963,34 @@ module.exports = {
 
 
 },{"../ajax":102,"bluebird":5,"lodash":71,"raml-parser":81}],110:[function(_dereq_,module,exports){
+var ramlSchemaFromFile, ramlSchemaToResource, schema, serviceByName,
+  __slice = [].slice;
+
+ramlSchemaFromFile = _dereq_('./schema/raml').fromFile;
+
+ramlSchemaToResource = _dereq_('./resources/raml');
+
+schema = (function() {
+  var cloudSchema, localSchema;
+  localSchema = '//localhost/local.raml';
+  cloudSchema = '//localhost/cloud.raml';
+  return ramlSchemaFromFile(localSchema)["catch"](function() {
+    return ramlSchemaFromFile(cloudSchema);
+  });
+})();
+
+module.exports = serviceByName = function(name) {
+  return function() {
+    var args;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return (schema.then(ramlSchemaToResource(name))).then(function(resource) {
+      return resource.invoke.apply(resource, args);
+    });
+  };
+};
+
+
+},{"./resources/raml":106,"./schema/raml":109}],111:[function(_dereq_,module,exports){
 var Bacon, LocalStorageProperty, PubSubChannel,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -36061,7 +36090,7 @@ module.exports = {
 };
 
 
-},{"baconjs":2}],111:[function(_dereq_,module,exports){
+},{"baconjs":2}],112:[function(_dereq_,module,exports){
 var Failure, Success, isArray, isObject, listSequence, map, mapValues, nativeTypeValidator, objectSequence, objectWithProperty, pairs, pairsToObject, types, _ref, _ref1;
 
 _ref = _dereq_('lodash'), pairs = _ref.pairs, map = _ref.map, mapValues = _ref.mapValues;
