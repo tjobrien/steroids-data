@@ -35529,21 +35529,13 @@ responseValidator = function(responseDataValidator) {
 };
 
 urlify = function(input) {
-  var item, key, value, _i, _len, _results;
+  var item, _i, _len, _results;
   if (input == null) {
     return '';
   }
   switch (Object.prototype.toString.call(input)) {
     case '[object Object]':
-      return _.object((function() {
-        var _results;
-        _results = [];
-        for (key in input) {
-          value = input[key];
-          _results.push([key, urlify(value)]);
-        }
-        return _results;
-      })());
+      return _.mapValues(input, urlify);
     case '[object Array]':
       _results = [];
       for (_i = 0, _len = input.length; _i < _len; _i++) {

@@ -48,7 +48,7 @@ urlify = (input) ->
   return '' unless input?
   
   switch (Object::toString.call input)
-    when '[object Object]' then _.object ([key, urlify value] for key, value of input)
+    when '[object Object]' then _.mapValues input, urlify
     when '[object Array]' then (urlify item for item in input)
     else encodeURIComponent input
 
