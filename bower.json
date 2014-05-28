@@ -2,6 +2,7 @@
   "name": "steroids-data",
   "version": "0.8.3",
   "homepage": "https://github.com/AppGyver/steroids-data",
+  "license": "MIT",
   "authors": [
     "Eevert Saukkokoski <eevert.saukkokoski@appgyver.com>"
   ],
@@ -9,7 +10,6 @@
   "moduleType": [
     "globals"
   ],
-  "private": true,
   "ignore": [
     "**/.*",
     "node_modules",
